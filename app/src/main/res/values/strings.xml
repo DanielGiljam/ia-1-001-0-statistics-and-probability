@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Average and Statistical Dispersion</string>
+    <string name="action_settings">Settings</string>
+    <string name="add_button_text">Add</string>
+    <string name="name_input_field_text">Name</string>
+    <string name="date_input_field_text">Birthyear</string>
+    <string name="date_age_switch_text">Enter as age</string>
+    <string name="age_input_field_text">Age</string>
+</resources>
