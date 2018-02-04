@@ -2,29 +2,57 @@ package com.giljam.daniel.averageandstatisticaldispersion;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+enum SortingMode {
+    ORIGINAL,
+    NAME,
+    AGE;
+
+    String string() {
+        String string = "";
+        switch (this) {
+            case ORIGINAL:
+                string = "original order";
+                break;
+            case NAME:
+                string = "alphabetical order (by last name)";
+                break;
+            case AGE:
+                string = "incremental order (by age)";
+                break;
+        }
+        return string;
+    }
+}
 
 class PersonDataManagement {
 
-    private static boolean sortFlip; // TODO: make sorting functionality that supports multiple (more than two) kinds of sorting orders!
+    private static SortingMode activeSortingMode;
+
+    private static Comparator<Person> sortByName = new SortByName();
+    private static Comparator<Person> sortByAge = new SortByAge();
 
     private static List<Person> people;
 
     private static List<Person> originalOrderBackup;
 
     PersonDataManagement() {
-        sortFlip = false;
+        activeSortingMode = SortingMode.ORIGINAL;
         people = new ArrayList<>();
         originalOrderBackup = new ArrayList<>();
     }
 
     private void BackgroundSortPeople() {
-        if (sortFlip) {
-            people = originalOrderBackup;
-            // Collections.sort(people);
-        } else {
-            originalOrderBackup = people;
-            // Collections.sort(originalOrderBackup);
+        people = originalOrderBackup;
+        switch (activeSortingMode) {
+            case NAME:
+                Collections.sort(people, sortByName);
+                break;
+            case AGE:
+                Collections.sort(people, sortByAge);
+                break;
         }
     }
 
@@ -33,69 +61,45 @@ class PersonDataManagement {
     }
 
     public void CollectPeople(List<Person> people) {
-        if (sortFlip) {
-            PersonDataManagement.originalOrderBackup.addAll(people);
-        } else {
-            PersonDataManagement.people.addAll(people);
-        }
+        originalOrderBackup.addAll(people);
         BackgroundSortPeople();
-        PrintPeople();
     }
 
     public void DeletePeople(int index) {
-        if (!(index - 1 >= 0) && !(index - 1 <= people.size())) {
-            System.out.println("No person at index " + index + ".");
-        }
-        if (sortFlip) {
+        if (index - 1 >= 0 && index - 1 <= people.size()) {
             originalOrderBackup.remove(index - 1);
+            BackgroundSortPeople();
         } else {
-            people.remove(index - 1);
+            System.out.println("No person at index " + index + ".  (No changes)");
         }
-        BackgroundSortPeople();
     }
 
     public void DeletePeople(Person person, int iterator) {
         int occurrences = Collections.frequency(people, person);
         if (occurrences > 0 && iterator <= occurrences) {
-            if (sortFlip) {
-                for (int i = 0; i < iterator; i++) {
-                    originalOrderBackup.remove(person);
-                }
-            } else {
-                for (int i = 0; i < iterator; i++) {
-                    people.remove(person);
-                }
+            for (int i = 0; i < iterator; i++) {
+                originalOrderBackup.remove(person);
             }
             BackgroundSortPeople();
-        } else System.out.println("Cannot delete " + person + " " + iterator + " times.");
+        } else System.out.println("Cannot delete " + person + " " + iterator + " times. (No changes)");
     }
 
     public void ClearPeople() {
         if (!people.isEmpty()) {
             people.clear();
             originalOrderBackup.clear();
+        } else {
+            System.out.println("Your list of people was already empty. (No changes)");
         }
     }
 
-    private void SortPeople() {
-        people = originalOrderBackup;
-        sortFlip = !sortFlip;
-        if (sortFlip) {
-            PrintPeople("Your list of people, sorted:");
+    public void SortPeople(SortingMode sortingMode) {
+        if (activeSortingMode != sortingMode) {
+            activeSortingMode = sortingMode;
+            BackgroundSortPeople();
+            System.out.println("Sorting mode set to " + sortingMode.string() + ".");
         } else {
-            PrintPeople("Your list of people, unsorted:");
-        }
-    }
-
-    public void SortPeople(Boolean bool) {
-        if (sortFlip != bool) {
-            people = originalOrderBackup;
-            sortFlip = !sortFlip;
-        }
-        if (sortFlip) {
-            PrintPeople("Your list of people, sorted:");
-        } else {
-            PrintPeople("Your list of people, unsorted:");
+            System.out.println("The sorting mode was already set to " + sortingMode.string() + ".");
         }
     }
 
@@ -111,5 +115,23 @@ class PersonDataManagement {
         for (int i = 0; i < people.size(); i++) {
             System.out.println("\t" + (i + 1) + ". " + people.get(i));
         }
+    }
+
+    private static class SortByName implements Comparator<Person> {
+
+        // Overriding the compare method to sort the age
+        public int compare(Person person1, Person person2) {
+            return person1.getLastName().compareToIgnoreCase(person2.getLastName());
+        }
+
+    }
+
+    private static class SortByAge implements Comparator<Person> {
+
+        // Overriding the compare method to sort the age
+        public int compare(Person person1, Person person2) {
+            return person1.getAge() - person2.getAge();
+        }
+
     }
 }

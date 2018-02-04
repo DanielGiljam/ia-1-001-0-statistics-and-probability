@@ -131,6 +131,5 @@ public class MainActivity extends AppCompatActivity {
 
         // statistical calculations are refreshed
         RefreshCalculations();
-
     }
 }

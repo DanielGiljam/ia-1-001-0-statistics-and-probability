@@ -20,6 +20,22 @@ class Person {
         }
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public int getBirthyear() {
+        return birthyear;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
     private void CalculateAge() {
         // TODO: make CalculateAge -method!
     }
@@ -27,5 +43,4 @@ class Person {
     private void CalculateBirthDate() {
         // TODO: make CalculateBirthDate -method!
     }
-
 }

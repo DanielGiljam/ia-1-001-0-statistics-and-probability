@@ -1,6 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/collection_management_root_layout"
+    android:focusableInTouchMode="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.giljam.daniel.averageandstatisticaldispersion.CollectionManagementFragment">
@@ -9,77 +11,108 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:divider="?android:dividerHorizontal"
+        android:showDividers="middle"
+        android:dividerPadding="4dp"
+        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/name_input_field"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:hint="@string/name_input_field_text" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/name_input_field_text"
+                    android:imeOptions="actionNext|flagNavigateNext|flagNoExtractUi"
+                    android:inputType="textPersonName|textCapWords"
+                    android:nextFocusForward="@id/year_age_input_field"
+                    android:selectAllOnFocus="true" />
 
-                <Button
-                    android:id="@+id/add_button"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:text="@string/add_button_text" />
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/year_age_input_field"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="4"
+                        android:hint="@string/year_input_field_text"
+                        android:imeOptions="actionDone|flagNavigatePrevious|flagNoExtractUi"
+                        android:inputType="number"
+                        android:nextFocusForward="@id/add_button"
+                        android:selectAllOnFocus="true" />
+
+                    <Switch
+                        android:id="@+id/year_age_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:focusable="auto"
+                        android:nextFocusForward="@id/year_age_input_field"
+                        android:paddingEnd="8dp"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:paddingStart="8dp"
+                        android:switchPadding="8dp"
+                        android:text="@string/date_age_switch_text" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/add_button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/year_input_field"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/date_input_field_text"
-                    android:inputType="number"
-                    android:ems="4"/>
-
-                <EditText
-                    android:id="@+id/age_input_field"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="4"
-                    android:hint="@string/age_input_field_text"
-                    android:inputType="number"
-                    android:visibility="gone" />
-
-                <Switch
-                    android:id="@+id/date_age_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="8dp"
-                    android:paddingLeft="8dp"
-                    android:switchPadding="8dp"
-                    android:text="@string/date_age_switch_text" />
-
-            </LinearLayout>
+                android:layout_weight="0"
+                android:nextFocusForward="@id/name_input_field"
+                android:text="@string/add_button_text" />
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="end">
 
+            <TextView
+                android:id="@+id/sort_button_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingStart="8dp"
+                android:text="@string/sort_button_description_text"
+                android:textAppearance="@android:style/TextAppearance.Material" />
+
+            <ToggleButton
+                android:id="@+id/sort_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:nextFocusForward="@string/name_input_field_text"
+                android:textOff="@string/original_sort_text" />
+
+        </LinearLayout>
 
         <ListView
             android:id="@+id/people"
