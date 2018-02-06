@@ -15,4 +15,8 @@
     <string name="name_empty">Name field requires input.</string>
     <string name="age_empty">Age field require value.</string>
     <string name="year_empty">Birthyear field requires value.</string>
+    <string name="invalid_characters_in_name" />
+    <string name="no_last_name" />
+    <string name="suspicious_patterns_in_name" />
+    <string name="invalid_year" />
 </resources>

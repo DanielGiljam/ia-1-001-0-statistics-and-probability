@@ -37,10 +37,10 @@ class Person {
     }
 
     private void CalculateAge() {
-        // TODO: make CalculateAge -method!
+        // TODO: make CalculateAge method!
     }
 
     private void CalculateBirthDate() {
-        // TODO: make CalculateBirthDate -method!
+        // TODO: make CalculateBirthDate method!
     }
 }
