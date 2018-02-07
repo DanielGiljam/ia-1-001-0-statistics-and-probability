@@ -13,16 +13,13 @@ import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-
-import static java.util.regex.Pattern.compile;
 
 public class MainActivity extends AppCompatActivity {
 
     /**
      * The {@link List} object that manages the person data at the center of this app.
      */
-    static List<Person> people;
+    static PersonDataManagement pdm;
 
     /**
      * The {@link android.widget.ArrayAdapter} that will convert the person
@@ -54,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // Set up the person list
-        people = new ArrayList<>();
+        pdm = new PersonDataManagement();
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -68,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         // Create the adapter that will convert the person list data into a "list-displayable" data.
         mArrayAdapter = new ArrayAdapter<>( this,
                                             android.R.layout.simple_list_item_1,
-                                            people);
+                                            pdm.getPeople());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
@@ -97,39 +94,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void RefreshCalculations() {
-        // getAvg();
-        // getMed();
-        // getStndrdDev();
+    public void RefreshCalculations() {
         mArrayAdapter.notifyDataSetChanged();
-    }
-
-    private List<Person> CollectFromString(String string) {
-        Matcher matcher = compile("\\d+(?:\\.\\d+)?").matcher(string);
-        List<Person> people = new ArrayList<>();
-
-        int start;
-        int end;
-
-        while (matcher.find()) {
-            start = matcher.start();
-            end = matcher.end();
-
-            // people.add(string.substring(start, end)); TODO: start composing functionality for Person -item creation!
-        }
-        return people;
-    }
-
-    public void onAdd(String addedPeopleString) {
-
-        if (addedPeopleString.isEmpty()) return;
-
-        List<Person> people = CollectFromString(addedPeopleString);
-
-        // updating person list data
-        MainActivity.people.addAll(people);
-
-        // statistical calculations are refreshed
-        RefreshCalculations();
     }
 }

@@ -1,46 +1,38 @@
 package com.giljam.daniel.averageandstatisticaldispersion;
 
+import java.util.Calendar;
+
 class Person {
 
     private String firstName;
     private String lastName;
 
-    private int birthyear;
+    private Calendar birthyear;
     private int age;
 
-    Person(String firstName, String lastName, int yearsOld, boolean b) {
+    Person(String firstName, String lastName, int yearAge, boolean ageNotYear) {
         this.firstName = firstName;
         this.lastName = lastName;
-        if (b) {
-            age = yearsOld;
-            CalculateBirthDate();
-        } else {
-            birthyear = yearsOld;
-            CalculateAge();
-        }
-    }
-
-    public String getFirstName() {
-        return firstName;
+        if (ageNotYear) ParseAge(yearAge);
+        else ParseBirthYear(yearAge);
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public int getBirthyear() {
-        return birthyear;
-    }
-
     public int getAge() {
         return age;
     }
 
-    private void CalculateAge() {
-        // TODO: make CalculateAge method!
+    private void ParseBirthYear(int birthyear) {
+        this.birthyear = Calendar.getInstance();
+        this.birthyear.set(Calendar.YEAR, birthyear);
     }
 
-    private void CalculateBirthDate() {
-        // TODO: make CalculateBirthDate method!
+    private void ParseAge(int age) {
+        this.birthyear = Calendar.getInstance();
+        int year = this.birthyear.get(Calendar.YEAR);
+        this.birthyear.set(Calendar.YEAR, year - age);
     }
 }

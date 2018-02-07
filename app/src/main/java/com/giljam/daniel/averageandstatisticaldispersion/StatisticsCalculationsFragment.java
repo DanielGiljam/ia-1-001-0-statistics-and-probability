@@ -58,16 +58,6 @@ public class StatisticsCalculationsFragment extends Fragment {
         nameInputField = view.findViewById(R.id.addField);
         addButton = view.findViewById(R.id.add_button);
 
-        // Set up listener for button
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String addedNumbersString = nameInputField.getText().toString();
-                nameInputField.setText("");
-                ((MainActivity) getActivity()).onAdd(addedNumbersString);
-            }
-        });
-
         // Set up the ListView with the array adapter.
         mListView = view.findViewById(R.id.people);
         mListView.setAdapter(MainActivity.mArrayAdapter);
