@@ -4,6 +4,8 @@ import java.util.Calendar;
 
 class Person {
 
+    private static int idCount = 0;
+
     private String name;
     private String firstName;
     private String lastName;
@@ -13,12 +15,16 @@ class Person {
     private int birthYear;
     private int age;
 
+    private int id;
+
     Person(String firstName, String lastName, int yearAge, boolean ageNotYear) {
         name = firstName + " " + lastName;
         this.firstName = firstName;
         this.lastName = lastName;
         if (ageNotYear) ParseAge(yearAge);
         else ParseBirthYear(yearAge);
+        id = idCount;
+        idCount++;
     }
 
     public String getName() {
@@ -39,6 +45,10 @@ class Person {
 
     public int getAge() {
         return age;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void RefreshYearAgeInformation(Calendar currentDate) {

@@ -42,7 +42,9 @@
                     android:imeOptions="actionNext|flagNavigateNext|flagNoExtractUi"
                     android:inputType="textPersonName|textCapWords"
                     android:nextFocusForward="@id/year_age_input_field"
-                    android:selectAllOnFocus="true" />
+                    android:nextFocusDown="@id/year_age_input_field"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -58,14 +60,15 @@
                         android:imeOptions="actionDone|flagNavigatePrevious|flagNoExtractUi"
                         android:inputType="number"
                         android:nextFocusForward="@id/add_button"
-                        android:selectAllOnFocus="true" />
+                        android:nextFocusDown="@id/add_button"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true" />
 
                     <Switch
                         android:id="@+id/year_age_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:focusable="auto"
-                        android:nextFocusForward="@id/year_age_input_field"
+                        android:focusable="false"
                         android:paddingEnd="8dp"
                         android:paddingLeft="8dp"
                         android:paddingRight="8dp"
@@ -83,6 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:nextFocusForward="@id/name_input_field"
+                android:nextFocusDown="@id/name_input_field"
                 android:text="@string/add_button_text" />
 
         </LinearLayout>
@@ -109,7 +113,7 @@
                 android:id="@+id/sort_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:nextFocusForward="@string/name_input_field_text"
+                android:focusable="false"
                 android:textOff="@string/original_sort_text" />
 
         </LinearLayout>

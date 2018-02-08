@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.Calendar;
@@ -172,6 +173,18 @@ public class CollectionManagementFragment extends Fragment {
                 return false;
             }
         });
+        nameInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (nameInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
 
         // Set up listener for when focus changes to yearAgeInputField
         // to trigger script that determines what action the enter key should have
@@ -180,12 +193,12 @@ public class CollectionManagementFragment extends Fragment {
             public void onFocusChange(View view, boolean b) {
                 if (b) {
                     if (nameInputField.getText().toString().isEmpty())
-                        yearAgeInputField.setImeOptions(    EditorInfo.IME_ACTION_NEXT +
-                                                            EditorInfo.IME_FLAG_NAVIGATE_NEXT +
+                        yearAgeInputField.setImeOptions(    EditorInfo.IME_ACTION_PREVIOUS +
+                                                            EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
                                                             EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         yearAgeInputField.setImeOptions(    EditorInfo.IME_ACTION_DONE +
-                                                            EditorInfo.IME_FLAG_NAVIGATE_NEXT +
+                                                            EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
                                                             EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
@@ -203,10 +216,21 @@ public class CollectionManagementFragment extends Fragment {
                 return false;
             }
         });
+        yearAgeInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (yearAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
 
         // Set up listener for the yearAgeSwitch
         // so that its state specifies how the input in yearAgeInputField should be interpreted
-        // TODO: progress the yearAgeSwitch beyond cosmetic
         yearAgeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -217,6 +241,18 @@ public class CollectionManagementFragment extends Fragment {
                 ((MainActivity) getActivity()).YearOrAge(false);
                 yearAgeInputField.setHint(R.string.year_input_field_text);
             }
+            }
+        });
+
+        // Set up listener for when rootLayout picks up focus
+        // to hide on-screen keyboard, as you can't write in the rootLayout
+        addButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
             }
         });
 
@@ -231,17 +267,30 @@ public class CollectionManagementFragment extends Fragment {
 
         // Set up listener for the sortButton
         // so that the list is sorted accordingly to the sortButton's state
-        // TODO: progress the sortButton beyond cosmetic
         sortButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
+                    ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.NAME);
                     sortButton.setTextOn(getString(R.string.name_sort_text));
                 } else {
                     if (sortButton.getTextOn().equals(getString(R.string.name_sort_text))) {
+                        ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.AGE);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.age_sort_text));
+                    } else {
+                        ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.ORIGINAL);
                     }
+                }
+            }
+        });
+
+        mListView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
             }
         });
@@ -546,12 +595,6 @@ public class CollectionManagementFragment extends Fragment {
                         snackBarString,
                         Snackbar.LENGTH_SHORT)
                 .show();
-    }
-
-    // Show the on-screen keyboard
-    private void ShowKeyboard(View view) {
-        InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.showSoftInput(view, 0);
     }
 
     // Clears focus from any interactive element by giving it back to the layout as a whole

@@ -32,26 +32,36 @@ class PersonDataManagement {
 
     private static SortingMode activeSortingMode;
 
+    private static Comparator<Person> sortById = new SortById();
     private static Comparator<Person> sortByName = new SortByName();
     private static Comparator<Person> sortByAge = new SortByAge();
 
     private static List<Person> people;
 
-    private static List<Person> originalOrderBackup;
-
     private static List<String> primitiveList;
+
+    private static boolean primitiveAgeNotYear;
 
     PersonDataManagement() {
         activeSortingMode = SortingMode.ORIGINAL;
         people = new ArrayList<>();
-        originalOrderBackup = new ArrayList<>();
         primitiveList = new ArrayList<>();
+        primitiveAgeNotYear = false;
+    }
+
+    private void RefreshPeopleYearAgeInformation() {
+        Calendar currentDate = Calendar.getInstance();
+        for (Person person : people) {
+            person.RefreshYearAgeInformation(currentDate);
+        }
     }
 
     private void BackgroundSortPeople() {
         RefreshPeopleYearAgeInformation();
-        people = originalOrderBackup;
         switch (activeSortingMode) {
+            case ORIGINAL:
+                Collections.sort(people, sortById);
+                break;
             case NAME:
                 Collections.sort(people, sortByName);
                 break;
@@ -65,58 +75,45 @@ class PersonDataManagement {
     private void PreparePrimitiveList() {
         primitiveList.clear();
         for (Person person : people) {
-            if (MainActivity.ageNotYear) primitiveList.add(person.getName() + " (birthyear or age: " + person.getAge() + ")");
+            if (primitiveAgeNotYear) primitiveList.add(person.getName() + " (birthyear or age: " + person.getAge() + ")");
             else primitiveList.add(person.getName() + " (birthyear or age: " + person.getBirthYear() + ")");
         }
     }
 
-    private void RefreshPeopleYearAgeInformation() {
-        Calendar currentDate = Calendar.getInstance();
-        for (Person person : originalOrderBackup) {
-            person.RefreshYearAgeInformation(currentDate);
+    public List<Integer> getPeopleData() {
+        List<Integer> peopleData = new ArrayList<>();
+        for (Person person : people) {
+            peopleData.add(person.getAge());
         }
-    }
-
-    public List<Person> getPeople() {
-        return people;
+        return peopleData;
     }
 
     public List<String> getPrimitiveList() {
         return primitiveList;
     }
 
-    public void TriggerRefresh() {
+    public void TriggerRefresh(boolean ageNotYear) {
+        primitiveAgeNotYear = ageNotYear;
         BackgroundSortPeople();
     }
 
     public void CollectPeople(List<Person> people) {
-        originalOrderBackup.addAll(people);
+        PersonDataManagement.people.addAll(people);
         BackgroundSortPeople();
     }
 
     public void DeletePeople(int index) {
         if (index - 1 >= 0 && index - 1 <= people.size()) {
-            originalOrderBackup.remove(index - 1);
+            people.remove(index);
             BackgroundSortPeople();
         } else {
             System.out.println("No person at index " + index + ".  (No changes)");
         }
     }
 
-    public void DeletePeople(Person person, int iterator) {
-        int occurrences = Collections.frequency(people, person);
-        if (occurrences > 0 && iterator <= occurrences) {
-            for (int i = 0; i < iterator; i++) {
-                originalOrderBackup.remove(person);
-            }
-            BackgroundSortPeople();
-        } else System.out.println("Cannot delete " + person + " " + iterator + " times. (No changes)");
-    }
-
     public void ClearPeople() {
         if (!people.isEmpty()) {
             people.clear();
-            originalOrderBackup.clear();
         } else {
             System.out.println("Your list of people was already empty. (No changes)");
         }
@@ -146,9 +143,16 @@ class PersonDataManagement {
         }
     }
 
+    private static class SortById implements  Comparator<Person> {
+
+        public int compare(Person person1, Person person2) {
+            return person1.getId() - person2.getId();
+        }
+
+    }
+
     private static class SortByName implements Comparator<Person> {
 
-        // Overriding the compare method to sort the age
         public int compare(Person person1, Person person2) {
             return person1.getLastName().compareToIgnoreCase(person2.getLastName());
         }
@@ -157,7 +161,6 @@ class PersonDataManagement {
 
     private static class SortByAge implements Comparator<Person> {
 
-        // Overriding the compare method to sort the age
         public int compare(Person person1, Person person2) {
             return person1.getAge() - person2.getAge();
         }

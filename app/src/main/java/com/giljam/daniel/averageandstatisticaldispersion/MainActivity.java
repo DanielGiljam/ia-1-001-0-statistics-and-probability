@@ -14,8 +14,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    static boolean ageNotYear = false;
-
     /**
      * The {@link List} object that manages the person data at the center of this app.
      */
@@ -102,8 +100,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void YearOrAge(boolean ageNotYear) {
-        MainActivity.ageNotYear = ageNotYear;
-        pdm.TriggerRefresh();
+        pdm.TriggerRefresh(ageNotYear);
+        RefreshCalculations();
+    }
+
+    public void ChangeSortingMode(SortingMode sortingMode) {
+        pdm.SortPeople(sortingMode);
         RefreshCalculations();
     }
 
