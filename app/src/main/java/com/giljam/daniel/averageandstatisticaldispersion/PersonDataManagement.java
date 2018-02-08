@@ -1,6 +1,7 @@
 package com.giljam.daniel.averageandstatisticaldispersion;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -38,13 +39,17 @@ class PersonDataManagement {
 
     private static List<Person> originalOrderBackup;
 
+    private static List<String> primitiveList;
+
     PersonDataManagement() {
         activeSortingMode = SortingMode.ORIGINAL;
         people = new ArrayList<>();
         originalOrderBackup = new ArrayList<>();
+        primitiveList = new ArrayList<>();
     }
 
     private void BackgroundSortPeople() {
+        RefreshPeopleYearAgeInformation();
         people = originalOrderBackup;
         switch (activeSortingMode) {
             case NAME:
@@ -54,10 +59,34 @@ class PersonDataManagement {
                 Collections.sort(people, sortByAge);
                 break;
         }
+        PreparePrimitiveList();
+    }
+
+    private void PreparePrimitiveList() {
+        primitiveList.clear();
+        for (Person person : people) {
+            if (MainActivity.ageNotYear) primitiveList.add(person.getName() + " (birthyear or age: " + person.getAge() + ")");
+            else primitiveList.add(person.getName() + " (birthyear or age: " + person.getBirthYear() + ")");
+        }
+    }
+
+    private void RefreshPeopleYearAgeInformation() {
+        Calendar currentDate = Calendar.getInstance();
+        for (Person person : originalOrderBackup) {
+            person.RefreshYearAgeInformation(currentDate);
+        }
     }
 
     public List<Person> getPeople() {
         return people;
+    }
+
+    public List<String> getPrimitiveList() {
+        return primitiveList;
+    }
+
+    public void TriggerRefresh() {
+        BackgroundSortPeople();
     }
 
     public void CollectPeople(List<Person> people) {

@@ -9,12 +9,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import android.widget.ArrayAdapter;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    static boolean ageNotYear = false;
 
     /**
      * The {@link List} object that manages the person data at the center of this app.
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
      * The {@link android.widget.ArrayAdapter} that will convert the person
      * {@link List} data so that it can be displayed by a {@link android.widget.ListView}.
      */
-    static ArrayAdapter<Person> mArrayAdapter;
+    static PeopleArrayAdapter<String> mArrayAdapter;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -53,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
         // Set up the person list
         pdm = new PersonDataManagement();
 
+        // Create the adapter that will convert the person list data into "list-displayable" data.
+        mArrayAdapter = new PeopleArrayAdapter<>(   this,
+                                                    R.layout.list_view_item,
+                                                    pdm.getPrimitiveList());
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -61,11 +66,6 @@ public class MainActivity extends AppCompatActivity {
         mSectionsPagerAdapter.addFragment(new CollectionManagementFragment());
         mSectionsPagerAdapter.addFragment(new StatisticsCalculationsFragment());
         mSectionsPagerAdapter.addFragment(new StatisticsVisualizationsFragment());
-
-        // Create the adapter that will convert the person list data into a "list-displayable" data.
-        mArrayAdapter = new ArrayAdapter<>( this,
-                                            android.R.layout.simple_list_item_1,
-                                            pdm.getPeople());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
@@ -92,6 +92,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void AddPerson(Person person) {
+        List<Person> personToBeAdded = new ArrayList<>();
+        personToBeAdded.add(person);
+        pdm.CollectPeople(personToBeAdded);
+        RefreshCalculations();
+    }
+
+    public void YearOrAge(boolean ageNotYear) {
+        MainActivity.ageNotYear = ageNotYear;
+        pdm.TriggerRefresh();
+        RefreshCalculations();
     }
 
     public void RefreshCalculations() {

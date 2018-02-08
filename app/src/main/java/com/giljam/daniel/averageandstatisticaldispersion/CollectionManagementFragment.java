@@ -21,9 +21,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +36,7 @@ public class CollectionManagementFragment extends Fragment {
             Pattern.compile(    "([a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ])\\1{2}",
                                 Pattern.CASE_INSENSITIVE);
     private static final Pattern mdsc =
-            Pattern.compile(    "(['\\-])\\1",
+            Pattern.compile(    "([-'])\\1",
                                 Pattern.CASE_INSENSITIVE);
     private static final Pattern minbe =
             Pattern.compile(    "\\A(-.*)|(.*-)\\z",
@@ -47,7 +45,7 @@ public class CollectionManagementFragment extends Fragment {
             Pattern.compile(    "\\A(\\S+)(?:\\s+(\\S+))*\\z",
                                 Pattern.CASE_INSENSITIVE);
     private static final Pattern nc =
-            Pattern.compile(    "['\\-]?(\\S)",
+            Pattern.compile(    "[-'](\\S)",
                                 Pattern.CASE_INSENSITIVE);
 
     // Matcher variables for more efficiently matching patterns
@@ -128,6 +126,10 @@ public class CollectionManagementFragment extends Fragment {
         addButton = view.findViewById(R.id.add_button);
         sortButton = view.findViewById(R.id.sort_button);
 
+        // Set up the ListView with the array adapter
+        mListView = view.findViewById(R.id.people);
+        mListView.setAdapter(MainActivity.mArrayAdapter);
+
         // Set up listener for when rootLayout picks up focus
         // to hide on-screen keyboard, as you can't write in the rootLayout
         rootLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -164,7 +166,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    AddPerson(view);
+                    PreAddPerson(view);
                     return true;
                 }
                 return false;
@@ -195,7 +197,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    AddPerson(view);
+                    PreAddPerson(view);
                     return true;
                 }
                 return false;
@@ -209,8 +211,10 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             if (b) {
+                ((MainActivity)getActivity()).YearOrAge(true);
                 yearAgeInputField.setHint(R.string.age_input_field_text);
             } else {
+                ((MainActivity) getActivity()).YearOrAge(false);
                 yearAgeInputField.setHint(R.string.year_input_field_text);
             }
             }
@@ -221,7 +225,7 @@ public class CollectionManagementFragment extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddPerson(addButton);
+                PreAddPerson(addButton);
             }
         });
 
@@ -242,14 +246,10 @@ public class CollectionManagementFragment extends Fragment {
             }
         });
 
-        // Set up the ListView with the array adapter
-        mListView = view.findViewById(R.id.people);
-        mListView.setAdapter(MainActivity.mArrayAdapter);
-
         return view;
     }
 
-    private void AddPerson(View view) {
+    private void PreAddPerson(View view) {
 
         // Fetches whatever is in the EditText input fields
         String nameInputString = nameInputField.getText().toString();
@@ -262,16 +262,11 @@ public class CollectionManagementFragment extends Fragment {
         if (FieldValidation(view, nameInputString, yearAgeInputString, yearAgeSwitch.isChecked())) {
             String firstName = NameCapitalization(capturesNameGroups.group(1));
             String lastName = NameCapitalization(capturesNameGroups.group(2));
-            List<Person> personToBeAdded = new ArrayList<>();
-            personToBeAdded.add(new Person ( firstName,
-                                    lastName,
-                                    Integer.parseInt(yearAgeInputString),
-                                    yearAgeSwitch.isChecked()));
-            MainActivity.pdm.CollectPeople(personToBeAdded);
-            ((MainActivity)getActivity()).RefreshCalculations();
-            ClearFocus(view);
+            Person person = new Person (firstName, lastName, Integer.parseInt(yearAgeInputString), yearAgeSwitch.isChecked());
+            ClearFocus();
             nameInputField.setText("");
             yearAgeInputField.setText("");
+            ((MainActivity)getActivity()).AddPerson(person);
         }
     }
 
@@ -559,10 +554,8 @@ public class CollectionManagementFragment extends Fragment {
         inputMethodManager.showSoftInput(view, 0);
     }
 
-    // Clears focus from any interactive element by giving it back to the layout as a whole TODO: see if there's a workaround regarding the duplicate "hide on-screen keyboard" code
-    private void ClearFocus(View view) {
-        // InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        //inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    // Clears focus from any interactive element by giving it back to the layout as a whole
+    private void ClearFocus() {
         rootLayout.requestFocus();
     }
 }

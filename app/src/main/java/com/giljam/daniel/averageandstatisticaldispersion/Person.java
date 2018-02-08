@@ -4,35 +4,56 @@ import java.util.Calendar;
 
 class Person {
 
+    private String name;
     private String firstName;
     private String lastName;
 
-    private Calendar birthyear;
+    private Calendar yearAgeDataOrigin;
+
+    private int birthYear;
     private int age;
 
     Person(String firstName, String lastName, int yearAge, boolean ageNotYear) {
+        name = firstName + " " + lastName;
         this.firstName = firstName;
         this.lastName = lastName;
         if (ageNotYear) ParseAge(yearAge);
         else ParseBirthYear(yearAge);
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
     public String getLastName() {
         return lastName;
+    }
+
+    public int getBirthYear() {
+        return birthYear;
     }
 
     public int getAge() {
         return age;
     }
 
-    private void ParseBirthYear(int birthyear) {
-        this.birthyear = Calendar.getInstance();
-        this.birthyear.set(Calendar.YEAR, birthyear);
+    public void RefreshYearAgeInformation(Calendar currentDate) {
+        birthYear = yearAgeDataOrigin.get(Calendar.YEAR);
+        age = currentDate.get(Calendar.YEAR) - birthYear;
+    }
+
+    private void ParseBirthYear(int birthYear) {
+        this.yearAgeDataOrigin = Calendar.getInstance();
+        this.yearAgeDataOrigin.set(Calendar.YEAR, birthYear);
     }
 
     private void ParseAge(int age) {
-        this.birthyear = Calendar.getInstance();
-        int year = this.birthyear.get(Calendar.YEAR);
-        this.birthyear.set(Calendar.YEAR, year - age);
+        this.yearAgeDataOrigin = Calendar.getInstance();
+        int year = this.yearAgeDataOrigin.get(Calendar.YEAR);
+        this.yearAgeDataOrigin.set(Calendar.YEAR, year - age);
     }
 }

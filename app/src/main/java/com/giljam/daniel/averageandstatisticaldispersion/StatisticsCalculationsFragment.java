@@ -54,14 +54,6 @@ public class StatisticsCalculationsFragment extends Fragment {
     {
         View view = inflater.inflate(R.layout.fragment_statistics_calculations, container, false);
 
-        // Set up the input fields and buttons
-        nameInputField = view.findViewById(R.id.addField);
-        addButton = view.findViewById(R.id.add_button);
-
-        // Set up the ListView with the array adapter.
-        mListView = view.findViewById(R.id.people);
-        mListView.setAdapter(MainActivity.mArrayAdapter);
-
         return view;
     }
 }
