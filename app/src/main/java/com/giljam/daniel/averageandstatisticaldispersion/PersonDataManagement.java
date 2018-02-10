@@ -80,6 +80,10 @@ class PersonDataManagement {
         }
     }
 
+    public List<Person> getPeople() {
+        return people;
+    }
+
     public List<Integer> getPeopleData() {
         List<Integer> peopleData = new ArrayList<>();
         for (Person person : people) {

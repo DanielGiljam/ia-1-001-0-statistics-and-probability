@@ -19,4 +19,5 @@
     <string name="no_last_name">The name must consist of a first and a last name.</string>
     <string name="suspicious_patterns_in_name">The name contains suspicious patterns.</string>
     <string name="invalid_year">The year is invalid.</string>
+    <string name="list_view_item_person_year_age">born %d, age %d</string>
 </resources>

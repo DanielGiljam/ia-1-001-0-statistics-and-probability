@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +26,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,9 +93,20 @@ public class CollectionManagementFragment extends Fragment {
     private ToggleButton sortButton;
 
     /**
+     * The {@link RecyclerView.Adapter} that will convert the person
+     * {@link List} data so that it can be displayed by a {@link RecyclerView}.
+     */
+    static PeopleAdapter mAdapter;
+
+    /**
      * The {@link ListView} that will display the data converted by an {@link ArrayAdapter}.
      */
     private ListView mListView;
+
+    /**
+     * The {@link RecyclerView} that will display the data converted by an {@link RecyclerView.Adapter}.
+     */
+    private RecyclerView mRecyclerView;
 
     /**
      * Called to have the fragment instantiate its user interface view.
@@ -130,6 +145,14 @@ public class CollectionManagementFragment extends Fragment {
         // Set up the ListView with the array adapter
         mListView = view.findViewById(R.id.people);
         mListView.setAdapter(MainActivity.mArrayAdapter);
+
+        // Create the adapter that will convert the person list data into "list-displayable" data.
+        // mAdapter = new PeopleAdapter(getContext(), MainActivity.pdm.getPeople());
+
+        // Set up the ListView with the array adapter
+        // mRecyclerView = view.findViewById(R.id.people);
+        // mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
+        // mRecyclerView.setAdapter(mAdapter);
 
         // Set up listener for when rootLayout picks up focus
         // to hide on-screen keyboard, as you can't write in the rootLayout
