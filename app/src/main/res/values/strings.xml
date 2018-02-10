@@ -20,4 +20,12 @@
     <string name="suspicious_patterns_in_name">The name contains suspicious patterns.</string>
     <string name="invalid_year">The year is invalid.</string>
     <string name="list_view_item_person_year_age">born %d, age %d</string>
+    <string name="upper_quartile_text">upper quartile</string>
+    <string name="lower_quartile_text">lower quartile</string>
+    <string name="median_text">median</string>
+    <string name="standard_deviation_text">standard deviation</string>
+    <string name="average_text">average</string>
+    <string name="maximum_text">maximum</string>
+    <string name="minimum_text">minimum</string>
+    <string name="interquartile_range_text">interquartile range</string>
 </resources>
