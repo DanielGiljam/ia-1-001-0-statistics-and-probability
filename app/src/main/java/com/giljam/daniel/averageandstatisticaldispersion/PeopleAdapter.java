@@ -44,7 +44,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
     public PeopleAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View contactView = inflater.inflate(R.layout.list_view_item, parent, false);
+        View contactView = inflater.inflate(R.layout.list_item, parent, false);
         return new ViewHolder(contactView);
     }
 

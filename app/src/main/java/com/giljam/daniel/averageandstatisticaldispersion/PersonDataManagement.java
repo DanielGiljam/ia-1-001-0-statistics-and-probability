@@ -38,15 +38,9 @@ class PersonDataManagement {
 
     private static List<Person> people;
 
-    private static List<String> primitiveList;
-
-    private static boolean primitiveAgeNotYear;
-
     PersonDataManagement() {
         activeSortingMode = SortingMode.ORIGINAL;
         people = new ArrayList<>();
-        primitiveList = new ArrayList<>();
-        primitiveAgeNotYear = false;
     }
 
     private void RefreshPeopleYearAgeInformation() {
@@ -69,15 +63,6 @@ class PersonDataManagement {
                 Collections.sort(people, sortByAge);
                 break;
         }
-        PreparePrimitiveList();
-    }
-
-    private void PreparePrimitiveList() {
-        primitiveList.clear();
-        for (Person person : people) {
-            if (primitiveAgeNotYear) primitiveList.add(person.getName() + " (birthyear or age: " + person.getAge() + ")");
-            else primitiveList.add(person.getName() + " (birthyear or age: " + person.getBirthYear() + ")");
-        }
     }
 
     public List<Person> getPeople() {
@@ -90,15 +75,6 @@ class PersonDataManagement {
             peopleData.add(person.getAge());
         }
         return peopleData;
-    }
-
-    public List<String> getPrimitiveList() {
-        return primitiveList;
-    }
-
-    public void TriggerRefresh(boolean ageNotYear) {
-        primitiveAgeNotYear = ageNotYear;
-        BackgroundSortPeople();
     }
 
     public void CollectPeople(List<Person> people) {

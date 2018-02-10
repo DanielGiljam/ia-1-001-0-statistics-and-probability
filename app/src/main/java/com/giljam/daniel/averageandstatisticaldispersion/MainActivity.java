@@ -20,12 +20,6 @@ public class MainActivity extends AppCompatActivity {
     static PersonDataManagement pdm;
 
     /**
-     * The {@link android.widget.ArrayAdapter} that will convert the person
-     * {@link List} data so that it can be displayed by a {@link android.widget.ListView}.
-     */
-    static PeopleArrayAdapter<String> mArrayAdapter;
-
-    /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
      * {@link FragmentPagerAdapter} derivative, which will keep every
@@ -50,11 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up the person list
         pdm = new PersonDataManagement();
-
-        // Create the adapter that will convert the person list data into "list-displayable" data.
-        mArrayAdapter = new PeopleArrayAdapter<>(   this,
-                                                    R.layout.list_view_item,
-                                                    pdm.getPrimitiveList());
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -99,17 +88,12 @@ public class MainActivity extends AppCompatActivity {
         RefreshCalculations();
     }
 
-    public void YearOrAge(boolean ageNotYear) {
-        pdm.TriggerRefresh(ageNotYear);
-        RefreshCalculations();
-    }
-
     public void ChangeSortingMode(SortingMode sortingMode) {
         pdm.SortPeople(sortingMode);
         RefreshCalculations();
     }
 
     public void RefreshCalculations() {
-        mArrayAdapter.notifyDataSetChanged();
+        // Code comes here...
     }
 }

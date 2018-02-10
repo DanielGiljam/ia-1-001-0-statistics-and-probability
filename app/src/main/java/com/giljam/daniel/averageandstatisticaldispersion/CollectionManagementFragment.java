@@ -22,7 +22,6 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.Calendar;
@@ -96,12 +95,7 @@ public class CollectionManagementFragment extends Fragment {
      * The {@link RecyclerView.Adapter} that will convert the person
      * {@link List} data so that it can be displayed by a {@link RecyclerView}.
      */
-    static PeopleAdapter mAdapter;
-
-    /**
-     * The {@link ListView} that will display the data converted by an {@link ArrayAdapter}.
-     */
-    private ListView mListView;
+    private PeopleAdapter mAdapter;
 
     /**
      * The {@link RecyclerView} that will display the data converted by an {@link RecyclerView.Adapter}.
@@ -142,17 +136,13 @@ public class CollectionManagementFragment extends Fragment {
         addButton = view.findViewById(R.id.add_button);
         sortButton = view.findViewById(R.id.sort_button);
 
-        // Set up the ListView with the array adapter
-        mListView = view.findViewById(R.id.people);
-        mListView.setAdapter(MainActivity.mArrayAdapter);
-
         // Create the adapter that will convert the person list data into "list-displayable" data.
-        // mAdapter = new PeopleAdapter(getContext(), MainActivity.pdm.getPeople());
+        mAdapter = new PeopleAdapter(getContext(), MainActivity.pdm.getPeople());
 
         // Set up the ListView with the array adapter
-        // mRecyclerView = view.findViewById(R.id.people);
-        // mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
-        // mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView = view.findViewById(R.id.people);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(),1, false));
+        mRecyclerView.setAdapter(mAdapter);
 
         // Set up listener for when rootLayout picks up focus
         // to hide on-screen keyboard, as you can't write in the rootLayout
@@ -258,10 +248,8 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             if (b) {
-                ((MainActivity)getActivity()).YearOrAge(true);
                 yearAgeInputField.setHint(R.string.age_input_field_text);
             } else {
-                ((MainActivity) getActivity()).YearOrAge(false);
                 yearAgeInputField.setHint(R.string.year_input_field_text);
             }
             }
@@ -305,10 +293,11 @@ public class CollectionManagementFragment extends Fragment {
                         ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.ORIGINAL);
                     }
                 }
+                mAdapter.notifyDataSetChanged();
             }
         });
 
-        mListView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mRecyclerView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
@@ -339,6 +328,7 @@ public class CollectionManagementFragment extends Fragment {
             nameInputField.setText("");
             yearAgeInputField.setText("");
             ((MainActivity)getActivity()).AddPerson(person);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
