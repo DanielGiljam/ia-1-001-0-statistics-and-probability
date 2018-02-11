@@ -14,6 +14,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Bool that prevents using GenerateDemoList more than once
+    static boolean generatedDemoList = false;
+
     /**
      * The {@link List} object that manages the person data at the center of this app.
      */
@@ -28,6 +31,16 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
+
+    /**
+     * Collection of people are displayed and managed in this fragment.
+     */
+    private CollectionManagementFragment collectionManagementFragment;
+
+    /**
+     * Statistical calculations are displayed in this fragment.
+     */
+    private StatisticsCalculationsFragment statisticsCalculationsFragment;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -50,9 +63,8 @@ public class MainActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Add fragments
-        mSectionsPagerAdapter.addFragment(new CollectionManagementFragment());
-        mSectionsPagerAdapter.addFragment(new StatisticsCalculationsFragment());
-        mSectionsPagerAdapter.addFragment(new StatisticsVisualizationsFragment());
+        collectionManagementFragment = (CollectionManagementFragment) mSectionsPagerAdapter.addFragment(new CollectionManagementFragment());
+        statisticsCalculationsFragment = (StatisticsCalculationsFragment) mSectionsPagerAdapter.addFragment(new StatisticsCalculationsFragment());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
@@ -62,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.settings_main, menu);
-        return true;
+        // getMenuInflater().inflate(R.menu.settings_main, menu);
+        return false;
     }
 
     @Override
@@ -81,6 +93,29 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void GenerateDemoList() {
+        generatedDemoList = true;
+        List<Person> demoList = new ArrayList<>();
+        demoList.add(new Person("Ulgarf", "Sunders", 38, true));
+        demoList.add(new Person("Dahmad", "Bax", 62, true));
+        demoList.add(new Person("Mirina", "Kelt", 1985, false));
+        demoList.add(new Person("Loe", "Karinov", 19, true));
+        demoList.add(new Person("Olon", "Septoros", 50, true));
+        demoList.add(new Person("Ning", "Jin-Yiang", 1984, false));
+        demoList.add(new Person("William", "Mercury", 1977, false));
+        demoList.add(new Person("Per-Erik", "Baltmers", 32, true));
+        demoList.add(new Person("Cedir", "O'Durkniff", 22, true));
+        demoList.add(new Person("Morod", "Kaffner", 20, true));
+        demoList.add(new Person("Melina", "Joric", 76, true));
+        demoList.add(new Person("Sudaro", "Moniz", 37, true));
+        demoList.add(new Person("Nev Barit", "Kompálo", 29, true));
+        demoList.add(new Person("Yri", "Kalav", 43, true));
+        demoList.add(new Person("Gurkav", "Nît-Balal", 49, true));
+        demoList.add(new Person("Sarab", "Kehschni", 26, true));
+        pdm.CollectPeople(demoList);
+        RefreshCalculations();
+    }
+
     public void AddPerson(Person person) {
         List<Person> personToBeAdded = new ArrayList<>();
         personToBeAdded.add(person);
@@ -94,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void RefreshCalculations() {
-        // Code comes here...
+        double[] helaRubbet = Statistics.helaRubbet(pdm.getPeopleData());
+        statisticsCalculationsFragment.ReceiveCalculations(helaRubbet);
     }
 }

@@ -28,4 +28,5 @@
     <string name="maximum_text">maximum</string>
     <string name="minimum_text">minimum</string>
     <string name="interquartile_range_text">interquartile range</string>
+    <string name="n_a">N/A</string>
 </resources>

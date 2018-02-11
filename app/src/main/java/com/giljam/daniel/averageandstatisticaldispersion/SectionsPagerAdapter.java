@@ -22,10 +22,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     /**
      * Adds a fragment to the list of fragments for the adapter to adapt
      * for the ViewPager to display.
+     *
      * @param fragment The fragment to be added.
      */
-    void addFragment(Fragment fragment) {
+    Fragment addFragment(Fragment fragment) {
         mFragmentList.add(fragment);
+        return fragment;
     }
 
     /**

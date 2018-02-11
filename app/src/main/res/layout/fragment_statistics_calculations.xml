@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="siffra"
+                    android:text="@string/n_a"
                     android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
 
                 <TextView
@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="siffra"
+                    android:text="@string/n_a"
                     android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
 
                 <TextView
@@ -103,7 +103,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="siffra"
+                android:text="@string/n_a"
                 android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
 
             <TextView
@@ -132,7 +132,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="siffra"
+                android:text="@string/n_a"
                 android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
 
             <TextView
@@ -142,35 +142,6 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="@string/standard_deviation_text"
-                android:textAppearance="@android:style/TextAppearance.Material" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/median"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="siffra"
-                android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
-
-            <TextView
-                android:id="@+id/median_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/median_text"
                 android:textAppearance="@android:style/TextAppearance.Material" />
 
         </LinearLayout>
@@ -199,7 +170,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="siffra"
+                    android:text="@string/n_a"
                     android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
 
                 <TextView
@@ -223,12 +194,41 @@
                 android:padding="16dp">
 
                 <TextView
+                    android:id="@+id/median"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/n_a"
+                    android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
+
+                <TextView
+                    android:id="@+id/median_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/median_text"
+                    android:textAppearance="@android:style/TextAppearance.Material" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
                     android:id="@+id/upper_quartile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="siffra"
+                    android:text="@string/n_a"
                     android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
 
                 <TextView
@@ -259,7 +259,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="siffra"
+                android:text="@string/n_a"
                 android:textAppearance="@android:style/TextAppearance.Material.DialogWindowTitle" />
 
             <TextView

@@ -53,7 +53,7 @@ class Person {
 
     public void RefreshYearAgeInformation(Calendar currentDate) {
         birthYear = yearAgeDataOrigin.get(Calendar.YEAR);
-        age = currentDate.get(Calendar.YEAR) - birthYear - 1;
+        age = currentDate.get(Calendar.YEAR) - birthYear;
     }
 
     private void ParseBirthYear(int birthYear) {

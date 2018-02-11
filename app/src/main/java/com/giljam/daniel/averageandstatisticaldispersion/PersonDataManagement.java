@@ -69,10 +69,10 @@ class PersonDataManagement {
         return people;
     }
 
-    public List<Integer> getPeopleData() {
-        List<Integer> peopleData = new ArrayList<>();
+    public List<Double> getPeopleData() {
+        List<Double> peopleData = new ArrayList<>();
         for (Person person : people) {
-            peopleData.add(person.getAge());
+            peopleData.add((double) person.getAge());
         }
         return peopleData;
     }
@@ -134,7 +134,15 @@ class PersonDataManagement {
     private static class SortByName implements Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
-            return person1.getLastName().compareToIgnoreCase(person2.getLastName());
+            String name1 = person1.getLastName() + person1.getFirstName();
+            name1 = name1.replace("-", "");
+            name1 = name1.replace("\'", "");
+            name1 = name1.toLowerCase();
+            String name2 = person2.getLastName() + person2.getFirstName();
+            name2 = name2.replace("-", "");
+            name2 = name2.replace("\'", "");
+            name2 = name2.toLowerCase();
+            return name1.compareToIgnoreCase(name2);
         }
 
     }

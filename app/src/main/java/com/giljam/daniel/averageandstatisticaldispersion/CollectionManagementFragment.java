@@ -51,6 +51,8 @@ public class CollectionManagementFragment extends Fragment {
     private static final Pattern nc =
             Pattern.compile(    "[-'](\\S)",
                                 Pattern.CASE_INSENSITIVE);
+    private static final Pattern jtf =
+            Pattern.compile(    "job314");
 
     // Matcher variables for more efficiently matching patterns
 
@@ -60,6 +62,7 @@ public class CollectionManagementFragment extends Fragment {
     private static Matcher matchesInvalidNameBeginOrEnd;    // goes with minbe
     private static Matcher capturesNameGroups;              // goes with cfln
     private static Matcher capitalizesNames;                // goes with nc
+    private static Matcher executeJob;                      // goes with jtf
 
     /**
      * Reference to this fragment's root layout/view.
@@ -165,7 +168,7 @@ public class CollectionManagementFragment extends Fragment {
                     if (yearAgeInputField.getText().toString().isEmpty())
                         nameInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
                                                         EditorInfo.IME_FLAG_NAVIGATE_NEXT +
-                                                        EditorInfo. IME_FLAG_NO_EXTRACT_UI);
+                                                        EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         nameInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
                                                         EditorInfo.IME_FLAG_NAVIGATE_NEXT +
@@ -320,6 +323,7 @@ public class CollectionManagementFragment extends Fragment {
         // ergo the FieldValidation method returns true,
         // then the method continues,
         // else the addPerson method ends here
+
         if (FieldValidation(view, nameInputString, yearAgeInputString, yearAgeSwitch.isChecked())) {
             String firstName = NameCapitalization(capturesNameGroups.group(1));
             String lastName = NameCapitalization(capturesNameGroups.group(2));
@@ -571,6 +575,16 @@ public class CollectionManagementFragment extends Fragment {
     }
 
     private void InvalidInputProtocol(View view, boolean[] nameValidationReport) {
+        if (!MainActivity.generatedDemoList) {
+            executeJob = jtf.matcher(nameInputField.getText());
+            if (executeJob.matches()) {
+                ClearFocus();
+                nameInputField.setText("");
+                ((MainActivity) getActivity()).GenerateDemoList();
+                mAdapter.notifyDataSetChanged();
+                return;
+            }
+        }
         String snackBarString = "";
 
         String suspiciousPatterns = getString(R.string.suspicious_patterns_in_name);
