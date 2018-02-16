@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void RefreshCalculations() {
+        // TODO: fix crash that occurs when manually adding a second person!
         double[] helaRubbet = Statistics.helaRubbet(pdm.getPeopleData());
         statisticsCalculationsFragment.ReceiveCalculations(helaRubbet);
     }

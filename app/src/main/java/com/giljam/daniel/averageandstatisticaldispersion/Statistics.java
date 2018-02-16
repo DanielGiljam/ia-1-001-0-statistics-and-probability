@@ -198,20 +198,39 @@ class Statistics {
     }
 
     private double getUpperQuartile() {
+        int index;
         switch (listLength % 2) {
             case 0:
+                System.out.println("[StatCalcDebug:] list length is even");
                 switch (halfOfListLength % 2) {
                     case 0:
+                        System.out.println("[StatCalcDebug:] half of list length is also even");
+                        System.out.println("[StatCalcDebug:] list length: " + listLength + ", half of list length: " + halfOfListLength);
+                        index = halfOfListLength + halfOfListLength / 2 - 1;
+                        System.out.println("[StatCalcDebug:] upper quartile at index: (" + index + " + " + index + 1 + ") / 2");
                         upperQuartile = (numbersList.get(halfOfListLength + halfOfListLength / 2 - 1) + numbersList.get(halfOfListLength + halfOfListLength / 2)) / 2;
                     default:
-                        upperQuartile = numbersList.get(halfOfListLength / 2);
+                        System.out.println("[StatCalcDebug:] half of list length is odd");
+                        System.out.println("[StatCalcDebug:] list length: " + listLength + ", half of list length: " + halfOfListLength);
+                        index = halfOfListLength / 2;
+                        System.out.println("[StatCalcDebug:] upper quartile at index: " + index);
+                        upperQuartile = numbersList.get(index);
                 }
             default:
+                System.out.println("[StatCalcDebug:] list length is odd");
                 switch ((halfOfListLength + 1) % 2) {
                     case 0:
+                        System.out.println("[StatCalcDebug:] half of list length is even");
+                        System.out.println("[StatCalcDebug:] list length: " + listLength + ", half of list length: " + halfOfListLength);
+                        index = halfOfListLength + (halfOfListLength + 1) / 2 - 1;
+                        System.out.println("[StatCalcDebug:] upper quartile at index: (" + index + " + " + index + 1 + ") / 2");
                         upperQuartile = (numbersList.get(halfOfListLength + (halfOfListLength + 1) / 2 - 1) + numbersList.get(halfOfListLength + (halfOfListLength + 1) / 2)) / 2;
                     default:
-                        upperQuartile = numbersList.get(halfOfListLength + (halfOfListLength + 1) / 2);
+                        System.out.println("[StatCalcDebug:] half of list length is odd");
+                        System.out.println("[StatCalcDebug:] list length: " + listLength + ", half of list length: " + halfOfListLength);
+                        index = halfOfListLength + (halfOfListLength + 1) / 2;
+                        System.out.println("[StatCalcDebug:] upper quartile at index: " + index);
+                        upperQuartile = numbersList.get(index);
                 }
         }
         return upperQuartile;
