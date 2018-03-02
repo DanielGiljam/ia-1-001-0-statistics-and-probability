@@ -1,28 +1,45 @@
 package com.giljam.daniel.averageandstatisticaldispersion;
 
 import java.util.Calendar;
+import java.util.Date;
 
 class Person {
 
+    private static final long MILLI_SECONDS_TO_YEARS = 31449600000L;
     private static int idCount = 0;
 
     private String name;
     private String firstName;
     private String lastName;
 
-    private Calendar yearAgeDataOrigin;
+    private Calendar birthDate;
 
-    private int birthYear;
     private int age;
+
+    private int shoeSize;
+
+    private int height;
 
     private int id;
 
-    Person(String firstName, String lastName, int yearAge, boolean ageNotYear) {
+    Person(String firstName, String lastName, int age, int shoeSize, int height) {
         name = firstName + " " + lastName;
         this.firstName = firstName;
         this.lastName = lastName;
-        if (ageNotYear) ParseAge(yearAge);
-        else ParseBirthYear(yearAge);
+        ParseAge(age);
+        this.shoeSize = shoeSize;
+        this.height = height;
+        id = idCount;
+        idCount++;
+    }
+
+    Person(String firstName, String lastName, Date birthDate, int shoeSize, int height) {
+        name = firstName + " " + lastName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        ParseBirthDate(birthDate);
+        this.shoeSize = shoeSize;
+        this.height = height;
         id = idCount;
         idCount++;
     }
@@ -39,31 +56,43 @@ class Person {
         return lastName;
     }
 
-    public int getBirthYear() {
-        return birthYear;
+    public Calendar getBirthDate() {
+        return birthDate;
     }
 
     public int getAge() {
         return age;
     }
 
+    public int getShoeSize() {
+        return shoeSize;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
     public int getId() {
         return id;
     }
 
-    public void RefreshYearAgeInformation(Calendar currentDate) {
-        birthYear = yearAgeDataOrigin.get(Calendar.YEAR);
-        age = currentDate.get(Calendar.YEAR) - birthYear;
+    public void RefreshBirthDateAgeInformation(Calendar currentDate) {
+        long birthDateAsLong = birthDate.getTime().getTime();
+        long currentTimeAsLong = currentDate.getTime().getTime();
+        long differenceInTime;
+        if (birthDateAsLong < 0) differenceInTime = currentTimeAsLong + birthDateAsLong;
+        else differenceInTime = currentTimeAsLong - birthDateAsLong;
+        long ageAsLong = (differenceInTime - (differenceInTime % MILLI_SECONDS_TO_YEARS)) / MILLI_SECONDS_TO_YEARS;
+        age = (int) ageAsLong;
     }
 
-    private void ParseBirthYear(int birthYear) {
-        this.yearAgeDataOrigin = Calendar.getInstance();
-        this.yearAgeDataOrigin.set(Calendar.YEAR, birthYear);
+    private void ParseBirthDate(Date birthDate) {
+        this.birthDate = Calendar.getInstance();
+        this.birthDate.setTime(birthDate);
     }
 
     private void ParseAge(int age) {
-        this.yearAgeDataOrigin = Calendar.getInstance();
-        int year = this.yearAgeDataOrigin.get(Calendar.YEAR);
-        this.yearAgeDataOrigin.set(Calendar.YEAR, year - age);
+        this.birthDate = Calendar.getInstance();
+        this.birthDate.add(Calendar.YEAR, -age);
     }
 }

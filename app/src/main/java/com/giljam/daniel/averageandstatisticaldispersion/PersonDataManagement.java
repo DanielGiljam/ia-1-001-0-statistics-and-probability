@@ -43,15 +43,15 @@ class PersonDataManagement {
         people = new ArrayList<>();
     }
 
-    private void RefreshPeopleYearAgeInformation() {
+    private void RefreshPeopleBirthDateAgeInformation() {
         Calendar currentDate = Calendar.getInstance();
         for (Person person : people) {
-            person.RefreshYearAgeInformation(currentDate);
+            person.RefreshBirthDateAgeInformation(currentDate);
         }
     }
 
     private void BackgroundSortPeople() {
-        RefreshPeopleYearAgeInformation();
+        RefreshPeopleBirthDateAgeInformation();
         switch (activeSortingMode) {
             case ORIGINAL:
                 Collections.sort(people, sortById);

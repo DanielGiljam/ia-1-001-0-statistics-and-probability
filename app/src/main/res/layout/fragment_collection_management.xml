@@ -55,10 +55,10 @@
                         android:id="@+id/year_age_input_field"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:ems="4"
-                        android:hint="@string/year_input_field_text"
+                        android:ems="6"
+                        android:hint="@string/birth_date_input_field_text"
                         android:imeOptions="actionDone|flagNavigatePrevious|flagNoExtractUi"
-                        android:inputType="number"
+                        android:inputType="date"
                         android:nextFocusDown="@id/add_button"
                         android:nextFocusForward="@id/add_button"
                         android:selectAllOnFocus="true"
@@ -74,7 +74,7 @@
                         android:paddingRight="8dp"
                         android:paddingStart="8dp"
                         android:switchPadding="8dp"
-                        android:text="@string/date_age_switch_text" />
+                        android:text="@string/birth_date_age_switch_text" />
 
                 </LinearLayout>
 

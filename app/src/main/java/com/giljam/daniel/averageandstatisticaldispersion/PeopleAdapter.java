@@ -54,7 +54,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
         TextView personName = viewHolder.personName;
         TextView personYearAge = viewHolder.personYearAge;
         personName.setText(person.getName());
-        personYearAge.setText(String.format(getContext().getString(R.string.list_view_item_person_year_age), person.getBirthYear(), person.getAge()));
+        personYearAge.setText(String.format(getContext().getString(R.string.list_view_item_person_details_string), person.getAge(), person.getShoeSize(), person.getHeight()));
     }
 
     @Override

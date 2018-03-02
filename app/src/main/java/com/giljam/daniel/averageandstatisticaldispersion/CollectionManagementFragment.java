@@ -5,27 +5,28 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.util.Calendar;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +65,10 @@ public class CollectionManagementFragment extends Fragment {
     private static Matcher capitalizesNames;                // goes with nc
     private static Matcher executeJob;                      // goes with jtf
 
+    // Date object that holds a parsed birthdate input string
+
+    private static Date birthDateObject;
+
     /**
      * Reference to this fragment's root layout/view.
      */
@@ -77,12 +82,12 @@ public class CollectionManagementFragment extends Fragment {
     /**
      * Input field for person birthyear.
      */
-    private EditText yearAgeInputField;
+    private EditText birthDateAgeInputField;
 
     /**
      * Switch to toggle between the birthyear input field and the age input field.
      */
-    private Switch yearAgeSwitch;
+    private Switch birthDateAgeSwitch;
 
     /**
      * Button to submit input field data.
@@ -134,8 +139,8 @@ public class CollectionManagementFragment extends Fragment {
         // Set up the input fields and buttons
         rootLayout = view.findViewById(R.id.collection_management_root_layout);
         nameInputField = view.findViewById(R.id.name_input_field);
-        yearAgeInputField = view.findViewById(R.id.year_age_input_field);
-        yearAgeSwitch = view.findViewById(R.id.year_age_switch);
+        birthDateAgeInputField = view.findViewById(R.id.year_age_input_field);
+        birthDateAgeSwitch = view.findViewById(R.id.year_age_switch);
         addButton = view.findViewById(R.id.add_button);
         sortButton = view.findViewById(R.id.sort_button);
 
@@ -165,7 +170,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    if (yearAgeInputField.getText().toString().isEmpty())
+                    if (birthDateAgeInputField.getText().toString().isEmpty())
                         nameInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
                                                         EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
@@ -178,7 +183,7 @@ public class CollectionManagementFragment extends Fragment {
         });
 
         // Set up listener for enter key when in nameInputField
-        // so that the enter key's action is the same as the addButton's if the yearAgeInputField already has been filled out
+        // so that the enter key's action is the same as the addButton's if the birthDateAgeInputField already has been filled out
         nameInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -202,27 +207,27 @@ public class CollectionManagementFragment extends Fragment {
             }
         });
 
-        // Set up listener for when focus changes to yearAgeInputField
+        // Set up listener for when focus changes to birthDateAgeInputField
         // to trigger script that determines what action the enter key should have
-        yearAgeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        birthDateAgeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
                     if (nameInputField.getText().toString().isEmpty())
-                        yearAgeInputField.setImeOptions(    EditorInfo.IME_ACTION_PREVIOUS +
-                                                            EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
-                                                            EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                        birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_PREVIOUS +
+                                                                EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
+                                                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
-                        yearAgeInputField.setImeOptions(    EditorInfo.IME_ACTION_DONE +
-                                                            EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
-                                                            EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                        birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
+                                                                EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
+                                                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
         });
 
-        // Set up listener for enter key when in yearAgeInputField
+        // Set up listener for enter key when in birthDateAgeInputField
         // so that the enter key's action is the same as the addButton's if the nameInputField already has been filled out
-        yearAgeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        birthDateAgeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -232,11 +237,11 @@ public class CollectionManagementFragment extends Fragment {
                 return false;
             }
         });
-        yearAgeInputField.setOnKeyListener(new View.OnKeyListener() {
+        birthDateAgeInputField.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (yearAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                    if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
                         return true;
                     }
@@ -245,15 +250,17 @@ public class CollectionManagementFragment extends Fragment {
             }
         });
 
-        // Set up listener for the yearAgeSwitch
-        // so that its state specifies how the input in yearAgeInputField should be interpreted
-        yearAgeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        // Set up listener for the birthDateAgeSwitch
+        // so that its state specifies how the input in birthDateAgeInputField should be interpreted
+        birthDateAgeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             if (b) {
-                yearAgeInputField.setHint(R.string.age_input_field_text);
+                birthDateAgeInputField.setHint(R.string.age_input_field_text);
+                birthDateAgeInputField.setInputType(2);
             } else {
-                yearAgeInputField.setHint(R.string.year_input_field_text);
+                birthDateAgeInputField.setHint(R.string.birth_date_input_field_text);
+                birthDateAgeInputField.setInputType(20);
             }
             }
         });
@@ -317,20 +324,24 @@ public class CollectionManagementFragment extends Fragment {
 
         // Fetches whatever is in the EditText input fields
         String nameInputString = nameInputField.getText().toString();
-        String yearAgeInputString = yearAgeInputField.getText().toString();
+        String birthDateAgeInputString = birthDateAgeInputField.getText().toString();
 
         // If the validation of the input is successful,
         // ergo the FieldValidation method returns true,
         // then the method continues,
         // else the addPerson method ends here
 
-        if (FieldValidation(view, nameInputString, yearAgeInputString, yearAgeSwitch.isChecked())) {
+        if (FieldValidation(view, nameInputString, birthDateAgeInputString, birthDateAgeSwitch.isChecked())) {
             String firstName = NameCapitalization(capturesNameGroups.group(1));
             String lastName = NameCapitalization(capturesNameGroups.group(2));
-            Person person = new Person (firstName, lastName, Integer.parseInt(yearAgeInputString), yearAgeSwitch.isChecked());
+            Person person;
+            if (!birthDateAgeSwitch.isChecked())
+                person = new Person(firstName, lastName, birthDateObject, 0, 0);
+            else
+                person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), 0, 0);
             ClearFocus();
             nameInputField.setText("");
-            yearAgeInputField.setText("");
+            birthDateAgeInputField.setText("");
             ((MainActivity)getActivity()).AddPerson(person);
             mAdapter.notifyDataSetChanged();
         }
@@ -345,37 +356,37 @@ public class CollectionManagementFragment extends Fragment {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
-    private boolean FieldValidation(View view, String nameInputString, String yearAgeInputString, boolean ageNotYear) {
+    private boolean FieldValidation(View view, String nameInputString, String birthDateAgeInputString, boolean ageNotBirthDate) {
 
         // Checks whether the input fields where filled out or not
         boolean nameEmpty = nameInputString.isEmpty();
-        boolean yearAgeEmpty = yearAgeInputString.isEmpty();
+        boolean birthDateAgeEmpty = birthDateAgeInputString.isEmpty();
 
         // Creating the validation reports with preset base values
         boolean[] nameValidationReport = new boolean[]{true, false, false, false};
-        boolean yearAgeValidationReport = true;
+        boolean[] birthDateAgeValidationReport = new boolean[]{true, false};
 
         // If any input field was left empty,
         // then the following code block (if statement) shuts down the validation process
         // and notifies the user appropriately
-        if (nameEmpty || yearAgeEmpty) {
+        if (nameEmpty || birthDateAgeEmpty) {
 
             // Any filled in field containing invalid input is considered more urgent than empty fields.
             // The following if- else if statement takes care of notifying the user in a case like that
             if (!nameEmpty) {
 
                 nameValidationReport = NameValidation(nameInputString);
-                if (!nameValidationReport[0]) InvalidInputProtocol(view, nameValidationReport);
+                if (!nameValidationReport[0]) InvalidNameInputProtocol(view, nameValidationReport);
 
-            } else if (!yearAgeEmpty) {
+            } else if (!birthDateAgeEmpty) {
 
-                yearAgeValidationReport = YearAgeValidation(yearAgeInputString, ageNotYear);
-                if (!yearAgeValidationReport) InvalidInputProtocol(view, yearAgeValidationReport);
+                birthDateAgeValidationReport = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
+                if (!birthDateAgeValidationReport[0]) InvalidBirthDateAgeInputProtocol(view, birthDateAgeValidationReport);
             }
 
             // If both fields where left empty or if a single filled in field was valid,
             // then the EmptyFieldProtocol method takes care of notifying the user about empty fields
-            if (nameValidationReport[0] && yearAgeValidationReport) EmptyFieldProtocol(view, nameEmpty, yearAgeEmpty, ageNotYear);
+            if (nameValidationReport[0] && birthDateAgeValidationReport[0]) EmptyFieldProtocol(view, nameEmpty, birthDateAgeEmpty, ageNotBirthDate);
 
             return false;
         }
@@ -384,14 +395,14 @@ public class CollectionManagementFragment extends Fragment {
         // it means that both fields where filled in with some kind of input.
         // That input is evaluated in the following lines
         nameValidationReport = NameValidation(nameInputString);
-        yearAgeValidationReport = YearAgeValidation(yearAgeInputString, ageNotYear);
+        birthDateAgeValidationReport = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
 
         // If the validation reports are positive then the validation process returns true,
         // else the InvalidInputProtocol method handles notifying the user appropriately and the validation process returns false
-        if (nameValidationReport[0] && yearAgeValidationReport) {
+        if (nameValidationReport[0] && birthDateAgeValidationReport[0]) {
             return true;
         } else {
-            InvalidInputProtocol(view, nameValidationReport, yearAgeValidationReport);
+            InvalidInputProtocol(view, nameValidationReport, birthDateAgeValidationReport);
             return false;
         }
     }
@@ -459,18 +470,33 @@ public class CollectionManagementFragment extends Fragment {
                                 suspiciousPatterns};
     }
 
-    private boolean YearAgeValidation(String yearAgeInputString, boolean ageNotYear) {
+    private boolean[] BirthDateAgeValidation(String birthDateAgeInputString, boolean ageNotBirthDate) {
         // Basically validation is only necessary when the user hasn't flicked the ageYearSwitch
-        // ergo when the yearAgeInputString is read as a calendar year.
+        // ergo when the birthDateAgeInputField is read as a calendar year.
         // The contents of the following if statement make sure that year isn't in the future
-        if (!ageNotYear) {
-            int yearInput = Integer.parseInt(yearAgeInputString);
-            int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-            return yearInput <= currentYear;
-        } else return true;
+        if (!ageNotBirthDate) {
+            try {
+                birthDateObject = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(birthDateAgeInputString);
+            } catch (ParseException e) {
+                try {
+                    birthDateObject = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(birthDateAgeInputString);
+                } catch (ParseException e1) {
+                    try {
+                        birthDateObject = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(birthDateAgeInputString);
+                    } catch (ParseException e2) {
+                        try {
+                            birthDateObject = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).parse(birthDateAgeInputString);
+                        } catch (ParseException e3) {
+                            return new boolean[] {false, false, true};
+                        }
+                    }
+                }
+            }
+            return new boolean[] {birthDateObject.getTime() <= new Date().getTime(), !(birthDateObject.getTime() <= new Date().getTime()), false};
+        } else return new boolean[]{true, false, false};
     }
 
-    private void EmptyFieldProtocol(View view, boolean nameEmpty, boolean yearAgeEmpty, boolean ageNotYear) {
+    private void EmptyFieldProtocol(View view, boolean nameEmpty, boolean birthDateAgeEmpty, boolean ageNotBirthDate) {
         String snackBarString;
 
         // The following if- and else if statement takes care of some fine tuning
@@ -482,13 +508,13 @@ public class CollectionManagementFragment extends Fragment {
             if (nameEmpty) {
                 nameInputField.requestFocus();
             } else {
-                yearAgeInputField.requestFocus();
+                birthDateAgeInputField.requestFocus();
             }
 
-        } else if (view == yearAgeInputField) {
+        } else if (view == birthDateAgeInputField) {
 
-            if (yearAgeEmpty) {
-                yearAgeInputField.requestFocus();
+            if (birthDateAgeEmpty) {
+                birthDateAgeInputField.requestFocus();
             } else {
                 nameInputField.requestFocus();
             }
@@ -498,15 +524,15 @@ public class CollectionManagementFragment extends Fragment {
         // The following if-, else if- and else statement takes care of
         // showing the appropriate message to the user
 
-        if (nameEmpty && yearAgeEmpty) {
+        if (nameEmpty && birthDateAgeEmpty) {
 
-            if (ageNotYear) snackBarString = getString(R.string.name_and_age_empty);
-            else snackBarString = getString(R.string.name_and_year_empty);
+            if (ageNotBirthDate) snackBarString = getString(R.string.name_and_age_empty);
+            else snackBarString = getString(R.string.name_and_birth_date_empty);
 
-        } else if (yearAgeEmpty) {
+        } else if (birthDateAgeEmpty) {
 
-            if (ageNotYear) snackBarString = getString(R.string.age_empty);
-            else snackBarString = getString(R.string.year_empty);
+            if (ageNotBirthDate) snackBarString = getString(R.string.age_empty);
+            else snackBarString = getString(R.string.birth_date_empty);
 
         } else {
 
@@ -519,14 +545,15 @@ public class CollectionManagementFragment extends Fragment {
                 .show();
     }
 
-    private void InvalidInputProtocol(View view, boolean[] nameValidationReport, boolean yearAgeValidationReport) {
+    private void InvalidInputProtocol(View view, boolean[] nameValidationReport, boolean[] birthDateAgeValidationReport) {
         String snackBarString = "";
 
         // Fetching string resources
         String suspiciousPatterns = getString(R.string.suspicious_patterns_in_name);
         String invalidCharacters = getString(R.string.invalid_characters_in_name);
         String nullLastName = getString(R.string.no_last_name);
-        String invalidYear = getString(R.string.invalid_year);
+        String invalidDate = getString(R.string.invalid_date);
+        String unknownDateFormat = getString(R.string.unknown_date_format);
 
         // The following if-, else if- and else statement takes care of some fine tuning
         // regarding the choice of what field is focused and given the cursor depending on
@@ -536,7 +563,8 @@ public class CollectionManagementFragment extends Fragment {
 
         if (view == nameInputField) {
 
-            if (!yearAgeValidationReport) snackBarString = invalidYear;
+            if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+            if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
             if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
             if (nameValidationReport[2]) snackBarString = invalidCharacters;
             if (nameValidationReport[1]) snackBarString = nullLastName;
@@ -544,18 +572,19 @@ public class CollectionManagementFragment extends Fragment {
             if (nameValidationReport[1] || nameValidationReport[2] || nameValidationReport[3]) {
                 nameInputField.requestFocus();
             } else {
-                yearAgeInputField.requestFocus();
+                birthDateAgeInputField.requestFocus();
             }
 
-        } else if (view == yearAgeInputField) {
+        } else if (view == birthDateAgeInputField) {
 
             if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
             if (nameValidationReport[2]) snackBarString = invalidCharacters;
             if (nameValidationReport[1]) snackBarString = nullLastName;
-            if (!yearAgeValidationReport) snackBarString = invalidYear;
+            if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+            if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
 
-            if (!yearAgeValidationReport) {
-                yearAgeInputField.requestFocus();
+            if (birthDateAgeValidationReport[1] || birthDateAgeValidationReport[2]) {
+                birthDateAgeInputField.requestFocus();
             } else {
                 nameInputField.requestFocus();
             }
@@ -565,7 +594,8 @@ public class CollectionManagementFragment extends Fragment {
             if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
             if (nameValidationReport[2]) snackBarString = invalidCharacters;
             if (nameValidationReport[1]) snackBarString = nullLastName;
-            if (!yearAgeValidationReport) snackBarString = invalidYear;
+            if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+            if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
         }
 
         Snackbar.make(  getActivity().findViewById(R.id.main_layout),
@@ -574,7 +604,7 @@ public class CollectionManagementFragment extends Fragment {
                 .show();
     }
 
-    private void InvalidInputProtocol(View view, boolean[] nameValidationReport) {
+    private void InvalidNameInputProtocol(View view, boolean[] nameValidationReport) {
         if (!MainActivity.generatedDemoList) {
             executeJob = jtf.matcher(nameInputField.getText());
             if (executeJob.matches()) {
@@ -598,7 +628,7 @@ public class CollectionManagementFragment extends Fragment {
         // The following if statement takes care of some fine tuning
         // regarding the choice of what field is focused and given the cursor depending on
         // what field already is in focus/already has the cursor
-        if (view == yearAgeInputField) nameInputField.requestFocus();
+        if (view == birthDateAgeInputField) nameInputField.requestFocus();
 
         Snackbar.make(  getActivity().findViewById(R.id.main_layout),
                         snackBarString,
@@ -606,17 +636,19 @@ public class CollectionManagementFragment extends Fragment {
                 .show();
     }
 
-    private void InvalidInputProtocol(View view, boolean yearAgeValidationReport) {
+    private void InvalidBirthDateAgeInputProtocol(View view, boolean[] birthDateAgeValidationReport) {
         String snackBarString = "";
 
-        String invalidYear = getString(R.string.invalid_year);
+        String invalidDate = getString(R.string.invalid_date);
+        String unknownDateFormat = getString(R.string.unknown_date_format);
 
-        if (!yearAgeValidationReport) snackBarString = invalidYear;
+        if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+        if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
 
         // The following if statement takes care of some fine tuning
         // regarding the choice of what field is focused and given the cursor depending on
         // what field already is in focus/already has the cursor
-        if (view == nameInputField) yearAgeInputField.requestFocus();
+        if (view == nameInputField) birthDateAgeInputField.requestFocus();
 
         Snackbar.make(  getActivity().findViewById(R.id.main_layout),
                         snackBarString,
