@@ -1,33 +1,52 @@
 <resources>
+
     <string name="app_name">Average and Statistical Dispersion</string>
+
     <string name="action_settings">Settings</string>
-    <string name="add_button_text">Add</string>
+
     <string name="name_input_field_text">Name</string>
     <string name="birth_date_input_field_text">Birthdate</string>
     <string name="age_input_field_text">Age</string>
+
     <string name="birth_date_age_switch_text">Enter as age</string>
+
+    <string name="add_button_text">Add</string>
+
     <string name="sort_button_description_text">Sort people by</string>
+
     <string name="original_sort_text">None</string>
     <string name="name_sort_text">Name</string>
     <string name="age_sort_text">Age</string>
-    <string name="name_and_age_empty">Name and age fields require input.</string>
-    <string name="name_and_birth_date_empty">Name and birthdate fields require input.</string>
-    <string name="name_empty">Name field requires input.</string>
-    <string name="age_empty">Age field require value.</string>
-    <string name="birth_date_empty">Birthdate field requires value.</string>
-    <string name="invalid_characters_in_name">The name contains invalid characters.</string>
+
+    <string name="one_field_empty">Please specify %1$s.</string>
+    <string name="two_fields_empty">Please specify %1$s and %2$s.</string>
+    <string name="three_fields_empty">Please specify %1$s, %2$s and %3$s.</string>
+    <string name="four_fields_empty">Please specify person data in fields.</string>
+
     <string name="no_last_name">The name must consist of a first and a last name.</string>
     <string name="suspicious_patterns_in_name">The name contains suspicious patterns.</string>
-    <string name="invalid_date">The date is invalid.</string>
+    <string name="invalid_characters_in_name">The name contains invalid characters.</string>
+
     <string name="unknown_date_format">The format of the date could not be recognized.</string>
+    <string name="invalid_date">Dates in the future are invalid.</string>
+
+    <string name="invalid_shoe_size_too_small">The shoe size is too small.</string>
+    <string name="invalid_shoe_size_too_big">The shoe size is too big.</string>
+
+    <string name="invalid_height_too_short">The height value is too little.</string>
+    <string name="invalid_height_too_tall">The height value is too high.</string>
+
     <string name="list_view_item_person_details_string">age %1$d, shoe size %2$d, height %3$d</string>
-    <string name="upper_quartile_text">upper quartile</string>
+
+    <string name="n_a">N/A</string>
+
+    <string name="minimum_text">minimum</string>
+    <string name="maximum_text">maximum</string>
+    <string name="average_text">average</string>
+    <string name="standard_deviation_text">standard deviation</string>
     <string name="lower_quartile_text">lower quartile</string>
     <string name="median_text">median</string>
-    <string name="standard_deviation_text">standard deviation</string>
-    <string name="average_text">average</string>
-    <string name="maximum_text">maximum</string>
-    <string name="minimum_text">minimum</string>
+    <string name="upper_quartile_text">upper quartile</string>
     <string name="interquartile_range_text">interquartile range</string>
-    <string name="n_a">N/A</string>
+
 </resources>

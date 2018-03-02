@@ -80,7 +80,7 @@ public class CollectionManagementFragment extends Fragment {
     private EditText nameInputField;
 
     /**
-     * Input field for person birthyear.
+     * Input field for person birthdate or age.
      */
     private EditText birthDateAgeInputField;
 
@@ -88,6 +88,16 @@ public class CollectionManagementFragment extends Fragment {
      * Switch to toggle between the birthyear input field and the age input field.
      */
     private Switch birthDateAgeSwitch;
+
+    /**
+     * Input field for person shoe size.
+     */
+    private EditText shoeSizeInputField;
+
+    /**
+     * Input field for person height.
+     */
+    private EditText heightInputField;
 
     /**
      * Button to submit input field data.
@@ -141,6 +151,7 @@ public class CollectionManagementFragment extends Fragment {
         nameInputField = view.findViewById(R.id.name_input_field);
         birthDateAgeInputField = view.findViewById(R.id.year_age_input_field);
         birthDateAgeSwitch = view.findViewById(R.id.year_age_switch);
+        // TODO! Initialize shoe size and height input fields here
         addButton = view.findViewById(R.id.add_button);
         sortButton = view.findViewById(R.id.sort_button);
 
@@ -325,57 +336,87 @@ public class CollectionManagementFragment extends Fragment {
         // Fetches whatever is in the EditText input fields
         String nameInputString = nameInputField.getText().toString();
         String birthDateAgeInputString = birthDateAgeInputField.getText().toString();
+        // TODO! Fetch shoe size and height input strings here
+        String shoeSizeInputString = "";
+        String heightInputString = "";
 
         // If the validation of the input is successful,
         // ergo the FieldValidation method returns true,
         // then the method continues,
         // else the addPerson method ends here
 
-        if (FieldValidation(view, nameInputString, birthDateAgeInputString, birthDateAgeSwitch.isChecked())) {
+        if (FieldValidation(view, nameInputString, birthDateAgeInputString, shoeSizeInputString, heightInputString, birthDateAgeSwitch.isChecked())) {
             String firstName = NameCapitalization(capturesNameGroups.group(1));
             String lastName = NameCapitalization(capturesNameGroups.group(2));
             Person person;
             if (!birthDateAgeSwitch.isChecked())
-                person = new Person(firstName, lastName, birthDateObject, 0, 0);
+                person = new Person(firstName, lastName, birthDateObject, Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
             else
-                person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), 0, 0);
+                person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
             ClearFocus();
             nameInputField.setText("");
             birthDateAgeInputField.setText("");
+            shoeSizeInputField.setText("");
+            heightInputField.setText("");
             ((MainActivity)getActivity()).AddPerson(person);
             mAdapter.notifyDataSetChanged();
         }
     }
 
-    private boolean FieldValidation(View view, String nameInputString, String birthDateAgeInputString, boolean ageNotBirthDate) {
+    private boolean FieldValidation(View view, String nameInputString, String birthDateAgeInputString, String shoeSizeInputString, String heightInputString, boolean ageNotBirthDate) {
 
         // Checks whether the input fields where filled out or not
-        boolean nameEmpty = nameInputString.isEmpty();
         boolean birthDateAgeEmpty = birthDateAgeInputString.isEmpty();
+        boolean shoeSizeEmpty = shoeSizeInputString.isEmpty();
+        boolean heightEmpty = heightInputString.isEmpty();
+        boolean nameEmpty = nameInputString.isEmpty();
 
-        boolean[] isEmptyReturns = new boolean[]{nameEmpty, birthDateAgeEmpty};
+        boolean[] isEmptyReturns = new boolean[]{birthDateAgeEmpty, shoeSizeEmpty, heightEmpty, nameEmpty};
         boolean aFieldIsEmpty = false;
 
-        // Creating the validation reports with preset base values
-        boolean[] nameValidationReport = new boolean[]{true, false, false, false};
-        boolean[] birthDateAgeValidationReport = new boolean[]{true, false, false};
+        if (isEmptyReturns[0] || isEmptyReturns[1] || isEmptyReturns[2] || isEmptyReturns[3]) {
 
-        boolean[][] validationReports = new boolean[][]{nameValidationReport, birthDateAgeValidationReport};
+            // Creating the validation reports with preset base values
+            boolean[] birthDateAgeValidationReport = new boolean[]{true, false, false};
+            boolean[] shoeSizeValidationReport = new boolean[]{true, false, false};
+            boolean[] heightValidationReport = new boolean[]{true, false, false};
+            boolean[] nameValidationReport = new boolean[]{true, false, false, false};
 
-        // If any input field was left empty,
-        // then the following code block (if statement) shuts down the validation process
-        // and notifies the user appropriately
-        int i = 0;
-        for (boolean isEmptyReturn : isEmptyReturns) {
-            if (!isEmptyReturn) {
-                if (i == 0) validationReports[i] = NameValidation(nameInputString);
-                if (i == 1) validationReports[i] = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
-                if (!validationReports[i][0]) if (InvalidInputProtocol(view, validationReports)) return false;
-            } else {
-                aFieldIsEmpty = true;
+            boolean[][] validationReports = new boolean[][]
+            {
+                    birthDateAgeValidationReport,
+                    shoeSizeValidationReport,
+                    heightValidationReport,
+                    nameValidationReport
+            };
+
+            // If any input field was left empty,
+            // then the following code block (if statement) shuts down the validation process
+            // and notifies the user appropriately
+            int i = 0;
+            for (boolean isEmptyReturn : isEmptyReturns) {
+                if (!isEmptyReturn) {
+                    if (i == 0) validationReports[i] = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
+                    if (i == 1) validationReports[i] = ShoeSizeValidation(shoeSizeInputString);
+                    if (i == 2) validationReports[i] = HeightValidation(heightInputString);
+                    if (i == 3) validationReports[i] = NameValidation(nameInputString);
+                    if (!validationReports[i][0]) if (InvalidInputProtocol(view, validationReports)) return false;
+                } else {
+                    aFieldIsEmpty = true;
+                }
+                i++;
             }
-            i++;
+
+        } else {
+
+            boolean[] birthDateAgeValidationReport = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
+            boolean[] shoeSizeValidationReport = ShoeSizeValidation(shoeSizeInputString);
+            boolean[] heightValidationReport = HeightValidation(heightInputString);
+            boolean[] nameValidationReport = NameValidation(nameInputString);
+
+            if (InvalidInputProtocol(view, new boolean[][]{birthDateAgeValidationReport, shoeSizeValidationReport, heightValidationReport, nameValidationReport})) return false;
         }
+
         if (aFieldIsEmpty){
             EmptyFieldProtocol(view, ageNotBirthDate, isEmptyReturns);
             return false;
@@ -393,15 +434,21 @@ public class CollectionManagementFragment extends Fragment {
 
         if (makeSnackbar) {
 
-            boolean[] nameValidationReport = validationReports[0];
-            boolean[] birthDateAgeValidationReport = validationReports[1];
+            boolean[] birthDateAgeValidationReport = validationReports[0];
+            boolean[] shoeSizeValidationReport = validationReports[1];
+            boolean[] heightValidationReport = validationReports[2];
+            boolean[] nameValidationReport = validationReports[3];
 
             // Fetching string resources
+            String nullLastName = getString(R.string.no_last_name);
             String suspiciousPatterns = getString(R.string.suspicious_patterns_in_name);
             String invalidCharacters = getString(R.string.invalid_characters_in_name);
-            String nullLastName = getString(R.string.no_last_name);
-            String invalidDate = getString(R.string.invalid_date);
             String unknownDateFormat = getString(R.string.unknown_date_format);
+            String invalidDate = getString(R.string.invalid_date);
+            String invalidShoeSizeTooSmall = getString(R.string.invalid_shoe_size_too_small);
+            String invalidShoeSizeTooBig = getString(R.string.invalid_shoe_size_too_big);
+            String invalidHeightTooShort = getString(R.string.invalid_height_too_short);
+            String invalidHeightTooTall = getString(R.string.invalid_height_too_tall);
 
             // The following if-, else if- and else statement takes care of some fine tuning
             // regarding the choice of what field is focused and given the cursor depending on
@@ -409,13 +456,19 @@ public class CollectionManagementFragment extends Fragment {
             // The order of the nested if statements implies the prioritization
             // according to which the messages will be shown (the subsequent if statement overrides the preceding).
 
+            // TODO! Add the elseif -clauses for the shoe size and height input fields to this priority-based selection order
+
             if (view == nameInputField) {
 
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
                 if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
                 if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+                if (nameValidationReport[1]) snackBarString = nullLastName;
                 if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
                 if (nameValidationReport[2]) snackBarString = invalidCharacters;
-                if (nameValidationReport[1]) snackBarString = nullLastName;
 
                 if (nameValidationReport[1] || nameValidationReport[2] || nameValidationReport[3]) {
                     nameInputField.requestFocus();
@@ -425,9 +478,13 @@ public class CollectionManagementFragment extends Fragment {
 
             } else if (view == birthDateAgeInputField) {
 
+                if (nameValidationReport[1]) snackBarString = nullLastName;
                 if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
                 if (nameValidationReport[2]) snackBarString = invalidCharacters;
-                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
                 if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
                 if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
 
@@ -439,16 +496,20 @@ public class CollectionManagementFragment extends Fragment {
 
             } else {
 
+                if (nameValidationReport[1]) snackBarString = nullLastName;
                 if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
                 if (nameValidationReport[2]) snackBarString = invalidCharacters;
-                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
                 if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
                 if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
             }
 
-            Snackbar.make(getActivity().findViewById(R.id.main_layout),
-                    snackBarString,
-                    Snackbar.LENGTH_SHORT)
+            Snackbar.make(  getActivity().findViewById(R.id.main_layout),
+                            snackBarString,
+                            Snackbar.LENGTH_SHORT)
                     .show();
             return true;
         } else
@@ -462,9 +523,11 @@ public class CollectionManagementFragment extends Fragment {
         // regarding the choice of what field is focused and given the cursor depending on
         // what field already is in focus/already has the cursor
 
+        // TODO! Add elseif -clauses here for shoe size and height input fields
+
         if (view == nameInputField) {
 
-            if (isEmptyReturns[0]) {
+            if (isEmptyReturns[3]) {
                 nameInputField.requestFocus();
             } else {
                 birthDateAgeInputField.requestFocus();
@@ -472,7 +535,7 @@ public class CollectionManagementFragment extends Fragment {
 
         } else if (view == birthDateAgeInputField) {
 
-            if (isEmptyReturns[1]) {
+            if (isEmptyReturns[0]) {
                 birthDateAgeInputField.requestFocus();
             } else {
                 nameInputField.requestFocus();
@@ -480,27 +543,46 @@ public class CollectionManagementFragment extends Fragment {
 
         }
 
-        // The following if-, else if- and else statement takes care of
-        // showing the appropriate message to the user
+        // The following code blocks take care of
+        // setting up an appropriate message for the user
 
-        if (isEmptyReturns[0] && isEmptyReturns[1]) {
-
-            if (ageNotBirthDate) snackBarString = getString(R.string.name_and_age_empty);
-            else snackBarString = getString(R.string.name_and_birth_date_empty);
-
-        } else if (isEmptyReturns[1]) {
-
-            if (ageNotBirthDate) snackBarString = getString(R.string.age_empty);
-            else snackBarString = getString(R.string.birth_date_empty);
-
-        } else {
-
-            snackBarString = getString(R.string.name_empty);
+        int i = 0;
+        int emptyFields = 0;
+        String[] emptyFieldNames = new String[3];
+        for (boolean isEmptyReturn : isEmptyReturns) {
+            if (isEmptyReturn) {
+                if (emptyFields < 3) {
+                    if (i == 0) {
+                        if (ageNotBirthDate) emptyFieldNames[emptyFields] = "age";
+                        else emptyFieldNames[emptyFields] = "birthdate";
+                    }
+                    if (i == 1) emptyFieldNames[emptyFields] = "shoe size";
+                    if (i == 2) emptyFieldNames[emptyFields] = "height";
+                    if (i == 3) emptyFieldNames[emptyFields] = "name";
+                }
+                emptyFields++;
+            }
+            i++;
         }
 
-        Snackbar.make(getActivity().findViewById(R.id.main_layout),
-                snackBarString,
-                Snackbar.LENGTH_SHORT)
+        switch (emptyFields) {
+            case 1:
+                snackBarString = getString(R.string.one_field_empty, emptyFieldNames[0]);
+                break;
+            case 2:
+                snackBarString = getString(R.string.two_fields_empty, emptyFieldNames[0], emptyFieldNames[1]);
+                break;
+            case 3:
+                snackBarString = getString(R.string.three_fields_empty, emptyFieldNames[0], emptyFieldNames[1], emptyFieldNames[2]);
+                break;
+            default:
+                snackBarString = getString(R.string.four_fields_empty);
+                break;
+        }
+
+        Snackbar.make(  getActivity().findViewById(R.id.main_layout),
+                        snackBarString,
+                        Snackbar.LENGTH_SHORT)
                 .show();
     }
 
@@ -584,13 +666,23 @@ public class CollectionManagementFragment extends Fragment {
                         try {
                             birthDateObject = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).parse(birthDateAgeInputString);
                         } catch (ParseException e3) {
-                            return new boolean[] {false, false, true};
+                            return new boolean[]{false, false, true};
                         }
                     }
                 }
             }
-            return new boolean[] {birthDateObject.getTime() <= new Date().getTime(), !(birthDateObject.getTime() <= new Date().getTime()), false};
+            return new boolean[]{birthDateObject.getTime() <= new Date().getTime(), !(birthDateObject.getTime() <= new Date().getTime()), false};
         } else return new boolean[]{true, false, false};
+    }
+
+    private boolean[] ShoeSizeValidation(String shoeSizeInputString) {
+        // Code comes here...
+        return new boolean[]{true, false};
+    }
+
+    private boolean[] HeightValidation(String heightInputString) {
+        // Code comes here...
+        return new boolean[]{true, false};
     }
 
     private String NameCapitalization(String name) {
