@@ -347,64 +347,161 @@ public class CollectionManagementFragment extends Fragment {
         }
     }
 
-    private String NameCapitalization(String name) {
-        capitalizesNames = nc.matcher(name);
-        while (capitalizesNames.find()) {
-            int rli = capitalizesNames.end();
-            name = name.substring(0, rli - 1) + capitalizesNames.group(1).toUpperCase() + name.substring(rli);
-        }
-        return name.substring(0, 1).toUpperCase() + name.substring(1);
-    }
-
     private boolean FieldValidation(View view, String nameInputString, String birthDateAgeInputString, boolean ageNotBirthDate) {
 
         // Checks whether the input fields where filled out or not
         boolean nameEmpty = nameInputString.isEmpty();
         boolean birthDateAgeEmpty = birthDateAgeInputString.isEmpty();
 
+        boolean[] isEmptyReturns = new boolean[]{nameEmpty, birthDateAgeEmpty};
+        boolean aFieldIsEmpty = false;
+
         // Creating the validation reports with preset base values
         boolean[] nameValidationReport = new boolean[]{true, false, false, false};
-        boolean[] birthDateAgeValidationReport = new boolean[]{true, false};
+        boolean[] birthDateAgeValidationReport = new boolean[]{true, false, false};
+
+        boolean[][] validationReports = new boolean[][]{nameValidationReport, birthDateAgeValidationReport};
 
         // If any input field was left empty,
         // then the following code block (if statement) shuts down the validation process
         // and notifies the user appropriately
-        if (nameEmpty || birthDateAgeEmpty) {
+        int i = 0;
+        for (boolean isEmptyReturn : isEmptyReturns) {
+            if (!isEmptyReturn) {
+                if (i == 0) validationReports[i] = NameValidation(nameInputString);
+                if (i == 1) validationReports[i] = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
+                if (!validationReports[i][0]) if (InvalidInputProtocol(view, validationReports)) return false;
+            } else {
+                aFieldIsEmpty = true;
+            }
+            i++;
+        }
+        if (aFieldIsEmpty){
+            EmptyFieldProtocol(view, ageNotBirthDate, isEmptyReturns);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
-            // Any filled in field containing invalid input is considered more urgent than empty fields.
-            // The following if- else if statement takes care of notifying the user in a case like that
-            if (!nameEmpty) {
+    private boolean InvalidInputProtocol(View view, boolean[][] validationReports) {
+        boolean makeSnackbar = false;
+        String snackBarString = "";
 
-                nameValidationReport = NameValidation(nameInputString);
-                if (!nameValidationReport[0]) InvalidNameInputProtocol(view, nameValidationReport);
+        for (boolean[] validationReport : validationReports)
+            if (!validationReport[0]) makeSnackbar = true;
 
-            } else if (!birthDateAgeEmpty) {
+        if (makeSnackbar) {
 
-                birthDateAgeValidationReport = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
-                if (!birthDateAgeValidationReport[0]) InvalidBirthDateAgeInputProtocol(view, birthDateAgeValidationReport);
+            boolean[] nameValidationReport = validationReports[0];
+            boolean[] birthDateAgeValidationReport = validationReports[1];
+
+            // Fetching string resources
+            String suspiciousPatterns = getString(R.string.suspicious_patterns_in_name);
+            String invalidCharacters = getString(R.string.invalid_characters_in_name);
+            String nullLastName = getString(R.string.no_last_name);
+            String invalidDate = getString(R.string.invalid_date);
+            String unknownDateFormat = getString(R.string.unknown_date_format);
+
+            // The following if-, else if- and else statement takes care of some fine tuning
+            // regarding the choice of what field is focused and given the cursor depending on
+            // what field already is in focus/already has the cursor.
+            // The order of the nested if statements implies the prioritization
+            // according to which the messages will be shown (the subsequent if statement overrides the preceding).
+
+            if (view == nameInputField) {
+
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+
+                if (nameValidationReport[1] || nameValidationReport[2] || nameValidationReport[3]) {
+                    nameInputField.requestFocus();
+                } else {
+                    birthDateAgeInputField.requestFocus();
+                }
+
+            } else if (view == birthDateAgeInputField) {
+
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+
+                if (birthDateAgeValidationReport[1] || birthDateAgeValidationReport[2]) {
+                    birthDateAgeInputField.requestFocus();
+                } else {
+                    nameInputField.requestFocus();
+                }
+
+            } else {
+
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
             }
 
-            // If both fields where left empty or if a single filled in field was valid,
-            // then the EmptyFieldProtocol method takes care of notifying the user about empty fields
-            if (nameValidationReport[0] && birthDateAgeValidationReport[0]) EmptyFieldProtocol(view, nameEmpty, birthDateAgeEmpty, ageNotBirthDate);
-
-            return false;
-        }
-
-        // If the validation process makes it all the way here,
-        // it means that both fields where filled in with some kind of input.
-        // That input is evaluated in the following lines
-        nameValidationReport = NameValidation(nameInputString);
-        birthDateAgeValidationReport = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
-
-        // If the validation reports are positive then the validation process returns true,
-        // else the InvalidInputProtocol method handles notifying the user appropriately and the validation process returns false
-        if (nameValidationReport[0] && birthDateAgeValidationReport[0]) {
+            Snackbar.make(getActivity().findViewById(R.id.main_layout),
+                    snackBarString,
+                    Snackbar.LENGTH_SHORT)
+                    .show();
             return true;
-        } else {
-            InvalidInputProtocol(view, nameValidationReport, birthDateAgeValidationReport);
+        } else
             return false;
+    }
+
+    private void EmptyFieldProtocol(View view, boolean ageNotBirthDate, boolean[] isEmptyReturns) {
+        String snackBarString;
+
+        // The following if- and else if statement takes care of some fine tuning
+        // regarding the choice of what field is focused and given the cursor depending on
+        // what field already is in focus/already has the cursor
+
+        if (view == nameInputField) {
+
+            if (isEmptyReturns[0]) {
+                nameInputField.requestFocus();
+            } else {
+                birthDateAgeInputField.requestFocus();
+            }
+
+        } else if (view == birthDateAgeInputField) {
+
+            if (isEmptyReturns[1]) {
+                birthDateAgeInputField.requestFocus();
+            } else {
+                nameInputField.requestFocus();
+            }
+
         }
+
+        // The following if-, else if- and else statement takes care of
+        // showing the appropriate message to the user
+
+        if (isEmptyReturns[0] && isEmptyReturns[1]) {
+
+            if (ageNotBirthDate) snackBarString = getString(R.string.name_and_age_empty);
+            else snackBarString = getString(R.string.name_and_birth_date_empty);
+
+        } else if (isEmptyReturns[1]) {
+
+            if (ageNotBirthDate) snackBarString = getString(R.string.age_empty);
+            else snackBarString = getString(R.string.birth_date_empty);
+
+        } else {
+
+            snackBarString = getString(R.string.name_empty);
+        }
+
+        Snackbar.make(getActivity().findViewById(R.id.main_layout),
+                snackBarString,
+                Snackbar.LENGTH_SHORT)
+                .show();
     }
 
     private boolean[] NameValidation(String nameInputString) {
@@ -496,164 +593,13 @@ public class CollectionManagementFragment extends Fragment {
         } else return new boolean[]{true, false, false};
     }
 
-    private void EmptyFieldProtocol(View view, boolean nameEmpty, boolean birthDateAgeEmpty, boolean ageNotBirthDate) {
-        String snackBarString;
-
-        // The following if- and else if statement takes care of some fine tuning
-        // regarding the choice of what field is focused and given the cursor depending on
-        // what field already is in focus/already has the cursor
-
-        if (view == nameInputField) {
-
-            if (nameEmpty) {
-                nameInputField.requestFocus();
-            } else {
-                birthDateAgeInputField.requestFocus();
-            }
-
-        } else if (view == birthDateAgeInputField) {
-
-            if (birthDateAgeEmpty) {
-                birthDateAgeInputField.requestFocus();
-            } else {
-                nameInputField.requestFocus();
-            }
-
+    private String NameCapitalization(String name) {
+        capitalizesNames = nc.matcher(name);
+        while (capitalizesNames.find()) {
+            int rli = capitalizesNames.end();
+            name = name.substring(0, rli - 1) + capitalizesNames.group(1).toUpperCase() + name.substring(rli);
         }
-
-        // The following if-, else if- and else statement takes care of
-        // showing the appropriate message to the user
-
-        if (nameEmpty && birthDateAgeEmpty) {
-
-            if (ageNotBirthDate) snackBarString = getString(R.string.name_and_age_empty);
-            else snackBarString = getString(R.string.name_and_birth_date_empty);
-
-        } else if (birthDateAgeEmpty) {
-
-            if (ageNotBirthDate) snackBarString = getString(R.string.age_empty);
-            else snackBarString = getString(R.string.birth_date_empty);
-
-        } else {
-
-            snackBarString = getString(R.string.name_empty);
-        }
-
-        Snackbar.make(  getActivity().findViewById(R.id.main_layout),
-                        snackBarString,
-                        Snackbar.LENGTH_SHORT)
-                .show();
-    }
-
-    private void InvalidInputProtocol(View view, boolean[] nameValidationReport, boolean[] birthDateAgeValidationReport) {
-        String snackBarString = "";
-
-        // Fetching string resources
-        String suspiciousPatterns = getString(R.string.suspicious_patterns_in_name);
-        String invalidCharacters = getString(R.string.invalid_characters_in_name);
-        String nullLastName = getString(R.string.no_last_name);
-        String invalidDate = getString(R.string.invalid_date);
-        String unknownDateFormat = getString(R.string.unknown_date_format);
-
-        // The following if-, else if- and else statement takes care of some fine tuning
-        // regarding the choice of what field is focused and given the cursor depending on
-        // what field already is in focus/already has the cursor.
-        // The order of the nested if statements implies the prioritization
-        // according to which the messages will be shown (the subsequent if statement overrides the preceding).
-
-        if (view == nameInputField) {
-
-            if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
-            if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
-            if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
-            if (nameValidationReport[2]) snackBarString = invalidCharacters;
-            if (nameValidationReport[1]) snackBarString = nullLastName;
-
-            if (nameValidationReport[1] || nameValidationReport[2] || nameValidationReport[3]) {
-                nameInputField.requestFocus();
-            } else {
-                birthDateAgeInputField.requestFocus();
-            }
-
-        } else if (view == birthDateAgeInputField) {
-
-            if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
-            if (nameValidationReport[2]) snackBarString = invalidCharacters;
-            if (nameValidationReport[1]) snackBarString = nullLastName;
-            if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
-            if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
-
-            if (birthDateAgeValidationReport[1] || birthDateAgeValidationReport[2]) {
-                birthDateAgeInputField.requestFocus();
-            } else {
-                nameInputField.requestFocus();
-            }
-
-        } else {
-
-            if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
-            if (nameValidationReport[2]) snackBarString = invalidCharacters;
-            if (nameValidationReport[1]) snackBarString = nullLastName;
-            if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
-            if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
-        }
-
-        Snackbar.make(  getActivity().findViewById(R.id.main_layout),
-                        snackBarString,
-                        Snackbar.LENGTH_SHORT)
-                .show();
-    }
-
-    private void InvalidNameInputProtocol(View view, boolean[] nameValidationReport) {
-        if (!MainActivity.generatedDemoList) {
-            executeJob = jtf.matcher(nameInputField.getText());
-            if (executeJob.matches()) {
-                ClearFocus();
-                nameInputField.setText("");
-                ((MainActivity) getActivity()).GenerateDemoList();
-                mAdapter.notifyDataSetChanged();
-                return;
-            }
-        }
-        String snackBarString = "";
-
-        String suspiciousPatterns = getString(R.string.suspicious_patterns_in_name);
-        String invalidCharacters = getString(R.string.invalid_characters_in_name);
-        String nullLastName = getString(R.string.no_last_name);
-
-        if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
-        if (nameValidationReport[2]) snackBarString = invalidCharacters;
-        if (nameValidationReport[1]) snackBarString = nullLastName;
-
-        // The following if statement takes care of some fine tuning
-        // regarding the choice of what field is focused and given the cursor depending on
-        // what field already is in focus/already has the cursor
-        if (view == birthDateAgeInputField) nameInputField.requestFocus();
-
-        Snackbar.make(  getActivity().findViewById(R.id.main_layout),
-                        snackBarString,
-                        Snackbar.LENGTH_SHORT)
-                .show();
-    }
-
-    private void InvalidBirthDateAgeInputProtocol(View view, boolean[] birthDateAgeValidationReport) {
-        String snackBarString = "";
-
-        String invalidDate = getString(R.string.invalid_date);
-        String unknownDateFormat = getString(R.string.unknown_date_format);
-
-        if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
-        if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
-
-        // The following if statement takes care of some fine tuning
-        // regarding the choice of what field is focused and given the cursor depending on
-        // what field already is in focus/already has the cursor
-        if (view == nameInputField) birthDateAgeInputField.requestFocus();
-
-        Snackbar.make(  getActivity().findViewById(R.id.main_layout),
-                        snackBarString,
-                        Snackbar.LENGTH_SHORT)
-                .show();
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
     // Clears focus from any interactive element by giving it back to the layout as a whole
