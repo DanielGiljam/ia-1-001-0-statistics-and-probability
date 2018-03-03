@@ -1,5 +1,7 @@
 package com.giljam.daniel.averageandstatisticaldispersion;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -13,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    // Bools that keep the override option states
+    static boolean overrideNameValidation = false;
+    static boolean overrideOtherValidation = false;
 
     // Bool that prevents using GenerateDemoList more than once
     static boolean generatedDemoList = false;
@@ -75,7 +81,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         // getMenuInflater().inflate(R.menu.settings_main, menu);
-        return false;
+        getMenuInflater().inflate(R.menu.settings_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (pdm.getPeople().size() == 0) {
+            menu.findItem(R.id.clear_list).setEnabled(false);
+            menu.findItem(R.id.export_list).setEnabled(false);
+        } else {
+            menu.findItem(R.id.clear_list).setEnabled(true);
+            menu.findItem(R.id.export_list).setEnabled(true);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -86,8 +105,47 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         // noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.override_validation) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder .setTitle(R.string.override_validation_text)
+                    .setMultiChoiceItems(   new String[]{getString(R.string.override_validation_text_name), getString(R.string.override_validation_text_other)},
+                                            new boolean[]{overrideNameValidation, overrideNameValidation},
+                                            new DialogInterface.OnMultiChoiceClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which,
+                                                                    boolean isChecked) {
+                                                    if (isChecked) {
+                                                        if (which == 0) overrideNameValidation = true;
+                                                        if (which == 1) overrideOtherValidation = true;
+                                                    } else {
+                                                        if (which == 0) overrideNameValidation = false;
+                                                        if (which == 1) overrideOtherValidation = false;
+                                                    }
+                                                }
+                                            })
+                    .setPositiveButton(R.string.override_validation_text_positive, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User clicked OK button
+                        }
+                    });
+            builder.create().show();
+        }
+        if (id == R.id.clear_list) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder .setMessage(R.string.clear_list_text_message)
+                    .setTitle(R.string.clear_list_text);
+            builder.setPositiveButton(R.string.clear_list_text_positive, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User clicked OK button
+                }
+            });
+            builder.setNegativeButton(R.string.clear_list_text_negative, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            });
+            builder.create().show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -128,13 +186,15 @@ public class MainActivity extends AppCompatActivity {
         return pdm.getPeople().indexOf(person);
     }
 
-    public void ChangeSortingMode(SortingMode sortingMode) {
+    public int ChangeSortingMode(SortingMode sortingMode) {
         pdm.SortPeople(sortingMode);
         RefreshCalculations();
+        return pdm.getPeople().size();
     }
 
     public void RefreshCalculations() {
         double[] helaRubbet = Statistics.helaRubbet(pdm.getPeopleData());
         statisticsCalculationsFragment.ReceiveCalculations(helaRubbet);
+        invalidateOptionsMenu();
     }
 }

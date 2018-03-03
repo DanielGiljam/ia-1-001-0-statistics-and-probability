@@ -383,7 +383,7 @@ public class CollectionManagementFragment extends Fragment {
         });
 
         // Set up listener for the addButton
-        // so that it trigger addPerson method
+        // so that it triggers addPerson method
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -396,37 +396,28 @@ public class CollectionManagementFragment extends Fragment {
         sortButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                int range;
                 if (b) {
-                    ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.NAME);
+                    range = ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.NAME);
                     sortButton.setTextOn(getString(R.string.name_sort_text));
                 } else {
                     if (sortButton.getTextOn().equals(getString(R.string.name_sort_text))) {
-                        ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.AGE);
+                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.AGE);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.age_sort_text));
                     } else if (sortButton.getTextOn().equals(getString(R.string.age_sort_text))) {
-                        ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.SHOE_SIZE);
+                        range = ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.SHOE_SIZE);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.shoe_size_sort_text));
                     } else if (sortButton.getTextOn().equals(getString(R.string.shoe_size_sort_text))) {
-                        ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.HEIGHT);
+                        range = ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.HEIGHT);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.height_sort_text));
                     } else {
-                        ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.ORIGINAL);
+                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.ORIGINAL);
                     }
                 }
-                mAdapter.notifyDataSetChanged();
-            }
-        });
-
-        mRecyclerView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
+                mAdapter.notifyItemRangeChanged(0, range);
             }
         });
 

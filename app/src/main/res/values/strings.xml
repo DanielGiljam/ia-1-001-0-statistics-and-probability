@@ -2,16 +2,27 @@
 
     <string name="app_name">Average and Statistical Dispersion</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="override_validation_text">Override validation</string>
+    <string name="override_validation_text_name">Override name validation</string>
+    <string name="override_validation_text_other">Override other validation</string>
+    <string name="override_validation_text_positive">OK</string>
+
+    <string name="clear_list_text">Clear list</string>
+    <string name="clear_list_text_message">Are you sure you want to clear the list?</string>
+    <string name="clear_list_text_positive">Clear list</string>
+    <string name="clear_list_text_negative">Cancel</string>
+
+    <string name="import_list_text">Import list from CSV</string>
+    <string name="export_list_text">Export list to CSV</string>
 
     <string name="name_input_field_text">Name</string>
+
     <string name="birth_date_input_field_text">Birthdate</string>
     <string name="age_input_field_text">Age</string>
 
     <string name="birth_date_age_switch_text">Enter as age</string>
 
     <string name="shoe_size_input_field_text">Shoe size</string>
-
     <string name="height_input_field_text">Height (in cm)</string>
 
     <string name="add_button_text">Add</string>
