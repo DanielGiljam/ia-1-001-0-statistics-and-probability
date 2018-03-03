@@ -31,6 +31,14 @@ import java.util.regex.Pattern;
 
 public class CollectionManagementFragment extends Fragment {
 
+    // Limits for shoe size and height for input validation
+
+    private static final int MINIMUM_SHOE_SIZE = 15;
+    private static final int MAXIMUM_SHOE_SIZE = 50;
+
+    private static final int MINIMUM_HEIGHT = 50;
+    private static final int MAXIMUM_HEIGHT = 275;
+
     // Patterns needed for validating the name input string
 
     private static final Pattern mic =
@@ -225,12 +233,12 @@ public class CollectionManagementFragment extends Fragment {
             public void onFocusChange(View view, boolean b) {
                 if (b) {
                     if (nameInputField.getText().toString().isEmpty())
-                        birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_PREVIOUS +
-                                                                EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
+                        birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
+                                                                EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                                 EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
-                                                                EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS +
+                                                                EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                                 EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
@@ -252,7 +260,91 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                    if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        // Set up listener for when focus changes to birthDateAgeInputField
+        // to trigger script that determines what action the enter key should have
+        shoeSizeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    if (nameInputField.getText().toString().isEmpty())
+                        shoeSizeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
+                                                            EditorInfo.IME_FLAG_NAVIGATE_NEXT +
+                                                            EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                    else
+                        shoeSizeInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
+                                                            EditorInfo.IME_FLAG_NAVIGATE_NEXT +
+                                                            EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                }
+            }
+        });
+
+        // Set up listener for enter key when in birthDateAgeInputField
+        // so that the enter key's action is the same as the addButton's if the nameInputField already has been filled out
+        shoeSizeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    PreAddPerson(view);
+                    return true;
+                }
+                return false;
+            }
+        });
+        shoeSizeInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (shoeSizeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        // Set up listener for when focus changes to birthDateAgeInputField
+        // to trigger script that determines what action the enter key should have
+        heightInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    if (nameInputField.getText().toString().isEmpty())
+                        heightInputField.setImeOptions( EditorInfo.IME_ACTION_NEXT +
+                                                        EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                    else
+                        heightInputField.setImeOptions( EditorInfo.IME_ACTION_DONE +
+                                                        EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                }
+            }
+        });
+
+        // Set up listener for enter key when in birthDateAgeInputField
+        // so that the enter key's action is the same as the addButton's if the nameInputField already has been filled out
+        heightInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    PreAddPerson(view);
+                    return true;
+                }
+                return false;
+            }
+        });
+        heightInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
                         return true;
                     }
@@ -634,14 +726,14 @@ public class CollectionManagementFragment extends Fragment {
 
         } else {
 
-            if (isEmptyReturns[0]) {
+            if (isEmptyReturns[3]) {
+                nameInputField.requestFocus();
+            } else if (isEmptyReturns[0]) {
                 birthDateAgeInputField.requestFocus();
             } else if (isEmptyReturns[1]) {
                 shoeSizeInputField.requestFocus();
-            } else if (isEmptyReturns[2]) {
-                heightInputField.requestFocus();
             } else {
-                nameInputField.requestFocus();
+                heightInputField.requestFocus();
             }
         }
 
@@ -778,15 +870,25 @@ public class CollectionManagementFragment extends Fragment {
     }
 
     private boolean[] ShoeSizeValidation(String shoeSizeInputString) {
-        // TODO! Make this method
-        // Code comes here...
-        return new boolean[]{true, false};
+        int shoeSizeInput = Integer.parseInt(shoeSizeInputString);
+        if (shoeSizeInput < MINIMUM_SHOE_SIZE) {
+            return new boolean[]{false, true, false};
+        } else if (shoeSizeInput > MAXIMUM_SHOE_SIZE) {
+            return new boolean[]{false, false, true};
+        } else {
+            return new boolean[]{true, false, false};
+        }
     }
 
     private boolean[] HeightValidation(String heightInputString) {
-        // TODO! Make this method
-        // Code comes here...
-        return new boolean[]{true, false};
+        int heightInput = Integer.parseInt(heightInputString);
+        if (heightInput < MINIMUM_HEIGHT) {
+            return new boolean[]{false, true, false};
+        } else if (heightInput > MAXIMUM_HEIGHT) {
+            return new boolean[]{false, false, true};
+        } else {
+            return new boolean[]{true, false, false};
+        }
     }
 
     private String NameCapitalization(String name) {

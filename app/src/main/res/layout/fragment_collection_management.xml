@@ -57,10 +57,10 @@
                         android:layout_height="wrap_content"
                         android:ems="6"
                         android:hint="@string/birth_date_input_field_text"
-                        android:imeOptions="actionDone|flagNavigatePrevious|flagNoExtractUi"
+                        android:imeOptions="actionDone|flagNavigateNext|flagNoExtractUi"
                         android:inputType="date"
-                        android:nextFocusDown="@id/add_button"
-                        android:nextFocusForward="@id/add_button"
+                        android:nextFocusDown="@id/shoe_size_input_field"
+                        android:nextFocusForward="@id/shoe_size_input_field"
                         android:selectAllOnFocus="true"
                         android:singleLine="true" />
 
@@ -89,10 +89,10 @@
                         android:layout_height="wrap_content"
                         android:ems="6"
                         android:hint="@string/shoe_size_input_field_text"
-                        android:imeOptions="actionDone|flagNavigatePrevious|flagNoExtractUi"
+                        android:imeOptions="actionDone|flagNavigateNext|flagNoExtractUi"
                         android:inputType="number"
-                        android:nextFocusDown="@id/add_button"
-                        android:nextFocusForward="@id/add_button"
+                        android:nextFocusDown="@id/height_input_field"
+                        android:nextFocusForward="@id/height_input_field"
                         android:selectAllOnFocus="true"
                         android:singleLine="true" />
 
@@ -103,7 +103,7 @@
                         android:layout_marginStart="4dp"
                         android:ems="6"
                         android:hint="@string/height_input_field_text"
-                        android:imeOptions="actionDone|flagNavigatePrevious|flagNoExtractUi"
+                        android:imeOptions="actionDone|flagNavigateNext|flagNoExtractUi"
                         android:inputType="number"
                         android:nextFocusDown="@id/add_button"
                         android:nextFocusForward="@id/add_button"
