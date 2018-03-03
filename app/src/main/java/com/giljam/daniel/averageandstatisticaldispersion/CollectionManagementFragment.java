@@ -449,8 +449,8 @@ public class CollectionManagementFragment extends Fragment {
             birthDateAgeInputField.setText("");
             shoeSizeInputField.setText("");
             heightInputField.setText("");
-            ((MainActivity)getActivity()).AddPerson(person);
-            mAdapter.notifyDataSetChanged();
+            int personDestination = ((MainActivity)getActivity()).AddPerson(person);
+            mAdapter.notifyItemInserted(personDestination);
         }
     }
 
@@ -491,7 +491,7 @@ public class CollectionManagementFragment extends Fragment {
                     if (i == 1) validationReports[i] = ShoeSizeValidation(shoeSizeInputString);
                     if (i == 2) validationReports[i] = HeightValidation(heightInputString);
                     if (i == 3) validationReports[i] = NameValidation(nameInputString);
-                    if (!validationReports[i][0]) if (InvalidInputProtocol(view, validationReports)) return false;
+                    if (!validationReports[i][0]) return InvalidInputProtocol(view, validationReports);
                 } else {
                     aFieldIsEmpty = true;
                 }
@@ -505,7 +505,8 @@ public class CollectionManagementFragment extends Fragment {
             boolean[] heightValidationReport = HeightValidation(heightInputString);
             boolean[] nameValidationReport = NameValidation(nameInputString);
 
-            if (InvalidInputProtocol(view, new boolean[][]{birthDateAgeValidationReport, shoeSizeValidationReport, heightValidationReport, nameValidationReport})) return false;
+            boolean iipFeedback = InvalidInputProtocol(view, new boolean[][]{birthDateAgeValidationReport, shoeSizeValidationReport, heightValidationReport, nameValidationReport});
+            if (!iipFeedback) return false;
         }
 
         if (aFieldIsEmpty){
@@ -559,17 +560,95 @@ public class CollectionManagementFragment extends Fragment {
                 if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
                 if (nameValidationReport[2]) snackBarString = invalidCharacters;
 
-                if (!nameValidationReport[0]) {
-                    nameInputField.requestFocus();
-                } else if (!birthDateAgeValidationReport[0]) {
-                    birthDateAgeInputField.requestFocus();
-                } else if (!shoeSizeValidationReport[0]) {
-                    shoeSizeInputField.requestFocus();
-                } else if (!heightValidationReport[0]) {
-                    heightInputField.requestFocus();
+                if (nameValidationReport[0]) {
+                    if (!birthDateAgeValidationReport[0]) {
+                        view.clearFocus();
+                        birthDateAgeInputField.requestFocus();
+                    } else if (!shoeSizeValidationReport[0]) {
+                        view.clearFocus();
+                        shoeSizeInputField.requestFocus();
+                    } else if (!heightValidationReport[0]) {
+                        view.clearFocus();
+                        heightInputField.requestFocus();
+                    }
                 }
 
             } else if (view == birthDateAgeInputField) {
+
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+
+                if (birthDateAgeValidationReport[0]) {
+                    if (!shoeSizeValidationReport[0]) {
+                        view.clearFocus();
+                        shoeSizeInputField.requestFocus();
+                    } else if (!heightValidationReport[0]) {
+                        view.clearFocus();
+                        heightInputField.requestFocus();
+                    } else if (!nameValidationReport[0]) {
+                        view.clearFocus();
+                        nameInputField.requestFocus();
+                    }
+                }
+
+            } else if (view == shoeSizeInputField) {
+
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
+
+                if (shoeSizeValidationReport[0]) {
+                    if (!birthDateAgeValidationReport[0]) {
+                        view.clearFocus();
+                        birthDateAgeInputField.requestFocus();
+                    } else if (!heightValidationReport[0]) {
+                        view.clearFocus();
+                        heightInputField.requestFocus();
+                    } else if (!nameValidationReport[0]) {
+                        view.clearFocus();
+                        nameInputField.requestFocus();
+                    }
+                }
+
+            } else if (view == heightInputField) {
+
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+
+                if (heightValidationReport[0]) {
+                    if (!birthDateAgeValidationReport[0]) {
+                        view.clearFocus();
+                        birthDateAgeInputField.requestFocus();
+                    } else if (!shoeSizeValidationReport[0]) {
+                        view.clearFocus();
+                        shoeSizeInputField.requestFocus();
+                    } else if (!nameValidationReport[0]) {
+                        view.clearFocus();
+                        nameInputField.requestFocus();
+                    }
+                }
+
+            } else {
 
                 if (nameValidationReport[1]) snackBarString = nullLastName;
                 if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
@@ -590,71 +669,17 @@ public class CollectionManagementFragment extends Fragment {
                 } else if (!nameValidationReport[0]) {
                     nameInputField.requestFocus();
                 }
-
-            } else if (view == shoeSizeInputField) {
-
-                if (nameValidationReport[1]) snackBarString = nullLastName;
-                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
-                if (nameValidationReport[2]) snackBarString = invalidCharacters;
-                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
-                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
-                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
-                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
-                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
-                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
-
-                if (!shoeSizeValidationReport[0]) {
-                    shoeSizeInputField.requestFocus();
-                } else if (!birthDateAgeValidationReport[0]) {
-                    birthDateAgeInputField.requestFocus();
-                } else if (!heightValidationReport[0]) {
-                    heightInputField.requestFocus();
-                } else if (!nameValidationReport[0]) {
-                    nameInputField.requestFocus();
-                }
-
-            } else if (view == heightInputField) {
-
-                if (nameValidationReport[1]) snackBarString = nullLastName;
-                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
-                if (nameValidationReport[2]) snackBarString = invalidCharacters;
-                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
-                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
-                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
-                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
-                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
-                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
-
-                if (!heightValidationReport[0]) {
-                    heightInputField.requestFocus();
-                } else if (!birthDateAgeValidationReport[0]) {
-                    birthDateAgeInputField.requestFocus();
-                } else if (!shoeSizeValidationReport[0]) {
-                    shoeSizeInputField.requestFocus();
-                } else if (!nameValidationReport[0]) {
-                    nameInputField.requestFocus();
-                }
-
-            } else {
-
-                if (nameValidationReport[1]) snackBarString = nullLastName;
-                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
-                if (nameValidationReport[2]) snackBarString = invalidCharacters;
-                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
-                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
-                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
-                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
-                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
-                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
             }
+
+            if (snackBarString.isEmpty()) return false;
 
             Snackbar.make(  getActivity().findViewById(R.id.main_layout),
                             snackBarString,
                             Snackbar.LENGTH_SHORT)
                     .show();
-            return true;
-        } else
             return false;
+        } else
+            return true;
     }
 
     private void EmptyFieldProtocol(View view, boolean ageNotBirthDate, boolean[] isEmptyReturns) {
@@ -782,9 +807,18 @@ public class CollectionManagementFragment extends Fragment {
 
     private boolean[] NameValidation(String nameInputString) {
 
+        executeJob = jtf.matcher(nameInputString.trim());
+        if (executeJob.matches()) {
+            if (((MainActivity)getActivity()).GenerateDemoList()) {
+                nameInputField.setText("");
+                mAdapter.notifyItemRangeInserted(0, 16);
+                return new boolean[]{false, false, false, false};
+            }
+        }
+
         // Self-descriptive variable captures first name and last name into separate capturing groups
         capturesNameGroups = cfln.matcher(nameInputString.trim());
-        capturesNameGroups.matches();
+        boolean nullLastName = !capturesNameGroups.matches();
 
 
         // Calculates the occurrences of corresponding character/symbol in the first name
@@ -799,11 +833,10 @@ public class CollectionManagementFragment extends Fragment {
         // The actual validation is wrapped in an if statement
         // to ensure that this validation method works regardless of "the existence" of a last name.
         // "The existence" of a last name -property is stored in the nullLastName variable
-        boolean nullLastName = false;
         int dashesCountLastName = 0;
         int apostrophesCountLastName = 0;
         boolean invalidLastNameBeginOrEnd = false;
-        if (capturesNameGroups.group(2) != null) {
+        if (!nullLastName) {
 
             // Calculates the occurrences of corresponding character/symbol in the first name
             dashesCountLastName = capturesNameGroups.group(2).length() - capturesNameGroups.group(2).replace("-", "").length();
@@ -813,7 +846,7 @@ public class CollectionManagementFragment extends Fragment {
             matchesInvalidNameBeginOrEnd = minbe.matcher(capturesNameGroups.group(2));
             invalidLastNameBeginOrEnd = matchesInvalidNameBeginOrEnd.matches();
 
-        } else nullLastName = true;
+        }
 
         // Some more tests performed on the input as a whole
         matchesInvalidCharacters = mic.matcher(nameInputString);

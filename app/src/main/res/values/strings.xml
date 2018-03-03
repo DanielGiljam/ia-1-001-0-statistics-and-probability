@@ -21,6 +21,8 @@
     <string name="original_sort_text">None</string>
     <string name="name_sort_text">Name</string>
     <string name="age_sort_text">Age</string>
+    <string name="shoe_size_sort_text">Shoe size</string>
+    <string name="height_sort_text">Height</string>
 
     <string name="one_field_empty">Please specify %1$s.</string>
     <string name="two_fields_empty">Please specify %1$s and %2$s.</string>

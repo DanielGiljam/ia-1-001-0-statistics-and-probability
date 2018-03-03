@@ -93,34 +93,39 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void GenerateDemoList() {
-        generatedDemoList = true;
-        List<Person> demoList = new ArrayList<>();
-        demoList.add(new Person("Ulgarf", "Sunders", 38, 38, 168));
-        demoList.add(new Person("Dahmad", "Bax", 62, 39, 186));
-        demoList.add(new Person("Mirina", "Kelt", 35, 38, 168));
-        demoList.add(new Person("Loe", "Karinov", 19, 39, 167));
-        demoList.add(new Person("Olon", "Septoros", 50, 44, 166));
-        demoList.add(new Person("Ning", "Jin-Yiang", 36, 44, 169));
-        demoList.add(new Person("William", "Mercury", 41, 45, 174));
-        demoList.add(new Person("Per-Erik", "Baltmers", 32, 40, 173));
-        demoList.add(new Person("Cedir", "O'Durkniff", 22, 40, 177));
-        demoList.add(new Person("Morod", "Kaffner", 20, 41, 182));
-        demoList.add(new Person("Melina", "Joric", 76, 44, 182));
-        demoList.add(new Person("Sudaro", "Moniz", 37, 39, 184));
-        demoList.add(new Person("Nev Barit", "Kompálo", 29, 41, 173));
-        demoList.add(new Person("Yri", "Kalav", 43, 41, 188));
-        demoList.add(new Person("Gurkav", "Nît-Balal", 49, 37, 168));
-        demoList.add(new Person("Sarab", "Kehschni", 26, 36, 178));
-        pdm.CollectPeople(demoList);
-        RefreshCalculations();
+    public boolean GenerateDemoList() {
+        if (!generatedDemoList && pdm.getPeople().size() == 0) {
+            generatedDemoList = true;
+            List<Person> demoList = new ArrayList<>();
+            demoList.add(new Person("Ulgarf", "Sunders", 38, 38, 168));
+            demoList.add(new Person("Dahmad", "Bax", 62, 39, 186));
+            demoList.add(new Person("Mirina", "Kelt", 35, 38, 168));
+            demoList.add(new Person("Loe", "Karinov", 19, 39, 167));
+            demoList.add(new Person("Olon", "Septoros", 50, 44, 166));
+            demoList.add(new Person("Ning", "Jin-Yiang", 36, 44, 169));
+            demoList.add(new Person("William", "Mercury", 41, 45, 174));
+            demoList.add(new Person("Per-Erik", "Baltmers", 32, 40, 173));
+            demoList.add(new Person("Cedir", "O'Durkniff", 22, 40, 177));
+            demoList.add(new Person("Morod", "Kaffner", 20, 41, 182));
+            demoList.add(new Person("Melina", "Joric", 76, 44, 182));
+            demoList.add(new Person("Sudaro", "Moniz", 37, 39, 184));
+            demoList.add(new Person("Nev Barit", "Kompálo", 29, 41, 173));
+            demoList.add(new Person("Yri", "Kalav", 43, 41, 188));
+            demoList.add(new Person("Gurkav", "Nît-Balal", 49, 37, 168));
+            demoList.add(new Person("Sarab", "Kehschni", 26, 36, 178));
+            pdm.CollectPeople(demoList);
+            RefreshCalculations();
+            return true;
+        } else
+            return false;
     }
 
-    public void AddPerson(Person person) {
+    public int AddPerson(Person person) {
         List<Person> personToBeAdded = new ArrayList<>();
         personToBeAdded.add(person);
         pdm.CollectPeople(personToBeAdded);
         RefreshCalculations();
+        return pdm.getPeople().indexOf(person);
     }
 
     public void ChangeSortingMode(SortingMode sortingMode) {

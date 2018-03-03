@@ -150,7 +150,15 @@ class PersonDataManagement {
     private static class SortByAge implements Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
-            return person1.getAge() - person2.getAge();
+            return person1.getBirthDate().compareTo(person2.getBirthDate());
+        }
+
+    }
+
+    private static class SortByShoeSize implements Comparator<Person> {
+
+        public int compare(Person person1, Person person2) {
+            return person1.getShoeSize() - person2.getShoeSize();
         }
 
     }
