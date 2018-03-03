@@ -189,7 +189,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    if (birthDateAgeInputField.getText().toString().isEmpty())
+                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         nameInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
                                                         EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
@@ -202,7 +202,7 @@ public class CollectionManagementFragment extends Fragment {
         });
 
         // Set up listener for enter key when in nameInputField
-        // so that the enter key's action is the same as the addButton's if the birthDateAgeInputField already has been filled out
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
         nameInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -232,7 +232,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    if (nameInputField.getText().toString().isEmpty())
+                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
                                                                 EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                                 EditorInfo.IME_FLAG_NO_EXTRACT_UI);
@@ -245,7 +245,7 @@ public class CollectionManagementFragment extends Fragment {
         });
 
         // Set up listener for enter key when in birthDateAgeInputField
-        // so that the enter key's action is the same as the addButton's if the nameInputField already has been filled out
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
         birthDateAgeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -269,13 +269,13 @@ public class CollectionManagementFragment extends Fragment {
             }
         });
 
-        // Set up listener for when focus changes to birthDateAgeInputField
+        // Set up listener for when focus changes to shoeSizeInputField
         // to trigger script that determines what action the enter key should have
         shoeSizeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    if (nameInputField.getText().toString().isEmpty())
+                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         shoeSizeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
                                                             EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                             EditorInfo.IME_FLAG_NO_EXTRACT_UI);
@@ -287,8 +287,8 @@ public class CollectionManagementFragment extends Fragment {
             }
         });
 
-        // Set up listener for enter key when in birthDateAgeInputField
-        // so that the enter key's action is the same as the addButton's if the nameInputField already has been filled out
+        // Set up listener for enter key when in shoeSizeInputField
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
         shoeSizeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -312,24 +312,26 @@ public class CollectionManagementFragment extends Fragment {
             }
         });
 
-        // Set up listener for when focus changes to birthDateAgeInputField
+        // Set up listener for when focus changes to heightInputField
         // to trigger script that determines what action the enter key should have
         heightInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    if (nameInputField.getText().toString().isEmpty())
+                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         heightInputField.setImeOptions( EditorInfo.IME_ACTION_NEXT +
+                                                        EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         heightInputField.setImeOptions( EditorInfo.IME_ACTION_DONE +
+                                                        EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
         });
 
-        // Set up listener for enter key when in birthDateAgeInputField
-        // so that the enter key's action is the same as the addButton's if the nameInputField already has been filled out
+        // Set up listener for enter key when in heightInputField
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
         heightInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -344,7 +346,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                    if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
                         return true;
                     }
@@ -402,6 +404,14 @@ public class CollectionManagementFragment extends Fragment {
                         ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.AGE);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.age_sort_text));
+                    } else if (sortButton.getTextOn().equals(getString(R.string.age_sort_text))) {
+                        ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.SHOE_SIZE);
+                        sortButton.setChecked(true);
+                        sortButton.setTextOn(getString(R.string.shoe_size_sort_text));
+                    } else if (sortButton.getTextOn().equals(getString(R.string.shoe_size_sort_text))) {
+                        ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.HEIGHT);
+                        sortButton.setChecked(true);
+                        sortButton.setTextOn(getString(R.string.height_sort_text));
                     } else {
                         ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.ORIGINAL);
                     }
@@ -810,6 +820,7 @@ public class CollectionManagementFragment extends Fragment {
         executeJob = jtf.matcher(nameInputString.trim());
         if (executeJob.matches()) {
             if (((MainActivity)getActivity()).GenerateDemoList()) {
+                ClearFocus();
                 nameInputField.setText("");
                 mAdapter.notifyItemRangeInserted(0, 16);
                 return new boolean[]{false, false, false, false};

@@ -105,8 +105,8 @@
                         android:hint="@string/height_input_field_text"
                         android:imeOptions="actionDone|flagNavigateNext|flagNoExtractUi"
                         android:inputType="number"
-                        android:nextFocusDown="@id/add_button"
-                        android:nextFocusForward="@id/add_button"
+                        android:nextFocusDown="@id/name_input_field"
+                        android:nextFocusForward="@id/name_input_field"
                         android:selectAllOnFocus="true"
                         android:singleLine="true" />
 

@@ -79,9 +79,7 @@ class Person {
     public void RefreshBirthDateAgeInformation(Calendar currentDate) {
         long birthDateAsLong = birthDate.getTime().getTime();
         long currentTimeAsLong = currentDate.getTime().getTime();
-        long differenceInTime;
-        if (birthDateAsLong < 0) differenceInTime = currentTimeAsLong + birthDateAsLong;
-        else differenceInTime = currentTimeAsLong - birthDateAsLong;
+        long differenceInTime = currentTimeAsLong - birthDateAsLong;
         long ageAsLong = (differenceInTime - (differenceInTime % MILLI_SECONDS_TO_YEARS)) / MILLI_SECONDS_TO_YEARS;
         age = (int) ageAsLong;
     }
