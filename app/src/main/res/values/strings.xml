@@ -10,6 +10,10 @@
 
     <string name="birth_date_age_switch_text">Enter as age</string>
 
+    <string name="shoe_size_input_field_text">Shoe size</string>
+
+    <string name="height_input_field_text">Height (in cm)</string>
+
     <string name="add_button_text">Add</string>
 
     <string name="sort_button_description_text">Sort people by</string>

@@ -7,7 +7,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -149,9 +148,10 @@ public class CollectionManagementFragment extends Fragment {
         // Set up the input fields and buttons
         rootLayout = view.findViewById(R.id.collection_management_root_layout);
         nameInputField = view.findViewById(R.id.name_input_field);
-        birthDateAgeInputField = view.findViewById(R.id.year_age_input_field);
-        birthDateAgeSwitch = view.findViewById(R.id.year_age_switch);
-        // TODO! Initialize shoe size and height input fields here
+        birthDateAgeInputField = view.findViewById(R.id.birthdate_age_input_field);
+        birthDateAgeSwitch = view.findViewById(R.id.birthdate_age_switch);
+        shoeSizeInputField = view.findViewById(R.id.shoe_size_input_field);
+        heightInputField = view.findViewById(R.id.height_input_field);
         addButton = view.findViewById(R.id.add_button);
         sortButton = view.findViewById(R.id.sort_button);
 
@@ -336,9 +336,8 @@ public class CollectionManagementFragment extends Fragment {
         // Fetches whatever is in the EditText input fields
         String nameInputString = nameInputField.getText().toString();
         String birthDateAgeInputString = birthDateAgeInputField.getText().toString();
-        // TODO! Fetch shoe size and height input strings here
-        String shoeSizeInputString = "";
-        String heightInputString = "";
+        String shoeSizeInputString = shoeSizeInputField.getText().toString();
+        String heightInputString = heightInputField.getText().toString();
 
         // If the validation of the input is successful,
         // ergo the FieldValidation method returns true,
@@ -456,8 +455,6 @@ public class CollectionManagementFragment extends Fragment {
             // The order of the nested if statements implies the prioritization
             // according to which the messages will be shown (the subsequent if statement overrides the preceding).
 
-            // TODO! Add the elseif -clauses for the shoe size and height input fields to this priority-based selection order
-
             if (view == nameInputField) {
 
                 if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
@@ -470,10 +467,14 @@ public class CollectionManagementFragment extends Fragment {
                 if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
                 if (nameValidationReport[2]) snackBarString = invalidCharacters;
 
-                if (nameValidationReport[1] || nameValidationReport[2] || nameValidationReport[3]) {
+                if (!nameValidationReport[0]) {
                     nameInputField.requestFocus();
-                } else {
+                } else if (!birthDateAgeValidationReport[0]) {
                     birthDateAgeInputField.requestFocus();
+                } else if (!shoeSizeValidationReport[0]) {
+                    shoeSizeInputField.requestFocus();
+                } else if (!heightValidationReport[0]) {
+                    heightInputField.requestFocus();
                 }
 
             } else if (view == birthDateAgeInputField) {
@@ -488,9 +489,57 @@ public class CollectionManagementFragment extends Fragment {
                 if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
                 if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
 
-                if (birthDateAgeValidationReport[1] || birthDateAgeValidationReport[2]) {
+                if (!birthDateAgeValidationReport[0]) {
                     birthDateAgeInputField.requestFocus();
-                } else {
+                } else if (!shoeSizeValidationReport[0]) {
+                    shoeSizeInputField.requestFocus();
+                } else if (!heightValidationReport[0]) {
+                    heightInputField.requestFocus();
+                } else if (!nameValidationReport[0]) {
+                    nameInputField.requestFocus();
+                }
+
+            } else if (view == shoeSizeInputField) {
+
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
+
+                if (!shoeSizeValidationReport[0]) {
+                    shoeSizeInputField.requestFocus();
+                } else if (!birthDateAgeValidationReport[0]) {
+                    birthDateAgeInputField.requestFocus();
+                } else if (!heightValidationReport[0]) {
+                    heightInputField.requestFocus();
+                } else if (!nameValidationReport[0]) {
+                    nameInputField.requestFocus();
+                }
+
+            } else if (view == heightInputField) {
+
+                if (nameValidationReport[1]) snackBarString = nullLastName;
+                if (nameValidationReport[3]) snackBarString = suspiciousPatterns;
+                if (nameValidationReport[2]) snackBarString = invalidCharacters;
+                if (shoeSizeValidationReport[1]) snackBarString = invalidShoeSizeTooSmall;
+                if (shoeSizeValidationReport[2]) snackBarString = invalidShoeSizeTooBig;
+                if (birthDateAgeValidationReport[1]) snackBarString = invalidDate;
+                if (birthDateAgeValidationReport[2]) snackBarString = unknownDateFormat;
+                if (heightValidationReport[1]) snackBarString = invalidHeightTooShort;
+                if (heightValidationReport[2]) snackBarString = invalidHeightTooTall;
+
+                if (!heightValidationReport[0]) {
+                    heightInputField.requestFocus();
+                } else if (!birthDateAgeValidationReport[0]) {
+                    birthDateAgeInputField.requestFocus();
+                } else if (!shoeSizeValidationReport[0]) {
+                    shoeSizeInputField.requestFocus();
+                } else if (!nameValidationReport[0]) {
                     nameInputField.requestFocus();
                 }
 
@@ -523,24 +572,77 @@ public class CollectionManagementFragment extends Fragment {
         // regarding the choice of what field is focused and given the cursor depending on
         // what field already is in focus/already has the cursor
 
-        // TODO! Add elseif -clauses here for shoe size and height input fields
-
         if (view == nameInputField) {
 
-            if (isEmptyReturns[3]) {
-                nameInputField.requestFocus();
-            } else {
-                birthDateAgeInputField.requestFocus();
+            if (!isEmptyReturns[3]) {
+                if (isEmptyReturns[0]) {
+                    view.clearFocus();
+                    birthDateAgeInputField.requestFocus();
+                } else if (isEmptyReturns[1]) {
+                    view.clearFocus();
+                    shoeSizeInputField.requestFocus();
+                } else {
+                    view.clearFocus();
+                    heightInputField.requestFocus();
+                }
             }
 
         } else if (view == birthDateAgeInputField) {
 
+            if (!isEmptyReturns[0]) {
+                if (isEmptyReturns[1]) {
+                    view.clearFocus();
+                    shoeSizeInputField.requestFocus();
+                } else if (isEmptyReturns[2]) {
+                    view.clearFocus();
+                    heightInputField.requestFocus();
+                } else {
+                    view.clearFocus();
+                    nameInputField.requestFocus();
+                }
+            }
+
+        } else if (view == shoeSizeInputField) {
+
+            if (!isEmptyReturns[1]) {
+                if (isEmptyReturns[0]) {
+                    view.clearFocus();
+                    birthDateAgeInputField.requestFocus();
+                } else if (isEmptyReturns[2]) {
+                    view.clearFocus();
+                    heightInputField.requestFocus();
+                } else {
+                    view.clearFocus();
+                    nameInputField.requestFocus();
+                }
+            }
+
+        } else if (view == heightInputField) {
+
+            if (!isEmptyReturns[2]) {
+                if (isEmptyReturns[0]) {
+                    view.clearFocus();
+                    birthDateAgeInputField.requestFocus();
+                } else if (isEmptyReturns[1]) {
+                    view.clearFocus();
+                    shoeSizeInputField.requestFocus();
+                } else {
+                    view.clearFocus();
+                    nameInputField.requestFocus();
+                }
+            }
+
+        } else {
+
             if (isEmptyReturns[0]) {
                 birthDateAgeInputField.requestFocus();
+            } else if (isEmptyReturns[1]) {
+                shoeSizeInputField.requestFocus();
+            } else if (isEmptyReturns[2]) {
+                heightInputField.requestFocus();
             } else {
                 nameInputField.requestFocus();
             }
-
         }
 
         // The following code blocks take care of
@@ -676,11 +778,13 @@ public class CollectionManagementFragment extends Fragment {
     }
 
     private boolean[] ShoeSizeValidation(String shoeSizeInputString) {
+        // TODO! Make this method
         // Code comes here...
         return new boolean[]{true, false};
     }
 
     private boolean[] HeightValidation(String heightInputString) {
+        // TODO! Make this method
         // Code comes here...
         return new boolean[]{true, false};
     }
