@@ -3,7 +3,7 @@
     tools:context="com.giljam.daniel.averageandstatisticaldispersion.MainActivity">
     <item
         android:id="@+id/override_validation"
-        android:title="@string/override_validation_text" />
+        android:title="@string/override_validation_text_default_format" />
     <item
         android:id="@+id/clear_list"
         android:title="@string/clear_list_text" />

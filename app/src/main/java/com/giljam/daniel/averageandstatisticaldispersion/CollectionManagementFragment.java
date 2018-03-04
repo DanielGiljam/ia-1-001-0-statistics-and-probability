@@ -424,6 +424,14 @@ public class CollectionManagementFragment extends Fragment {
         return view;
     }
 
+    public void NotifyListWasCleared(int range) {
+        mAdapter.notifyItemRangeRemoved(0, range);
+    }
+
+    public void NotifyImportEvent() {
+        mAdapter.notifyDataSetChanged();
+    }
+
     private void PreAddPerson(View view) {
 
         // Fetches whatever is in the EditText input fields
@@ -774,7 +782,7 @@ public class CollectionManagementFragment extends Fragment {
                 if (emptyFields < 3) {
                     if (i == 0) {
                         if (ageNotBirthDate) emptyFieldNames[emptyFields] = "age";
-                        else emptyFieldNames[emptyFields] = "birthdate";
+                        else emptyFieldNames[emptyFields] = "birth date";
                     }
                     if (i == 1) emptyFieldNames[emptyFields] = "shoe size";
                     if (i == 2) emptyFieldNames[emptyFields] = "height";
@@ -817,6 +825,8 @@ public class CollectionManagementFragment extends Fragment {
                 return new boolean[]{false, false, false, false};
             }
         }
+
+        if (((MainActivity) getActivity()).getNameOVState()) return new boolean[]{true, false, false, false};
 
         // Self-descriptive variable captures first name and last name into separate capturing groups
         capturesNameGroups = cfln.matcher(nameInputString.trim());
@@ -900,11 +910,13 @@ public class CollectionManagementFragment extends Fragment {
                     }
                 }
             }
+            if (((MainActivity) getActivity()).getBirthDateOVState()) return new boolean[]{true, false, false};
             return new boolean[]{birthDateObject.getTime() <= new Date().getTime(), !(birthDateObject.getTime() <= new Date().getTime()), false};
         } else return new boolean[]{true, false, false};
     }
 
     private boolean[] ShoeSizeValidation(String shoeSizeInputString) {
+        if (((MainActivity) getActivity()).getShoeSizeOVState()) return new boolean[]{true, false, false};
         int shoeSizeInput = Integer.parseInt(shoeSizeInputString);
         if (shoeSizeInput < MINIMUM_SHOE_SIZE) {
             return new boolean[]{false, true, false};
@@ -916,6 +928,7 @@ public class CollectionManagementFragment extends Fragment {
     }
 
     private boolean[] HeightValidation(String heightInputString) {
+        if (((MainActivity) getActivity()).getHeightOVState()) return new boolean[]{true, false, false};
         int heightInput = Integer.parseInt(heightInputString);
         if (heightInput < MINIMUM_HEIGHT) {
             return new boolean[]{false, true, false};

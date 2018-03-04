@@ -85,12 +85,20 @@ class PersonDataManagement {
         return people;
     }
 
+    public int getAmountOfPeople() {
+        return people.size();
+    }
+
     public List<Double> getPeopleData() {
         List<Double> peopleData = new ArrayList<>();
         for (Person person : people) {
             peopleData.add((double) person.getAge());
         }
         return peopleData;
+    }
+
+    public int WhereIs(Person person) {
+        return people.indexOf(person);
     }
 
     public void CollectPeople(List<Person> people) {
