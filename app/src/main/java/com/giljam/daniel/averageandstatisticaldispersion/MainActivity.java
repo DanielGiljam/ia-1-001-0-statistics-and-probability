@@ -17,15 +17,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     // Keep the override option states
-    static boolean overrideNameValidation = false;
-    static boolean overrideBirthDateValidation = false;
-    static boolean overrideShoeSizeValidation = false;
-    static boolean overrideHeightValidation = false;
     private boolean[] ovStates = new boolean[]{false, false, false, false};
     private boolean[] displayedOVStates = new boolean[]{false, false, false, false};
-
-    // Prevents using GenerateDemoList more than once
-    private boolean generatedDemoList = false;
 
     /**
      * The {@link List} object that manages the person data at the center of this app.
@@ -111,16 +104,13 @@ public class MainActivity extends AppCompatActivity {
         // noinspection SimplifiableIfStatement
         if (id == R.id.override_validation) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getString(R.string.override_validation_text, ""));
+            builder.setTitle(getString(R.string.override_validation_text));
             builder.setMultiChoiceItems(
-                    new String[]{   getString(R.string.override_validation_text_name, "name"),
-                                    getString(R.string.override_validation_text, "birth date"),
-                                    getString(R.string.override_validation_text, "shoe size"),
-                                    getString(R.string.override_validation_text, "height")},
-                    new boolean[]{  overrideNameValidation,
-                                    overrideBirthDateValidation,
-                                    overrideShoeSizeValidation,
-                                    overrideHeightValidation},
+                    new String[]{   getString(R.string.override_validation_text_specific, "name"),
+                                    getString(R.string.override_validation_text_specific, "birth date"),
+                                    getString(R.string.override_validation_text_specific, "shoe size"),
+                                    getString(R.string.override_validation_text_specific, "height")},
+                    displayedOVStates,
                     new DialogInterface.OnMultiChoiceClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which,
@@ -128,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                             if (isChecked) {
                                 displayedOVStates[which] = true;
                             } else {
-                                displayedOVStates[which] = true;
+                                displayedOVStates[which] = false;
                             }
                         }
                     });
@@ -140,11 +130,17 @@ public class MainActivity extends AppCompatActivity {
                                 ovStates[i] = dialogOVState;
                                 i++;
                             }
+                            dialog.dismiss();
                         }
                     });
-            builder.setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
+                            int i = 0;
+                            for (boolean ovState : ovStates) {
+                                displayedOVStates[i] = ovState;
+                                i++;
+                            }
                             dialog.cancel();
                         }
                     });
@@ -160,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                             pdm.ClearPeople();
                             RefreshCalculations();
                             collectionManagementFragment.NotifyListWasCleared(range);
+                            dialog.dismiss();
                         }
                     });
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -190,8 +187,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean GenerateDemoList() {
-        if (generatedDemoList || pdm.getPeople().size() == 0) {
-            generatedDemoList = true;
+        if (pdm.getPeople().size() == 0) {
             List<Person> demoList = new ArrayList<>();
             demoList.add(new Person("Ulgarf", "Sunders", 38, 38, 168));
             demoList.add(new Person("Dahmad", "Bax", 62, 39, 186));
@@ -222,6 +218,11 @@ public class MainActivity extends AppCompatActivity {
         pdm.CollectPeople(personToBeAdded);
         RefreshCalculations();
         return pdm.WhereIs(person);
+    }
+
+    public void RemovePerson(int index) {
+        pdm.DeletePeople(index);
+        RefreshCalculations();
     }
 
     public int ChangeSortingMode(SortingMode sortingMode) {

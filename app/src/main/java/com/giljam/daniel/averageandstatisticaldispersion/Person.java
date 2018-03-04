@@ -34,7 +34,8 @@ class Person {
     }
 
     Person(String firstName, String lastName, Date birthDate, int shoeSize, int height) {
-        name = firstName + " " + lastName;
+        if (firstName.isEmpty() || lastName.isEmpty()) name = firstName + lastName;
+        else name = firstName + " " + lastName;
         this.firstName = firstName;
         this.lastName = lastName;
         ParseBirthDate(birthDate);

@@ -107,7 +107,7 @@ class PersonDataManagement {
     }
 
     public void DeletePeople(int index) {
-        if (index - 1 >= 0 && index - 1 <= people.size()) {
+        if (index >= 0 && index <= people.size()) {
             people.remove(index);
             BackgroundSortPeople();
         } else {
@@ -162,7 +162,7 @@ class PersonDataManagement {
     private static class SortById implements  Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
-            return person1.getId() - person2.getId();
+            return person2.getId() - person1.getId();
         }
 
     }

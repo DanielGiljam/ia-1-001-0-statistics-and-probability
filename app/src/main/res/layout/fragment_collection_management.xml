@@ -39,7 +39,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/name_input_field_text"
-                    android:imeOptions="actionNext|flagNavigateNext|flagNoExtractUi"
+                    android:imeOptions="actionNext|flagNoExtractUi"
                     android:inputType="textPersonName|textCapWords"
                     android:nextFocusDown="@id/birthdate_age_input_field"
                     android:nextFocusForward="@id/birthdate_age_input_field"
@@ -57,7 +57,7 @@
                         android:layout_height="wrap_content"
                         android:ems="6"
                         android:hint="@string/birth_date_input_field_text"
-                        android:imeOptions="actionDone|flagNavigateNext|flagNoExtractUi"
+                        android:imeOptions="actionDone|flagNoExtractUi"
                         android:inputType="date"
                         android:nextFocusDown="@id/shoe_size_input_field"
                         android:nextFocusForward="@id/shoe_size_input_field"
@@ -89,7 +89,7 @@
                         android:layout_height="wrap_content"
                         android:ems="6"
                         android:hint="@string/shoe_size_input_field_text"
-                        android:imeOptions="actionDone|flagNavigateNext|flagNoExtractUi"
+                        android:imeOptions="actionDone|flagNoExtractUi"
                         android:inputType="number"
                         android:nextFocusDown="@id/height_input_field"
                         android:nextFocusForward="@id/height_input_field"
@@ -103,7 +103,7 @@
                         android:layout_marginStart="4dp"
                         android:ems="6"
                         android:hint="@string/height_input_field_text"
-                        android:imeOptions="actionDone|flagNavigateNext|flagNoExtractUi"
+                        android:imeOptions="actionDone|flagNoExtractUi"
                         android:inputType="number"
                         android:nextFocusDown="@id/name_input_field"
                         android:nextFocusForward="@id/name_input_field"
@@ -156,7 +156,7 @@
             android:id="@+id/people"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
 
     </LinearLayout>
 

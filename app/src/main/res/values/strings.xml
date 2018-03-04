@@ -5,8 +5,8 @@
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
 
-    <string name="override_validation_text">Override %1$s validation</string>
-    <string name="override_validation_text_default_format">Override validation</string>
+    <string name="override_validation_text">Override validation</string>
+    <string name="override_validation_text_specific">Override %1$s validation</string>
 
     <string name="clear_list_text">Clear list</string>
     <string name="clear_list_text_message">Are you sure you want to clear the list?</string>
@@ -46,11 +46,11 @@
     <string name="unknown_date_format">The format of the date could not be recognized.</string>
     <string name="invalid_date">Dates in the future are invalid.</string>
 
-    <string name="invalid_shoe_size_too_small">The shoe size is too small.</string>
-    <string name="invalid_shoe_size_too_big">The shoe size is too big.</string>
+    <string name="invalid_shoe_size_too_small">Shoe size is too small.</string>
+    <string name="invalid_shoe_size_too_big">Shoe size is too big.</string>
 
-    <string name="invalid_height_too_short">The height value is too little.</string>
-    <string name="invalid_height_too_tall">The height value is too high.</string>
+    <string name="invalid_height_too_short">Height value is too small.</string>
+    <string name="invalid_height_too_tall">Height value is too big.</string>
 
     <string name="list_view_item_person_details_string">age %1$d, shoe size %2$d, height %3$d</string>
 

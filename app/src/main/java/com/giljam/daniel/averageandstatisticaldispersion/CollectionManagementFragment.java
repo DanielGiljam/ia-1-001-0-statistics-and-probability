@@ -7,8 +7,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -36,7 +38,7 @@ public class CollectionManagementFragment extends Fragment {
     private static final int MINIMUM_SHOE_SIZE = 15;
     private static final int MAXIMUM_SHOE_SIZE = 50;
 
-    private static final int MINIMUM_HEIGHT = 50;
+    private static final int MINIMUM_HEIGHT = 45;
     private static final int MAXIMUM_HEIGHT = 275;
 
     // Patterns needed for validating the name input string
@@ -56,6 +58,9 @@ public class CollectionManagementFragment extends Fragment {
     private static final Pattern cfln =
             Pattern.compile(    "\\A(\\S+)(?:\\s+(\\S+))*\\z",
                                 Pattern.CASE_INSENSITIVE);
+    private static final Pattern cflna =
+            Pattern.compile(    "\\A(\\S+)(?:\\s+((?:\\s+(?:\\S+))*))?\\z",
+                                Pattern.CASE_INSENSITIVE);
     private static final Pattern nc =
             Pattern.compile(    "[-'](\\S)",
                                 Pattern.CASE_INSENSITIVE);
@@ -69,6 +74,7 @@ public class CollectionManagementFragment extends Fragment {
     private static Matcher matchesDoubleSpecialCharacters;  // goes with mdsc
     private static Matcher matchesInvalidNameBeginOrEnd;    // goes with minbe
     private static Matcher capturesNameGroups;              // goes with cfln
+    private static Matcher capturesNameGroupsAlt;           // goes with cflna
     private static Matcher capitalizesNames;                // goes with nc
     private static Matcher executeJob;                      // goes with jtf
 
@@ -171,6 +177,22 @@ public class CollectionManagementFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(),1, false));
         mRecyclerView.setAdapter(mAdapter);
 
+        // Set up ItemTouchHelper to handle swiping gestures for deleting entries
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int index = viewHolder.getAdapterPosition();
+                ((MainActivity)getActivity()).RemovePerson(index);
+                mAdapter.notifyItemRemoved(index);
+            }
+        });
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
         // Set up listener for when rootLayout picks up focus
         // to hide on-screen keyboard, as you can't write in the rootLayout
         rootLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -191,11 +213,9 @@ public class CollectionManagementFragment extends Fragment {
                 if (b) {
                     if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         nameInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
-                                                        EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         nameInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
-                                                        EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
@@ -217,7 +237,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (nameInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                    if (nameInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
                         return true;
                     }
@@ -234,11 +254,9 @@ public class CollectionManagementFragment extends Fragment {
                 if (b) {
                     if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
-                                                                EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                                 EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
-                                                                EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                                 EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
@@ -260,7 +278,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                    if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
                         return true;
                     }
@@ -277,11 +295,9 @@ public class CollectionManagementFragment extends Fragment {
                 if (b) {
                     if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         shoeSizeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
-                                                            EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                             EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         shoeSizeInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
-                                                            EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                             EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
@@ -303,7 +319,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (shoeSizeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                    if (shoeSizeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
                         return true;
                     }
@@ -320,11 +336,9 @@ public class CollectionManagementFragment extends Fragment {
                 if (b) {
                     if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
                         heightInputField.setImeOptions( EditorInfo.IME_ACTION_NEXT +
-                                                        EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                     else
                         heightInputField.setImeOptions( EditorInfo.IME_ACTION_DONE +
-                                                        EditorInfo.IME_FLAG_NAVIGATE_NEXT +
                                                         EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 }
             }
@@ -346,7 +360,7 @@ public class CollectionManagementFragment extends Fragment {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NAVIGATE_NEXT + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                    if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
                         return true;
                     }
@@ -428,7 +442,7 @@ public class CollectionManagementFragment extends Fragment {
         mAdapter.notifyItemRangeRemoved(0, range);
     }
 
-    public void NotifyImportEvent() {
+    public void NotifyImportEvent(int range) {
         mAdapter.notifyDataSetChanged();
     }
 
@@ -446,8 +460,18 @@ public class CollectionManagementFragment extends Fragment {
         // else the addPerson method ends here
 
         if (FieldValidation(view, nameInputString, birthDateAgeInputString, shoeSizeInputString, heightInputString, birthDateAgeSwitch.isChecked())) {
-            String firstName = NameCapitalization(capturesNameGroups.group(1));
-            String lastName = NameCapitalization(capturesNameGroups.group(2));
+            String firstName;
+            String lastName;
+            if (((MainActivity)getActivity()).getNameOVState()) {
+                capturesNameGroupsAlt = cflna.matcher(nameInputString.trim());
+                if (capturesNameGroupsAlt.matches()) firstName = NameCapitalization(capturesNameGroupsAlt.group(1));
+                else firstName = "";
+                if (capturesNameGroupsAlt.group(2) != null) lastName = NameCapitalization(capturesNameGroupsAlt.group(2));
+                else lastName = "";
+            } else {
+                firstName = NameCapitalization(capturesNameGroups.group(1));
+                lastName = NameCapitalization(capturesNameGroups.group(2));
+            }
             Person person;
             if (!birthDateAgeSwitch.isChecked())
                 person = new Person(firstName, lastName, birthDateObject, Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
@@ -460,6 +484,7 @@ public class CollectionManagementFragment extends Fragment {
             heightInputField.setText("");
             int personDestination = ((MainActivity)getActivity()).AddPerson(person);
             mAdapter.notifyItemInserted(personDestination);
+            mRecyclerView.smoothScrollToPosition(personDestination);
         }
     }
 
@@ -469,7 +494,7 @@ public class CollectionManagementFragment extends Fragment {
         boolean birthDateAgeEmpty = birthDateAgeInputString.isEmpty();
         boolean shoeSizeEmpty = shoeSizeInputString.isEmpty();
         boolean heightEmpty = heightInputString.isEmpty();
-        boolean nameEmpty = nameInputString.isEmpty();
+        boolean nameEmpty = nameInputString.trim().isEmpty();
 
         boolean[] isEmptyReturns = new boolean[]{birthDateAgeEmpty, shoeSizeEmpty, heightEmpty, nameEmpty};
         boolean aFieldIsEmpty = false;
@@ -693,6 +718,7 @@ public class CollectionManagementFragment extends Fragment {
 
     private void EmptyFieldProtocol(View view, boolean ageNotBirthDate, boolean[] isEmptyReturns) {
         String snackBarString;
+        int snackBarLength;
 
         // The following if- and else if statement takes care of some fine tuning
         // regarding the choice of what field is focused and given the cursor depending on
@@ -711,7 +737,7 @@ public class CollectionManagementFragment extends Fragment {
                     view.clearFocus();
                     heightInputField.requestFocus();
                 }
-            }
+            } else nameInputField.setText("");
 
         } else if (view == birthDateAgeInputField) {
 
@@ -725,6 +751,7 @@ public class CollectionManagementFragment extends Fragment {
                 } else {
                     view.clearFocus();
                     nameInputField.requestFocus();
+                    nameInputField.setText("");
                 }
             }
 
@@ -740,6 +767,7 @@ public class CollectionManagementFragment extends Fragment {
                 } else {
                     view.clearFocus();
                     nameInputField.requestFocus();
+                    nameInputField.setText("");
                 }
             }
 
@@ -755,6 +783,7 @@ public class CollectionManagementFragment extends Fragment {
                 } else {
                     view.clearFocus();
                     nameInputField.requestFocus();
+                    nameInputField.setText("");
                 }
             }
 
@@ -762,6 +791,7 @@ public class CollectionManagementFragment extends Fragment {
 
             if (isEmptyReturns[3]) {
                 nameInputField.requestFocus();
+                nameInputField.setText("");
             } else if (isEmptyReturns[0]) {
                 birthDateAgeInputField.requestFocus();
             } else if (isEmptyReturns[1]) {
@@ -786,7 +816,7 @@ public class CollectionManagementFragment extends Fragment {
                     }
                     if (i == 1) emptyFieldNames[emptyFields] = "shoe size";
                     if (i == 2) emptyFieldNames[emptyFields] = "height";
-                    if (i == 3) emptyFieldNames[emptyFields] = "name";
+                    if (i == 3) emptyFieldNames = new String[]{"name", emptyFieldNames[0], emptyFieldNames[1]};
                 }
                 emptyFields++;
             }
@@ -796,21 +826,25 @@ public class CollectionManagementFragment extends Fragment {
         switch (emptyFields) {
             case 1:
                 snackBarString = getString(R.string.one_field_empty, emptyFieldNames[0]);
+                snackBarLength = Snackbar.LENGTH_SHORT;
                 break;
             case 2:
                 snackBarString = getString(R.string.two_fields_empty, emptyFieldNames[0], emptyFieldNames[1]);
+                snackBarLength = Snackbar.LENGTH_LONG;
                 break;
             case 3:
                 snackBarString = getString(R.string.three_fields_empty, emptyFieldNames[0], emptyFieldNames[1], emptyFieldNames[2]);
+                snackBarLength = Snackbar.LENGTH_LONG;
                 break;
             default:
                 snackBarString = getString(R.string.four_fields_empty);
+                snackBarLength = Snackbar.LENGTH_SHORT;
                 break;
         }
 
         Snackbar.make(  getActivity().findViewById(R.id.main_layout),
                         snackBarString,
-                        Snackbar.LENGTH_SHORT)
+                        snackBarLength)
                 .show();
     }
 
@@ -830,7 +864,7 @@ public class CollectionManagementFragment extends Fragment {
 
         // Self-descriptive variable captures first name and last name into separate capturing groups
         capturesNameGroups = cfln.matcher(nameInputString.trim());
-        boolean nullLastName = !capturesNameGroups.matches();
+        if (!capturesNameGroups.matches()) return new boolean[]{false, false, false, false};
 
 
         // Calculates the occurrences of corresponding character/symbol in the first name
@@ -845,10 +879,11 @@ public class CollectionManagementFragment extends Fragment {
         // The actual validation is wrapped in an if statement
         // to ensure that this validation method works regardless of "the existence" of a last name.
         // "The existence" of a last name -property is stored in the nullLastName variable
+        boolean nullLastName = false;
         int dashesCountLastName = 0;
         int apostrophesCountLastName = 0;
         boolean invalidLastNameBeginOrEnd = false;
-        if (!nullLastName) {
+        if (capturesNameGroups.group(2) != null) {
 
             // Calculates the occurrences of corresponding character/symbol in the first name
             dashesCountLastName = capturesNameGroups.group(2).length() - capturesNameGroups.group(2).replace("-", "").length();
@@ -858,7 +893,7 @@ public class CollectionManagementFragment extends Fragment {
             matchesInvalidNameBeginOrEnd = minbe.matcher(capturesNameGroups.group(2));
             invalidLastNameBeginOrEnd = matchesInvalidNameBeginOrEnd.matches();
 
-        }
+        } else nullLastName = true;
 
         // Some more tests performed on the input as a whole
         matchesInvalidCharacters = mic.matcher(nameInputString);
@@ -894,20 +929,16 @@ public class CollectionManagementFragment extends Fragment {
         // The contents of the following if statement make sure that year isn't in the future
         if (!ageNotBirthDate) {
             try {
-                birthDateObject = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(birthDateAgeInputString);
-            } catch (ParseException e) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                dateFormat.setLenient(false);
+                birthDateObject = dateFormat.parse(birthDateAgeInputString);
+            } catch (ParseException e2) {
                 try {
-                    birthDateObject = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(birthDateAgeInputString);
-                } catch (ParseException e1) {
-                    try {
-                        birthDateObject = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(birthDateAgeInputString);
-                    } catch (ParseException e2) {
-                        try {
-                            birthDateObject = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).parse(birthDateAgeInputString);
-                        } catch (ParseException e3) {
-                            return new boolean[]{false, false, true};
-                        }
-                    }
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+                    dateFormat.setLenient(false);
+                    birthDateObject = dateFormat.parse(birthDateAgeInputString);
+                } catch (ParseException e3) {
+                    return new boolean[]{false, false, true};
                 }
             }
             if (((MainActivity) getActivity()).getBirthDateOVState()) return new boolean[]{true, false, false};
