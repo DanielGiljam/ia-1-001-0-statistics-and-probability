@@ -1,63 +1,184 @@
 package com.giljam.daniel.averageandstatisticaldispersion;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-enum SortingMode {
-    ORIGINAL,
-    NAME,
-    AGE,
-    SHOE_SIZE,
-    HEIGHT;
+class PeopleDataFacilitator {
 
-    String string() {
-        String string = "";
-        switch (this) {
-            case ORIGINAL:
-                string = "original order";
-                break;
-            case NAME:
-                string = "alphabetical order (by last name)";
-                break;
-            case AGE:
-                string = "incremental order (by age)";
-                break;
-            case SHOE_SIZE:
-                string = "incremental order (by shoe size)";
-                break;
-            case HEIGHT:
-                string = "incremental order (by height)";
-                break;
+    private static final Pattern pur =
+            Pattern.compile(    "\\A\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\"\\z",
+                                Pattern.CASE_INSENSITIVE);
+
+    private static Matcher personUnitRecognizer;     // goes with pur
+
+    private SortPeopleBy activeSortingMode;
+
+    private final Comparator<Person> sortById = new SortById();
+    private final Comparator<Person> sortByName = new SortByName();
+    private final Comparator<Person> sortByAge = new SortByAge();
+    private final Comparator<Person> sortByShoeSize = new SortByShoeSize();
+    private final Comparator<Person> sortByHeight = new SortByHeight();
+
+    private final List<Person> people = new ArrayList<>();
+
+    PeopleDataFacilitator(SortPeopleBy activeSortingMode) {
+        this.activeSortingMode = activeSortingMode;
+    }
+
+    ReadWriteReport ReadFromCSV(File csvFile, boolean merge) {
+
+        Scanner scanner;
+        try {
+            scanner = new Scanner(csvFile).useDelimiter("\n");
+        } catch (FileNotFoundException e) {
+            return ReadWriteReport.FILE_NOT_FOUND;
         }
-        return string;
+
+        ReadWriteReport returnValue = ReadWriteReport.SUCCESSFUL;
+        List<Person> peopleFromCSV = new ArrayList<>();
+        while (scanner.hasNext()) {
+            if (!scanner.next().isEmpty()) {
+                try {
+                    peopleFromCSV.add(ExtractPersonData(scanner.next()));
+                } catch (ParseException e) {
+                    returnValue = ReadWriteReport.PARTIALLY_SUCCESSFUL;
+                }
+            }
+        }
+
+        scanner.close();
+
+        if (peopleFromCSV.isEmpty()) return ReadWriteReport.FILE_WAS_EMPTY;
+
+        if (!people.isEmpty()) {
+            if (merge) {
+                people.addAll(peopleFromCSV);
+            } else {
+                people.clear();
+                people.addAll(peopleFromCSV);
+            }
+        } else {
+            people.addAll(peopleFromCSV);
+        }
+        BackgroundSortPeople();
+        return returnValue;
     }
-}
 
-class PersonDataManagement {
+    ReadWriteReport WriteToCSV(File csvFile, boolean withActiveSorting) {
 
-    private static SortingMode activeSortingMode;
+        if (csvFile.exists() && csvFile.isFile()) {
+            csvFile.delete();
+        } try {
+            csvFile.createNewFile();
+        } catch (IOException e) {
+            return ReadWriteReport.IO_EXCEPTION;
+        }
 
-    private static Comparator<Person> sortById = new SortById();
-    private static Comparator<Person> sortByName = new SortByName();
-    private static Comparator<Person> sortByAge = new SortByAge();
-    private static Comparator<Person> sortByShoeSize = new SortByShoeSize();
-    private static Comparator<Person> sortByHeight = new SortByHeight();
+        FileOutputStream outputStream;
+        try {
+            outputStream = new FileOutputStream(csvFile);
+        } catch (FileNotFoundException e) {
+            return ReadWriteReport.FILE_NOT_FOUND;
+        }
 
-    private static List<Person> people;
+        SortPeopleBy activeSortingModeBackup = activeSortingMode;
+        if (!withActiveSorting) {
+            activeSortingMode = SortPeopleBy.ORIGINAL;
+            BackgroundSortPeople();
+        }
 
-    PersonDataManagement() {
-        activeSortingMode = SortingMode.ORIGINAL;
-        people = new ArrayList<>();
-    }
-
-    private void RefreshPeopleBirthDateAgeInformation() {
-        Calendar currentDate = Calendar.getInstance();
+        StringBuilder fileContents = new StringBuilder();
         for (Person person : people) {
-            person.RefreshBirthDateAgeInformation(currentDate);
+            fileContents.append(PreparePersonData(person)).append("\n");
         }
+
+        if (!withActiveSorting) {
+            activeSortingMode = activeSortingModeBackup;
+            BackgroundSortPeople();
+        }
+
+        try {
+            outputStream.write(fileContents.toString().getBytes());
+            outputStream.close();
+            return ReadWriteReport.SUCCESSFUL;
+        } catch (IOException e) {
+            return ReadWriteReport.IO_EXCEPTION;
+        }
+    }
+
+    List<Person> GetPeople() {
+        return people;
+    }
+
+    List<Double> GetPeopleAgeData() {
+        List<Double> peopleAgeData = new ArrayList<>();
+        for (Person person : people) {
+            peopleAgeData.add((double) person.getAge());
+        }
+        return peopleAgeData;
+    }
+
+    List<List<Double>> GetPeopleShoeSizeAndHeightData() {
+        List<Double> peopleShoeSizeData = new ArrayList<>();
+        List<Double> peopleHeightData = new ArrayList<>();
+        for (Person person : people) {
+            peopleShoeSizeData.add((double) person.getShoeSize());
+            peopleHeightData.add((double) person.getHeight());
+        }
+        List<List<Double>> peopleShoeSizeAndHeightData = new ArrayList<>();
+        peopleShoeSizeAndHeightData.add(peopleShoeSizeData);
+        peopleShoeSizeAndHeightData.add(peopleHeightData);
+        return peopleShoeSizeAndHeightData;
+    }
+
+    SortPeopleBy GetActiveSortingMode() {
+        return activeSortingMode;
+    }
+
+    int GetAmountOfPeople() {
+        return people.size();
+    }
+
+    int WhereIs(Person person) {
+        return people.indexOf(person);
+    }
+
+    void AddPerson(Person person) {
+        people.add(person);
+        BackgroundSortPeople();
+    }
+
+    void AddPeople(List<Person> people) {
+        this.people.addAll(people);
+        BackgroundSortPeople();
+    }
+
+    void RemovePerson(int index) {
+        people.remove(index);
+        BackgroundSortPeople();
+    }
+
+    void ClearPeople() {
+        people.clear();
+    }
+
+    void SortPeople(SortPeopleBy sortingMode) {
+        activeSortingMode = sortingMode;
+        BackgroundSortPeople();
     }
 
     private void BackgroundSortPeople() {
@@ -81,73 +202,60 @@ class PersonDataManagement {
         }
     }
 
-    public List<Person> getPeople() {
-        return people;
-    }
-
-    public int getAmountOfPeople() {
-        return people.size();
-    }
-
-    public List<Double> getPeopleData() {
-        List<Double> peopleData = new ArrayList<>();
+    private void RefreshPeopleBirthDateAgeInformation() {
+        Calendar currentDate = Calendar.getInstance();
         for (Person person : people) {
-            peopleData.add((double) person.getAge());
-        }
-        return peopleData;
-    }
-
-    public int WhereIs(Person person) {
-        return people.indexOf(person);
-    }
-
-    public void CollectPeople(List<Person> people) {
-        PersonDataManagement.people.addAll(people);
-        BackgroundSortPeople();
-    }
-
-    public void DeletePeople(int index) {
-        if (index >= 0 && index <= people.size()) {
-            people.remove(index);
-            BackgroundSortPeople();
-        } else {
-            System.out.println("No person at index " + index + ".  (No changes)");
+            person.RefreshBirthDateAgeInformation(currentDate);
         }
     }
 
-    public void ClearPeople() {
-        if (!people.isEmpty()) {
-            people.clear();
-        } else {
-            System.out.println("Your list of people was already empty. (No changes)");
+    private Person ExtractPersonData(String personData) throws ParseException {
+        personUnitRecognizer = pur.matcher(personData);
+        if (!personUnitRecognizer.matches()) throw new ParseException(personData, 0);
+        String firstName;
+        if (personUnitRecognizer.group(1).isEmpty()) throw new ParseException(personData, personUnitRecognizer.start(1));
+        firstName = personUnitRecognizer.group(1);
+        String lastName;
+        if (personUnitRecognizer.group(2).isEmpty()) throw new ParseException(personData, personUnitRecognizer.start(2));
+        lastName = personUnitRecognizer.group(2);
+        Date birthDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(personUnitRecognizer.group(3));
+        int shoeSize;
+        try {
+            shoeSize = Integer.parseInt(personUnitRecognizer.group(4));
+        } catch (NumberFormatException e) {
+            throw new ParseException(personUnitRecognizer.group(4), 0);
         }
+        int height;
+        try {
+            height = Integer.parseInt(personUnitRecognizer.group(5));
+        } catch (NumberFormatException e) {
+            throw new ParseException(personUnitRecognizer.group(5), 0);
+        }
+        return new Person(firstName, lastName, birthDate, shoeSize, height);
     }
 
-    public void SortPeople(SortingMode sortingMode) {
-        if (activeSortingMode != sortingMode) {
-            activeSortingMode = sortingMode;
-            BackgroundSortPeople();
-            System.out.println("Sorting mode set to " + sortingMode.string() + ".");
-        } else {
-            System.out.println("The sorting mode was already set to " + sortingMode.string() + ".");
-        }
+    private String PreparePersonData(Person person) {
+        StringBuilder personData = new StringBuilder();
+
+        String start = "\"";
+        String interSection = "\", \"";
+        String end = "\"";
+
+        personData.append(start);
+        personData.append(person.getFirstName()).append(interSection);
+        personData.append(person.getLastName()).append(interSection);
+
+        String birthDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(person.getBirthDate().getTime());
+        personData.append(birthDate).append(interSection);
+
+        personData.append(person.getShoeSize()).append(interSection);
+        personData.append(person.getHeight());
+        personData.append(end);
+
+        return personData.toString();
     }
 
-    private void PrintPeople(String header) {
-        if (!header.isEmpty()) System.out.println("\n" + header + "\n");
-        for (int i = 0; i < people.size(); i++) {
-            System.out.println("\t" + (i + 1) + ". " + people.get(i));
-        }
-    }
-
-    public void PrintPeople() {
-        System.out.println("\nYour list of people:\n");
-        for (int i = 0; i < people.size(); i++) {
-            System.out.println("\t" + (i + 1) + ". " + people.get(i));
-        }
-    }
-
-    public static int compareNames(Person person1, Person person2) {
+    private int CompareNames(Person person1, Person person2) {
         String name1 = person1.getLastName() + person1.getFirstName();
         name1 = name1.replace("-", "");
         name1 = name1.replace("\'", "");
@@ -159,7 +267,7 @@ class PersonDataManagement {
         return name1.compareToIgnoreCase(name2);
     }
 
-    private static class SortById implements  Comparator<Person> {
+    private class SortById implements  Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
             return person2.getId() - person1.getId();
@@ -167,15 +275,15 @@ class PersonDataManagement {
 
     }
 
-    private static class SortByName implements Comparator<Person> {
+    private class SortByName implements Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
-            return compareNames(person1, person2);
+            return CompareNames(person1, person2);
         }
 
     }
 
-    private static class SortByAge implements Comparator<Person> {
+    private class SortByAge implements Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
             if (!(person2.getBirthDate().get(Calendar.YEAR) == person1.getBirthDate().get(Calendar.YEAR)))
@@ -187,32 +295,141 @@ class PersonDataManagement {
                     if (!(person2.getBirthDate().get(Calendar.DATE) == person1.getBirthDate().get(Calendar.DATE)))
                         return person2.getBirthDate().get(Calendar.DATE) - person1.getBirthDate().get(Calendar.DATE);
                     else
-                        return compareNames(person1, person2);
+                        return CompareNames(person1, person2);
                 }
             }
         }
 
     }
 
-    private static class SortByShoeSize implements Comparator<Person> {
+    private class SortByShoeSize implements Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
             if (person1.getShoeSize() == person2.getShoeSize()) {
-                return compareNames(person1, person2);
+                return CompareNames(person1, person2);
             } else
                 return person1.getShoeSize() - person2.getShoeSize();
         }
 
     }
 
-    private static class SortByHeight implements Comparator<Person> {
+    private class SortByHeight implements Comparator<Person> {
 
         public int compare(Person person1, Person person2) {
             if (person1.getHeight() == person2.getHeight()) {
-                return compareNames(person1, person2);
+                return CompareNames(person1, person2);
             } else
                 return person1.getHeight() - person2.getHeight();
         }
 
+    }
+}
+
+enum SortPeopleBy {
+    ORIGINAL,
+    NAME,
+    AGE,
+    SHOE_SIZE,
+    HEIGHT
+}
+
+enum ReadWriteReport {
+    SUCCESSFUL,
+    PARTIALLY_SUCCESSFUL,
+    FILE_WAS_EMPTY,
+    FILE_NOT_FOUND,
+    IO_EXCEPTION
+}
+
+class Person {
+
+    private static final long MILLI_SECONDS_TO_YEARS = 31449600000L;
+    private static int idCount = 0;
+
+    private int id;
+
+    private String name;
+    private String firstName;
+    private String lastName;
+
+    private Calendar birthDate;
+
+    private int age;
+    private int shoeSize;
+    private int height;
+
+    Person(String firstName, String lastName, int age, int shoeSize, int height) {
+        SetupName(firstName, lastName);
+        ParseAge(age);
+        this.shoeSize = shoeSize;
+        this.height = height;
+        id = idCount;
+        idCount++;
+    }
+
+    Person(String firstName, String lastName, Date birthDate, int shoeSize, int height) {
+        SetupName(firstName, lastName);
+        ParseBirthDate(birthDate);
+        this.shoeSize = shoeSize;
+        this.height = height;
+        id = idCount;
+        idCount++;
+    }
+
+    String getName() {
+        return name;
+    }
+
+    String getFirstName() {
+        return firstName;
+    }
+
+    String getLastName() {
+        return lastName;
+    }
+
+    Calendar getBirthDate() {
+        return birthDate;
+    }
+
+    int getAge() {
+        return age;
+    }
+
+    int getShoeSize() {
+        return shoeSize;
+    }
+
+    int getHeight() {
+        return height;
+    }
+
+    int getId() {
+        return id;
+    }
+
+    void RefreshBirthDateAgeInformation(Calendar currentDate) {
+        long birthDateAsLong = birthDate.getTime().getTime();
+        long currentTimeAsLong = currentDate.getTime().getTime();
+        long differenceInTime = currentTimeAsLong - birthDateAsLong;
+        long ageAsLong = (differenceInTime - (differenceInTime % MILLI_SECONDS_TO_YEARS)) / MILLI_SECONDS_TO_YEARS;
+        age = (int) ageAsLong;
+    }
+
+    private void SetupName(String firstName, String lastName) {
+        if (firstName.isEmpty() || lastName.isEmpty()) name = firstName + lastName;
+        else name = firstName + " " + lastName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    private void ParseBirthDate(Date birthDate) {
+        this.birthDate = Calendar.getInstance();
+        this.birthDate.setTime(birthDate);
+    }
+
+    private void ParseAge(int age) {
+        this.birthDate = Calendar.getInstance();
+        this.birthDate.add(Calendar.YEAR, -age);
     }
 }

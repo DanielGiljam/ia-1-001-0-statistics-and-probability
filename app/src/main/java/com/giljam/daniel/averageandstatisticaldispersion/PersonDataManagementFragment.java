@@ -1,8 +1,8 @@
 package com.giljam.daniel.averageandstatisticaldispersion;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -31,9 +30,12 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CollectionManagementFragment extends Fragment {
+public class PersonDataManagementFragment extends Fragment {
 
-    // Limits for shoe size and height for input validation
+    // LIMITS NEEDED FOR SHOE SIZE AND HEIGHT INPUT VALIDATION
+    // -----------
+    // ----> START
+    // -----------
 
     private static final int MINIMUM_SHOE_SIZE = 15;
     private static final int MAXIMUM_SHOE_SIZE = 50;
@@ -41,7 +43,13 @@ public class CollectionManagementFragment extends Fragment {
     private static final int MINIMUM_HEIGHT = 45;
     private static final int MAXIMUM_HEIGHT = 275;
 
-    // Patterns needed for validating the name input string
+    // ---------
+    // END <----
+    // ---------
+    // PATTERNS NEEDED FOR VALIDATING THE NAME INPUT STRING
+    // -----------
+    // ----> START
+    // -----------
 
     private static final Pattern mic =
             Pattern.compile(    "[^a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ' \\-]",
@@ -59,7 +67,7 @@ public class CollectionManagementFragment extends Fragment {
             Pattern.compile(    "\\A(\\S+)(?:\\s+(\\S+))*\\z",
                                 Pattern.CASE_INSENSITIVE);
     private static final Pattern cflna =
-            Pattern.compile(    "\\A(\\S+)(?:\\s+((?:\\s+(?:\\S+))*))?\\z",
+            Pattern.compile(    "\\A(\\S+)(?:\\s+((?:\\s*(?:\\S+))*))?\\z",
                                 Pattern.CASE_INSENSITIVE);
     private static final Pattern nc =
             Pattern.compile(    "[-'](\\S)",
@@ -67,7 +75,13 @@ public class CollectionManagementFragment extends Fragment {
     private static final Pattern jtf =
             Pattern.compile(    "job314");
 
-    // Matcher variables for more efficiently matching patterns
+    // ---------
+    // END <----
+    // ---------
+    // MATCHER VARIABLES FOR MORE EFFICIENTLY MATCHING PATTERNS
+    // -----------
+    // ----> START
+    // -----------
 
     private static Matcher matchesInvalidCharacters;        // goes with mic
     private static Matcher matchesTripleCharacters;         // goes with mtc
@@ -78,12 +92,12 @@ public class CollectionManagementFragment extends Fragment {
     private static Matcher capitalizesNames;                // goes with nc
     private static Matcher executeJob;                      // goes with jtf
 
-    // Date object that holds a parsed birthdate input string
-
-    private static Date birthDateObject;
+    // ---------
+    // END <----
+    // ---------
 
     /**
-     * Reference to this fragment's root layout/view.
+     * This fragment's root layout/view.
      */
     private FrameLayout rootLayout;
 
@@ -93,12 +107,17 @@ public class CollectionManagementFragment extends Fragment {
     private EditText nameInputField;
 
     /**
-     * Input field for person birthdate or age.
+     * Input field for person birth date or age.
      */
     private EditText birthDateAgeInputField;
 
     /**
-     * Switch to toggle between the birthyear input field and the age input field.
+     * Into where the birth date input string is parsed.
+     */
+    private Date birthDateObject;
+
+    /**
+     * Switch to toggle between having to enter either birth date or age.
      */
     private Switch birthDateAgeSwitch;
 
@@ -113,51 +132,31 @@ public class CollectionManagementFragment extends Fragment {
     private EditText heightInputField;
 
     /**
-     * Button to submit input field data.
+     * Button to submit input field data and add person to the list.
      */
     private Button addButton;
 
     /**
-     * Switch to toggles between sorting modes for the list.
+     * Button to toggle between sorting modes for the list.
      */
     private ToggleButton sortButton;
 
     /**
-     * The {@link RecyclerView.Adapter} that will convert the person
-     * {@link List} data so that it can be displayed by a {@link RecyclerView}.
+     * The adapter that will convert the list data so that it can be displayed by a recycler view.
      */
     private PeopleAdapter mAdapter;
 
     /**
-     * The {@link RecyclerView} that will display the data converted by an {@link RecyclerView.Adapter}.
+     * The recycler view that will display the list data provided by the adapter.
      */
     private RecyclerView mRecyclerView;
 
-    /**
-     * Called to have the fragment instantiate its user interface view.
-     * This is optional, and non-graphical fragments can return null (which
-     * is the default implementation).  This will be called between
-     * {@link #onCreate(Bundle)} and {@link #onActivityCreated(Bundle)}.
-     * <p>
-     * <p>If you return a View from here, you will later be called in
-     * {@link #onDestroyView} when the view is being released.
-     *
-     * @param inflater           The LayoutInflater object that can be used to inflate
-     *                           any views in the fragment,
-     * @param container          If non-null, this is the parent view that the fragment's
-     *                           UI should be attached to.  The fragment should not add the view itself,
-     *                           but this can be used to generate the LayoutParams of the view.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     *                           from a previous saved state as given here.
-     * @return Return the View for the fragment's UI, or null.
-     */
-    @Nullable
     @Override
     public View onCreateView(   LayoutInflater inflater,
-                                @Nullable ViewGroup container,
-                                @Nullable Bundle savedInstanceState)
+                                ViewGroup container,
+                                Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.fragment_collection_management, container, false);
+        View view = inflater.inflate(R.layout.person_data_management_fragment, container, false);
 
         // Set up the input fields and buttons
         rootLayout = view.findViewById(R.id.collection_management_root_layout);
@@ -169,15 +168,50 @@ public class CollectionManagementFragment extends Fragment {
         addButton = view.findViewById(R.id.add_button);
         sortButton = view.findViewById(R.id.sort_button);
 
-        // Create the adapter that will convert the person list data into "list-displayable" data.
-        mAdapter = new PeopleAdapter(getContext(), MainActivity.pdm.getPeople());
+        // Attempt fetching birthDateAgeSwitch state from saved configuration.
+        if (((MainActivity)getActivity()).getSharedPrefs().getBoolean(getString(R.string.birth_date_age_switch_state_key), false)) {
+            birthDateAgeInputField.setHint(R.string.age_input_field_text);
+            birthDateAgeInputField.setInputType(2);
+            birthDateAgeSwitch.setChecked(false);
+        } else {
+            birthDateAgeInputField.setHint(R.string.birth_date_input_field_text);
+            birthDateAgeInputField.setInputType(20);
+            birthDateAgeSwitch.setChecked(true);
+        }
 
-        // Set up the ListView with the array adapter
+        // Set up sortButton to resemble the PeopleDataFacilitator's activeSortingMode.
+        switch (((MainActivity)getActivity()).getActiveSortingMode()) {
+            case ORIGINAL:
+                sortButton.setTextOn(getString(R.string.original_sort_text));
+                sortButton.setChecked(false);
+                break;
+            case NAME:
+                sortButton.setTextOn(getString(R.string.name_sort_text));
+                sortButton.setChecked(true);
+                break;
+            case AGE:
+                sortButton.setTextOn(getString(R.string.age_sort_text));
+                sortButton.setChecked(true);
+                break;
+            case SHOE_SIZE:
+                sortButton.setTextOn(getString(R.string.shoe_size_sort_text));
+                sortButton.setChecked(true);
+                break;
+            case HEIGHT:
+                sortButton.setTextOn(getString(R.string.height_sort_text));
+                sortButton.setChecked(true);
+                break;
+        }
+
+        // Create the adapter that will process the list data for the recycler view to display.
+        mAdapter = new PeopleAdapter(getContext(), ((MainActivity)getActivity()).getPeople());
+
+        // Set up the recycler view with the adapter
         mRecyclerView = view.findViewById(R.id.people);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(),1, false));
         mRecyclerView.setAdapter(mAdapter);
 
-        // Set up ItemTouchHelper to handle swiping gestures for deleting entries
+        // Set up an ItemTouchHelper to handle swiping gestures for deleting list entries
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -193,181 +227,7 @@ public class CollectionManagementFragment extends Fragment {
         });
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
-        // Set up listener for when rootLayout picks up focus
-        // to hide on-screen keyboard, as you can't write in the rootLayout
-        rootLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-            }
-        });
-
-        // Set up listener for when focus changes to nameInputField
-        // to trigger script that determines what action the enter key should have
-        nameInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
-                        nameInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
-                                                        EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                    else
-                        nameInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
-                                                        EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                }
-            }
-        });
-
-        // Set up listener for enter key when in nameInputField
-        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
-        nameInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    PreAddPerson(view);
-                    return true;
-                }
-                return false;
-            }
-        });
-        nameInputField.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (nameInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
-                        PreAddPerson(view);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-        // Set up listener for when focus changes to birthDateAgeInputField
-        // to trigger script that determines what action the enter key should have
-        birthDateAgeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
-                        birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
-                                                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                    else
-                        birthDateAgeInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
-                                                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                }
-            }
-        });
-
-        // Set up listener for enter key when in birthDateAgeInputField
-        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
-        birthDateAgeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    PreAddPerson(view);
-                    return true;
-                }
-                return false;
-            }
-        });
-        birthDateAgeInputField.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
-                        PreAddPerson(view);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-        // Set up listener for when focus changes to shoeSizeInputField
-        // to trigger script that determines what action the enter key should have
-        shoeSizeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
-                        shoeSizeInputField.setImeOptions(   EditorInfo.IME_ACTION_NEXT +
-                                                            EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                    else
-                        shoeSizeInputField.setImeOptions(   EditorInfo.IME_ACTION_DONE +
-                                                            EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                }
-            }
-        });
-
-        // Set up listener for enter key when in shoeSizeInputField
-        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
-        shoeSizeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    PreAddPerson(view);
-                    return true;
-                }
-                return false;
-            }
-        });
-        shoeSizeInputField.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (shoeSizeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
-                        PreAddPerson(view);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-        // Set up listener for when focus changes to heightInputField
-        // to trigger script that determines what action the enter key should have
-        heightInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
-                        heightInputField.setImeOptions( EditorInfo.IME_ACTION_NEXT +
-                                                        EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                    else
-                        heightInputField.setImeOptions( EditorInfo.IME_ACTION_DONE +
-                                                        EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                }
-            }
-        });
-
-        // Set up listener for enter key when in heightInputField
-        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
-        heightInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    PreAddPerson(view);
-                    return true;
-                }
-                return false;
-            }
-        });
-        heightInputField.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
-                        PreAddPerson(view);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
+        MiscListenersSetup();
 
         // Set up listener for the birthDateAgeSwitch
         // so that its state specifies how the input in birthDateAgeInputField should be interpreted
@@ -377,27 +237,17 @@ public class CollectionManagementFragment extends Fragment {
             if (b) {
                 birthDateAgeInputField.setHint(R.string.age_input_field_text);
                 birthDateAgeInputField.setInputType(2);
+                WriteBirthDateAgeSwitchState(true);
             } else {
                 birthDateAgeInputField.setHint(R.string.birth_date_input_field_text);
                 birthDateAgeInputField.setInputType(20);
+                WriteBirthDateAgeSwitchState(false);
             }
-            }
-        });
-
-        // Set up listener for when rootLayout picks up focus
-        // to hide on-screen keyboard, as you can't write in the rootLayout
-        addButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
             }
         });
 
         // Set up listener for the addButton
-        // so that it triggers addPerson method
+        // so that it triggers the PreAddPerson method (that in turn, starts validating/processing the field input)
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -412,23 +262,28 @@ public class CollectionManagementFragment extends Fragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 int range;
                 if (b) {
-                    range = ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.NAME);
+                    range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.NAME);
                     sortButton.setTextOn(getString(R.string.name_sort_text));
+                    WriteActiveSortingMode(1);
                 } else {
                     if (sortButton.getTextOn().equals(getString(R.string.name_sort_text))) {
-                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.AGE);
+                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.AGE);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.age_sort_text));
+                        WriteActiveSortingMode(2);
                     } else if (sortButton.getTextOn().equals(getString(R.string.age_sort_text))) {
-                        range = ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.SHOE_SIZE);
+                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.SHOE_SIZE);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.shoe_size_sort_text));
+                        WriteActiveSortingMode(3);
                     } else if (sortButton.getTextOn().equals(getString(R.string.shoe_size_sort_text))) {
-                        range = ((MainActivity) getActivity()).ChangeSortingMode(SortingMode.HEIGHT);
+                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.HEIGHT);
                         sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.height_sort_text));
+                        WriteActiveSortingMode(4);
                     } else {
-                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortingMode.ORIGINAL);
+                        range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.ORIGINAL);
+                        WriteActiveSortingMode(0);
                     }
                 }
                 mAdapter.notifyItemRangeChanged(0, range);
@@ -442,7 +297,7 @@ public class CollectionManagementFragment extends Fragment {
         mAdapter.notifyItemRangeRemoved(0, range);
     }
 
-    public void NotifyImportEvent(int range) {
+    public void NotifyImportEvent() {
         mAdapter.notifyDataSetChanged();
     }
 
@@ -460,29 +315,46 @@ public class CollectionManagementFragment extends Fragment {
         // else the addPerson method ends here
 
         if (FieldValidation(view, nameInputString, birthDateAgeInputString, shoeSizeInputString, heightInputString, birthDateAgeSwitch.isChecked())) {
+
+            // If the name validation override option is active,
+            // splitting the name input string into a first and a last name
+            // (as both person object constructors require that you do, so that you can provide them separately)
+            // becomes a bit more complicated, as then it's not already guaranteed
+            // at this point, that the name consists of two parts.
+            // The following condition tests make sure all cases are handled correspondingly.
             String firstName;
             String lastName;
             if (((MainActivity)getActivity()).getNameOVState()) {
                 capturesNameGroupsAlt = cflna.matcher(nameInputString.trim());
-                if (capturesNameGroupsAlt.matches()) firstName = NameCapitalization(capturesNameGroupsAlt.group(1));
+                if (capturesNameGroupsAlt.matches()) firstName = capturesNameGroupsAlt.group(1);
                 else firstName = "";
-                if (capturesNameGroupsAlt.group(2) != null) lastName = NameCapitalization(capturesNameGroupsAlt.group(2));
+                if (capturesNameGroupsAlt.group(2) != null) lastName = capturesNameGroupsAlt.group(2);
                 else lastName = "";
             } else {
                 firstName = NameCapitalization(capturesNameGroups.group(1));
                 lastName = NameCapitalization(capturesNameGroups.group(2));
             }
+
+            // The state of the birthDateAgeSwitch tells us which constructor to use when creating the person.
             Person person;
             if (!birthDateAgeSwitch.isChecked())
                 person = new Person(firstName, lastName, birthDateObject, Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
             else
                 person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
+
+            // Now that the person is ready and baked, it's time to clean up!
             ClearFocus();
             nameInputField.setText("");
             birthDateAgeInputField.setText("");
             shoeSizeInputField.setText("");
             heightInputField.setText("");
+
+            // Person is dispatched to the MainActivity, that adds it to the list.
+            // In the transaction, the position of the added person in the list is returned.
             int personDestination = ((MainActivity)getActivity()).AddPerson(person);
+
+            // The recycler view's adapter is notified about the added person
+            // and asked to scroll to the position in the list, where the person was added.
             mAdapter.notifyItemInserted(personDestination);
             mRecyclerView.smoothScrollToPosition(personDestination);
         }
@@ -490,34 +362,28 @@ public class CollectionManagementFragment extends Fragment {
 
     private boolean FieldValidation(View view, String nameInputString, String birthDateAgeInputString, String shoeSizeInputString, String heightInputString, boolean ageNotBirthDate) {
 
-        // Checks whether the input fields where filled out or not
+        // Checking whether the input fields where filled out or not.
         boolean birthDateAgeEmpty = birthDateAgeInputString.isEmpty();
         boolean shoeSizeEmpty = shoeSizeInputString.isEmpty();
         boolean heightEmpty = heightInputString.isEmpty();
         boolean nameEmpty = nameInputString.trim().isEmpty();
 
-        boolean[] isEmptyReturns = new boolean[]{birthDateAgeEmpty, shoeSizeEmpty, heightEmpty, nameEmpty};
-        boolean aFieldIsEmpty = false;
+        if (birthDateAgeEmpty || shoeSizeEmpty || heightEmpty || nameEmpty) {
 
-        if (isEmptyReturns[0] || isEmptyReturns[1] || isEmptyReturns[2] || isEmptyReturns[3]) {
+            // Check results are easier to iterate over when placed inside an array.
+            boolean[] isEmptyReturns = new boolean[]{birthDateAgeEmpty, shoeSizeEmpty, heightEmpty, nameEmpty};
 
-            // Creating the validation reports with preset base values
+            // Initializing validation reports with default values.
             boolean[] birthDateAgeValidationReport = new boolean[]{true, false, false};
             boolean[] shoeSizeValidationReport = new boolean[]{true, false, false};
             boolean[] heightValidationReport = new boolean[]{true, false, false};
             boolean[] nameValidationReport = new boolean[]{true, false, false, false};
 
-            boolean[][] validationReports = new boolean[][]
-            {
-                    birthDateAgeValidationReport,
-                    shoeSizeValidationReport,
-                    heightValidationReport,
-                    nameValidationReport
-            };
+            // Validation reports are easier to iterate over when placed inside an array.
+            boolean[][] validationReports = new boolean[][]{birthDateAgeValidationReport, shoeSizeValidationReport, heightValidationReport, nameValidationReport};
 
-            // If any input field was left empty,
-            // then the following code block (if statement) shuts down the validation process
-            // and notifies the user appropriately
+            // Any non-empty field will still be validated, notifying the user in first hand
+            // whether the non-empty fields passed validation or not.
             int i = 0;
             for (boolean isEmptyReturn : isEmptyReturns) {
                 if (!isEmptyReturn) {
@@ -526,28 +392,24 @@ public class CollectionManagementFragment extends Fragment {
                     if (i == 2) validationReports[i] = HeightValidation(heightInputString);
                     if (i == 3) validationReports[i] = NameValidation(nameInputString);
                     if (!validationReports[i][0]) return InvalidInputProtocol(view, validationReports);
-                } else {
-                    aFieldIsEmpty = true;
                 }
                 i++;
             }
 
+            // If all fields where blank, or some fields where blank and the rest passed validation,
+            // then the validation is dispatched to the EmptyFieldProtocol.
+            return EmptyFieldProtocol(view, ageNotBirthDate, isEmptyReturns);
+
         } else {
 
+            // Validating all the input...
             boolean[] birthDateAgeValidationReport = BirthDateAgeValidation(birthDateAgeInputString, ageNotBirthDate);
             boolean[] shoeSizeValidationReport = ShoeSizeValidation(shoeSizeInputString);
             boolean[] heightValidationReport = HeightValidation(heightInputString);
             boolean[] nameValidationReport = NameValidation(nameInputString);
 
-            boolean iipFeedback = InvalidInputProtocol(view, new boolean[][]{birthDateAgeValidationReport, shoeSizeValidationReport, heightValidationReport, nameValidationReport});
-            if (!iipFeedback) return false;
-        }
-
-        if (aFieldIsEmpty){
-            EmptyFieldProtocol(view, ageNotBirthDate, isEmptyReturns);
-            return false;
-        } else {
-            return true;
+            // The validation is dispatched to the InvalidInputProtocol along with the validation reports.
+            return InvalidInputProtocol(view, new boolean[][]{birthDateAgeValidationReport, shoeSizeValidationReport, heightValidationReport, nameValidationReport});
         }
     }
 
@@ -555,17 +417,19 @@ public class CollectionManagementFragment extends Fragment {
         boolean makeSnackbar = false;
         String snackBarString = "";
 
+        // Determining whether notifying about invalid input is necessary.
         for (boolean[] validationReport : validationReports)
             if (!validationReport[0]) makeSnackbar = true;
 
         if (makeSnackbar) {
 
+            // Expanding validation reports array.
             boolean[] birthDateAgeValidationReport = validationReports[0];
             boolean[] shoeSizeValidationReport = validationReports[1];
             boolean[] heightValidationReport = validationReports[2];
             boolean[] nameValidationReport = validationReports[3];
 
-            // Fetching string resources
+            // Fetching string resources.
             String nullLastName = getString(R.string.no_last_name);
             String suspiciousPatterns = getString(R.string.suspicious_patterns_in_name);
             String invalidCharacters = getString(R.string.invalid_characters_in_name);
@@ -705,20 +569,20 @@ public class CollectionManagementFragment extends Fragment {
                 }
             }
 
+            // Do not show an empty snackbar, in case (god forbid) it would ever lead to that.
             if (snackBarString.isEmpty()) return false;
 
             Snackbar.make(  getActivity().findViewById(R.id.main_layout),
                             snackBarString,
                             Snackbar.LENGTH_SHORT)
                     .show();
+
             return false;
         } else
             return true;
     }
 
-    private void EmptyFieldProtocol(View view, boolean ageNotBirthDate, boolean[] isEmptyReturns) {
-        String snackBarString;
-        int snackBarLength;
+    private boolean EmptyFieldProtocol(View view, boolean ageNotBirthDate, boolean[] isEmptyReturns) {
 
         // The following if- and else if statement takes care of some fine tuning
         // regarding the choice of what field is focused and given the cursor depending on
@@ -802,7 +666,7 @@ public class CollectionManagementFragment extends Fragment {
         }
 
         // The following code blocks take care of
-        // setting up an appropriate message for the user
+        // setting up an appropriate message to the user
 
         int i = 0;
         int emptyFields = 0;
@@ -811,18 +675,20 @@ public class CollectionManagementFragment extends Fragment {
             if (isEmptyReturn) {
                 if (emptyFields < 3) {
                     if (i == 0) {
-                        if (ageNotBirthDate) emptyFieldNames[emptyFields] = "age";
-                        else emptyFieldNames[emptyFields] = "birth date";
+                        if (ageNotBirthDate) emptyFieldNames[emptyFields] = getString(R.string.age);
+                        else emptyFieldNames[emptyFields] = getString(R.string.birth_date);
                     }
-                    if (i == 1) emptyFieldNames[emptyFields] = "shoe size";
-                    if (i == 2) emptyFieldNames[emptyFields] = "height";
-                    if (i == 3) emptyFieldNames = new String[]{"name", emptyFieldNames[0], emptyFieldNames[1]};
+                    if (i == 1) emptyFieldNames[emptyFields] = getString(R.string.shoe_size);
+                    if (i == 2) emptyFieldNames[emptyFields] = getString(R.string.height);
+                    if (i == 3) emptyFieldNames = new String[]{getString(R.string.name), emptyFieldNames[0], emptyFieldNames[1]};
                 }
                 emptyFields++;
             }
             i++;
         }
 
+        String snackBarString;
+        int snackBarLength;
         switch (emptyFields) {
             case 1:
                 snackBarString = getString(R.string.one_field_empty, emptyFieldNames[0]);
@@ -846,6 +712,8 @@ public class CollectionManagementFragment extends Fragment {
                         snackBarString,
                         snackBarLength)
                 .show();
+
+        return false;
     }
 
     private boolean[] NameValidation(String nameInputString) {
@@ -860,42 +728,42 @@ public class CollectionManagementFragment extends Fragment {
             }
         }
 
+        // if the name validation override option is active, then the name validation returns successful no matter what.
         if (((MainActivity) getActivity()).getNameOVState()) return new boolean[]{true, false, false, false};
 
-        // Self-descriptive variable captures first name and last name into separate capturing groups
+        // Self-descriptive variable captures first name and last name into separate capturing groups.
         capturesNameGroups = cfln.matcher(nameInputString.trim());
         if (!capturesNameGroups.matches()) return new boolean[]{false, false, false, false};
 
-
-        // Calculates the occurrences of corresponding character/symbol in the first name
+        // Calculates the occurrences of corresponding character/symbol in the first name.
         int dashesCountFirstName = capturesNameGroups.group(1).length() - capturesNameGroups.group(1).replace("-", "").length();
         int apostrophesCountFirstName = capturesNameGroups.group(1).length() - capturesNameGroups.group(1).replace("\'", "").length();
 
-        // Tests if first name begins or ends "suspiciously"
+        // Tests if first name begins or ends "suspiciously".
         matchesInvalidNameBeginOrEnd = minbe.matcher(capturesNameGroups.group(1));
         boolean invalidFirstNameBeginOrEnd = matchesInvalidNameBeginOrEnd.matches();
 
         // Declares variables for validating the last name.
         // The actual validation is wrapped in an if statement
         // to ensure that this validation method works regardless of "the existence" of a last name.
-        // "The existence" of a last name -property is stored in the nullLastName variable
+        // "The existence" of a last name -property is stored in the nullLastName variable.
         boolean nullLastName = false;
         int dashesCountLastName = 0;
         int apostrophesCountLastName = 0;
         boolean invalidLastNameBeginOrEnd = false;
         if (capturesNameGroups.group(2) != null) {
 
-            // Calculates the occurrences of corresponding character/symbol in the first name
+            // Calculates the occurrences of corresponding character/symbol in the first name.
             dashesCountLastName = capturesNameGroups.group(2).length() - capturesNameGroups.group(2).replace("-", "").length();
             apostrophesCountLastName = capturesNameGroups.group(2).length() - capturesNameGroups.group(2).replace("\'", "").length();
 
-            // Tests if first name begins or ends "suspiciously"
+            // Tests if first name begins or ends "suspiciously".
             matchesInvalidNameBeginOrEnd = minbe.matcher(capturesNameGroups.group(2));
             invalidLastNameBeginOrEnd = matchesInvalidNameBeginOrEnd.matches();
 
         } else nullLastName = true;
 
-        // Some more tests performed on the input as a whole
+        // Some more tests performed on the input as a whole.
         matchesInvalidCharacters = mic.matcher(nameInputString);
         matchesTripleCharacters = mtc.matcher(nameInputString);
         matchesDoubleSpecialCharacters = mdsc.matcher(nameInputString);
@@ -903,7 +771,7 @@ public class CollectionManagementFragment extends Fragment {
         boolean tripleCharacters = matchesTripleCharacters.find();
         boolean doubleSpecialCharacters = matchesDoubleSpecialCharacters.find();
 
-        // Comprehensive validation data compressed into a vague suspiciousPatterns bool
+        // Comprehensive validation data compressed into a vague suspiciousPatterns bool.
         boolean suspiciousPatterns =    tripleCharacters ||
                                         doubleSpecialCharacters ||
                                         dashesCountFirstName >= 2 ||
@@ -913,7 +781,7 @@ public class CollectionManagementFragment extends Fragment {
                                         apostrophesCountLastName >= 4 ||
                                         invalidLastNameBeginOrEnd;
 
-        // The returned array's 0-index - passedValidation - gets its appropriate value
+        // The returned array's 0-index - passedValidation - gets its appropriate value.
         boolean passedValidation = true;
         if (invalidCharacters || nullLastName || suspiciousPatterns) passedValidation = false;
 
@@ -924,9 +792,6 @@ public class CollectionManagementFragment extends Fragment {
     }
 
     private boolean[] BirthDateAgeValidation(String birthDateAgeInputString, boolean ageNotBirthDate) {
-        // Basically validation is only necessary when the user hasn't flicked the ageYearSwitch
-        // ergo when the birthDateAgeInputField is read as a calendar year.
-        // The contents of the following if statement make sure that year isn't in the future
         if (!ageNotBirthDate) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
@@ -979,8 +844,255 @@ public class CollectionManagementFragment extends Fragment {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
-    // Clears focus from any interactive element by giving it back to the layout as a whole
     private void ClearFocus() {
         rootLayout.requestFocus();
+    }
+
+    private void MiscListenersSetup() {
+
+        // Set up listener for when rootLayout picks up focus
+        // to hide on-screen keyboard, as you can't write in the rootLayout
+        rootLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        });
+
+        // Set up listener for when focus changes to nameInputField
+        // to trigger script that determines what action the enter key should have
+        nameInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    if (birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
+                        nameInputField.setImeOptions(EditorInfo.IME_ACTION_NEXT +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                    else
+                        nameInputField.setImeOptions(EditorInfo.IME_ACTION_DONE +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                }
+            }
+        });
+
+        // Set up listener for enter key when in nameInputField
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
+        nameInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    PreAddPerson(view);
+                    return true;
+                }
+                return false;
+            }
+        });
+        nameInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (nameInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return false;
+                    }
+                }
+                return false;
+            }
+        });
+
+        // Set up listener for when focus changes to birthDateAgeInputField
+        // to trigger script that determines what action the enter key should have
+        birthDateAgeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    if (nameInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
+                        birthDateAgeInputField.setImeOptions(EditorInfo.IME_ACTION_NEXT +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                    else
+                        birthDateAgeInputField.setImeOptions(EditorInfo.IME_ACTION_DONE +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                }
+            }
+        });
+
+        // Set up listener for enter key when in birthDateAgeInputField
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
+        birthDateAgeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    PreAddPerson(view);
+                    return true;
+                }
+                return false;
+            }
+        });
+        birthDateAgeInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return false;
+                    }
+                }
+                return false;
+            }
+        });
+
+        // Set up listener for when focus changes to shoeSizeInputField
+        // to trigger script that determines what action the enter key should have
+        shoeSizeInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || heightInputField.getText().toString().isEmpty())
+                        shoeSizeInputField.setImeOptions(EditorInfo.IME_ACTION_NEXT +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                    else
+                        shoeSizeInputField.setImeOptions(EditorInfo.IME_ACTION_DONE +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                }
+            }
+        });
+
+        // Set up listener for enter key when in shoeSizeInputField
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
+        shoeSizeInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    PreAddPerson(view);
+                    return true;
+                }
+                return false;
+            }
+        });
+        shoeSizeInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (shoeSizeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return false;
+                    }
+                }
+                return false;
+            }
+        });
+
+        // Set up listener for when focus changes to heightInputField
+        // to trigger script that determines what action the enter key should have
+        heightInputField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    if (nameInputField.getText().toString().isEmpty() || birthDateAgeInputField.getText().toString().isEmpty() || shoeSizeInputField.getText().toString().isEmpty())
+                        heightInputField.setImeOptions(EditorInfo.IME_ACTION_NEXT +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                    else
+                        heightInputField.setImeOptions(EditorInfo.IME_ACTION_DONE +
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                }
+            }
+        });
+
+        // Set up listener for enter key when in heightInputField
+        // so that the enter key's action is the same as the addButton's if the other fields already have been filled out
+        heightInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    PreAddPerson(view);
+                    return true;
+                }
+                return false;
+            }
+        });
+        heightInputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                    if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
+                        PreAddPerson(view);
+                        return false;
+                    }
+                }
+                return false;
+            }
+        });
+
+        // Set up listener for when rootLayout picks up focus
+        // to hide on-screen keyboard, as you can't write on the addButton
+        addButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        });
+    }
+
+    private void WriteBirthDateAgeSwitchState(boolean birthDateAgeSwitchState) {
+        SharedPreferences.Editor sharedPrefsEditor = ((MainActivity)getActivity()).getSharedPrefs().edit();
+        sharedPrefsEditor.putBoolean(getString(R.string.birth_date_age_switch_state_key), birthDateAgeSwitchState);
+        sharedPrefsEditor.apply();
+    }
+
+    private void WriteActiveSortingMode(int mode) {
+        SharedPreferences.Editor sharedPrefsEditor = ((MainActivity) getActivity()).getSharedPrefs().edit();
+        sharedPrefsEditor.putInt(getString(R.string.active_sorting_mode_key), mode);
+        sharedPrefsEditor.apply();
+    }
+
+    private class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder> {
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+
+            TextView personName;
+            TextView personYearAge;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                personName = itemView.findViewById(R.id.person_name);
+                personYearAge = itemView.findViewById(R.id.person_year_age);
+            }
+        }
+
+        private Context context;
+        private List<Person> people;
+
+        PeopleAdapter(Context context, List<Person> people) {
+            this.context = context;
+            this.people = people;
+        }
+
+        @Override
+        public PeopleAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            Context context = parent.getContext();
+            LayoutInflater inflater = LayoutInflater.from(context);
+            View personView = inflater.inflate(R.layout.list_item, parent, false);
+            return new ViewHolder(personView);
+        }
+
+        @Override
+        public void onBindViewHolder(PeopleAdapter.ViewHolder viewHolder, int position) {
+            Person person = people.get(position);
+            TextView personName = viewHolder.personName;
+            TextView personYearAge = viewHolder.personYearAge;
+            personName.setText(person.getName());
+            personYearAge.setText(String.format(context.getString(R.string.list_view_item_person_details_string), person.getAge(), person.getShoeSize(), person.getHeight()));
+        }
+
+        @Override
+        public int getItemCount() {
+            return people.size();
+        }
     }
 }

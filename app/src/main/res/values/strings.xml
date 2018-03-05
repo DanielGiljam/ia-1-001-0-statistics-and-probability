@@ -2,8 +2,25 @@
 
     <string name="app_name">Average and Statistical Dispersion</string>
 
+    <string name="read_write_exception_mode_1_text">Unable to access internal storage</string>
+    <string name="read_write_exception_mode_1_text_message_1">You can continue using the app normally, but it will start with a blank list, and that list won\'t be saved when you exit the app.</string>
+    <string name="read_write_exception_mode_1_text_message_2">You can continue using the app normally, but it will start with a blank list, and that list won\'t be saved when you exit the app.&lt;br/&gt;&lt;br/&gt;(Btw, the app also failed to save your list at the end of the previous session.)</string>
+
+    <string name="read_write_exception_mode_2_text">The app\'s internally saved file for your list is corrupt.</string>
+    <string name="read_write_exception_mode_2_text_message">If you are seeing this message, you have most likely intentionally triggered the error and you know how to fix it ;)</string>
+
+    <string name="read_write_exception_mode_3_text">Previous session was unable to save list</string>
+    <string name="read_write_exception_mode_3_text_message">The app encountered a failure when trying to save the list in the previous session. The latest available saved list (%1$s) will be loaded.</string>
+
+    <string name="ok">OK</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+
+    <string name="name">name</string>
+    <string name="birth_date">birth date</string>
+    <string name="age">birth date</string>
+    <string name="shoe_size">shoe size</string>
+    <string name="height">height</string>
 
     <string name="override_validation_text">Override validation</string>
     <string name="override_validation_text_specific">Override %1$s validation</string>

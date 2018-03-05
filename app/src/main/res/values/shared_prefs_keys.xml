@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="read_write_exception_mode_3_key">read_write_exception_mode_3</string>
+    
+    <string name="ov_state_0_key">override_name_validation</string>
+    <string name="ov_state_1_key">override_birth_date_validation</string>
+    <string name="ov_state_2_key">override_shoe_size_validation</string>
+    <string name="ov_state_3_key">override_height_validation</string>
+
+    <string name="birth_date_age_switch_state_key">birth_date_age_switch_state</string>
+
+    <string name="active_sorting_mode_key">active_sorting_mode</string>
+    
+</resources>
