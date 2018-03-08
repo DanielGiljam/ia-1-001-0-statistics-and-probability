@@ -987,9 +987,11 @@ public class PersonDataManagementFragment extends Fragment {
 
     private void ShowPersonInstancesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        final int personInstancesBackup = personInstances;
         final NumberPicker numberPicker = new NumberPicker(getContext());
         numberPicker.setMinValue(1);
         numberPicker.setMaxValue(512);
+        numberPicker.setValue(personInstances);
         numberPicker.setWrapSelectorWheel(false);
         builder.setView(numberPicker);
         builder.setTitle(R.string.number_picker_dialog_text_person_instances);
@@ -1005,6 +1007,7 @@ public class PersonDataManagementFragment extends Fragment {
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
+                personInstances = personInstancesBackup;
                 dialog.cancel();
             }
         });
