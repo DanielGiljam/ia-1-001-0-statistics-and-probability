@@ -1,6 +1,8 @@
 package com.giljam.daniel.averageandstatisticaldispersion;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -8,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Html;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +21,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.NumberPicker;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -137,6 +141,11 @@ public class PersonDataManagementFragment extends Fragment {
     private Button addButton;
 
     /**
+     * Button to toggle the "auto fields" feature.
+     */
+    private ToggleButton autoFieldsButton;
+
+    /**
      * Button to toggle between sorting modes for the list.
      */
     private ToggleButton sortButton;
@@ -150,6 +159,13 @@ public class PersonDataManagementFragment extends Fragment {
      * The recycler view that will display the list data provided by the adapter.
      */
     private RecyclerView mRecyclerView;
+
+    /**
+     * How many people the add button creates at once.
+     * If "auto fields" feature is disabled, the add person only creates
+     * one person at a time.
+     */
+    private int personInstances = 1;
 
     @Override
     public View onCreateView(   LayoutInflater inflater,
@@ -166,17 +182,32 @@ public class PersonDataManagementFragment extends Fragment {
         shoeSizeInputField = view.findViewById(R.id.shoe_size_input_field);
         heightInputField = view.findViewById(R.id.height_input_field);
         addButton = view.findViewById(R.id.add_button);
+        autoFieldsButton = view.findViewById(R.id.auto_fields_button);
         sortButton = view.findViewById(R.id.sort_button);
+
+        // Attempt fetching personInstances from saved configuration.
+        personInstances = ((MainActivity)getActivity()).getSharedPrefs().getInt(getString(R.string.auto_fields_person_instances_key), 1);
 
         // Attempt fetching birthDateAgeSwitch state from saved configuration.
         if (((MainActivity)getActivity()).getSharedPrefs().getBoolean(getString(R.string.birth_date_age_switch_state_key), false)) {
             birthDateAgeInputField.setHint(R.string.age_input_field_text);
             birthDateAgeInputField.setInputType(2);
-            birthDateAgeSwitch.setChecked(false);
+            birthDateAgeSwitch.setChecked(true);
         } else {
             birthDateAgeInputField.setHint(R.string.birth_date_input_field_text);
             birthDateAgeInputField.setInputType(20);
-            birthDateAgeSwitch.setChecked(true);
+            birthDateAgeSwitch.setChecked(false);
+        }
+
+        // Attempt fetching autoFieldsButton state from saved configuration.
+        if (((MainActivity) getActivity()).getSharedPrefs().getBoolean(getString(R.string.auto_fields_button_state_key), false)) {
+            CharSequence abaText = Html.fromHtml(getString(R.string.add_button_text_alt, personInstances));
+            addButton.setText(abaText);
+            autoFieldsButton.setTextColor(getResources().getColor(R.color.colorAccent));
+            autoFieldsButton.setChecked(true);
+        } else {
+            autoFieldsButton.setTextColor(getResources().getColor(android.R.color.black));
+            autoFieldsButton.setChecked(false);
         }
 
         // Set up sortButton to resemble the PeopleDataFacilitator's activeSortingMode.
@@ -251,7 +282,36 @@ public class PersonDataManagementFragment extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PreAddPerson(addButton);
+                PreAddPerson(view);
+            }
+        });
+
+        addButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (autoFieldsButton.isChecked()) {
+                    ShowPersonInstancesDialog();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // Set up listener for the autoFieldsButton
+        // so that its state specifies whether the "auto fields" feature is on or off
+        autoFieldsButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    CharSequence abaText = Html.fromHtml(getString(R.string.add_button_text_alt, personInstances));
+                    addButton.setText(abaText);
+                    autoFieldsButton.setTextColor(getResources().getColor(R.color.colorAccent));
+                    WriteAutoFieldsButtonState(true);
+                } else {
+                    addButton.setText(getString(R.string.add_button_text));
+                    autoFieldsButton.setTextColor(getResources().getColor(android.R.color.black));
+                    WriteAutoFieldsButtonState(false);
+                }
             }
         });
 
@@ -268,18 +328,18 @@ public class PersonDataManagementFragment extends Fragment {
                 } else {
                     if (sortButton.getTextOn().equals(getString(R.string.name_sort_text))) {
                         range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.AGE);
-                        sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.age_sort_text));
+                        sortButton.setChecked(true);
                         WriteActiveSortingMode(2);
                     } else if (sortButton.getTextOn().equals(getString(R.string.age_sort_text))) {
                         range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.SHOE_SIZE);
-                        sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.shoe_size_sort_text));
+                        sortButton.setChecked(true);
                         WriteActiveSortingMode(3);
                     } else if (sortButton.getTextOn().equals(getString(R.string.shoe_size_sort_text))) {
                         range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.HEIGHT);
-                        sortButton.setChecked(true);
                         sortButton.setTextOn(getString(R.string.height_sort_text));
+                        sortButton.setChecked(true);
                         WriteActiveSortingMode(4);
                     } else {
                         range = ((MainActivity)getActivity()).ChangeSortingMode(SortPeopleBy.ORIGINAL);
@@ -316,6 +376,24 @@ public class PersonDataManagementFragment extends Fragment {
 
         if (FieldValidation(view, nameInputString, birthDateAgeInputString, shoeSizeInputString, heightInputString, birthDateAgeSwitch.isChecked())) {
 
+            // Following code block takes care of generating left out field data
+            // if the "auto fields" feature is enabled.
+            boolean autoGenerate = false;
+            boolean sameName = true;
+            if (autoFieldsButton.isChecked()) {
+                if (nameInputString.isEmpty()) {
+                    sameName = false;
+                    nameInputString = GenerateNameInputString();
+                }
+                if (birthDateAgeInputString.isEmpty()) {
+                    autoGenerate = true;
+                    birthDateAgeInputString = GenerateBirthDateAgeInputString();
+                }
+                if (shoeSizeInputString.isEmpty()) shoeSizeInputString = GenerateShoeSizeInputString();
+                if (heightInputString.isEmpty()) heightInputString = GenerateHeightInputString();
+            }
+            if (sameName) if (ShowSameNameDialog()) return;
+
             // If the name validation override option is active,
             // splitting the name input string into a first and a last name
             // (as both person object constructors require that you do, so that you can provide them separately)
@@ -337,7 +415,7 @@ public class PersonDataManagementFragment extends Fragment {
 
             // The state of the birthDateAgeSwitch tells us which constructor to use when creating the person.
             Person person;
-            if (!birthDateAgeSwitch.isChecked())
+            if (!birthDateAgeSwitch.isChecked() && !autoGenerate)
                 person = new Person(firstName, lastName, birthDateObject, Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
             else
                 person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
@@ -349,14 +427,24 @@ public class PersonDataManagementFragment extends Fragment {
             shoeSizeInputField.setText("");
             heightInputField.setText("");
 
-            // Person is dispatched to the MainActivity, that adds it to the list.
-            // In the transaction, the position of the added person in the list is returned.
-            int personDestination = ((MainActivity)getActivity()).AddPerson(person);
+            // This iterator + local variable + condition + while-loop takes care of adding many people at once
+            // if the "auto fields" feature is enabled and a "add button -value" higher than 1 has been selected
+            // by long pressing the add button.
+            int i = 0;
+            int localPersonInstances;
+            if (autoFieldsButton.isChecked()) localPersonInstances = personInstances;
+            else localPersonInstances = 1;
+            while (i < localPersonInstances) {
+                // Person is dispatched to the MainActivity, that adds it to the list.
+                // In the transaction, the position of the added person in the list is returned.
+                int personDestination = ((MainActivity) getActivity()).AddPerson(person);
 
-            // The recycler view's adapter is notified about the added person
-            // and asked to scroll to the position in the list, where the person was added.
-            mAdapter.notifyItemInserted(personDestination);
-            mRecyclerView.smoothScrollToPosition(personDestination);
+                // The recycler view's adapter is notified about the added person
+                // and asked to scroll to the position in the list, where the person was added.
+                mAdapter.notifyItemInserted(personDestination);
+                if (localPersonInstances == 1) mRecyclerView.smoothScrollToPosition(personDestination);
+                i++;
+            }
         }
     }
 
@@ -584,6 +672,8 @@ public class PersonDataManagementFragment extends Fragment {
 
     private boolean EmptyFieldProtocol(View view, boolean ageNotBirthDate, boolean[] isEmptyReturns) {
 
+        if (autoFieldsButton.isChecked()) return true;
+        
         // The following if- and else if statement takes care of some fine tuning
         // regarding the choice of what field is focused and given the cursor depending on
         // what field already is in focus/already has the cursor
@@ -844,6 +934,83 @@ public class PersonDataManagementFragment extends Fragment {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
+    private String GenerateNameInputString() {
+        // TODO! This method.
+        String generatedName = "firstName lastName";
+        capturesNameGroups = cfln.matcher(generatedName);
+        capturesNameGroups.matches();
+        return generatedName;
+    }
+
+    private String GenerateBirthDateAgeInputString() {
+        // TODO! This method.
+        return "20";
+    }
+
+    private String GenerateShoeSizeInputString() {
+        // TODO! This method.
+        return "40";
+    }
+
+    private String GenerateHeightInputString() {
+        // TODO! This method.
+        return "180";
+    }
+
+    private boolean ShowSameNameDialog() {
+        // TODO! This method.
+        /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        final NumberPicker numberPicker = new NumberPicker(getContext());
+        numberPicker.setMinValue(1);
+        numberPicker.setMaxValue(512);
+        numberPicker.setWrapSelectorWheel(false);
+        builder.setView(numberPicker);
+        builder.setTitle(R.string.number_picker_dialog_text_person_instances);
+        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                personInstances = numberPicker.getValue();
+                CharSequence abaText = Html.fromHtml(getString(R.string.add_button_text_alt, personInstances));
+                addButton.setText(abaText);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                dialog.cancel();
+            }
+        });
+        builder.create().show();*/
+        return false;
+    }
+
+    private void ShowPersonInstancesDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        final NumberPicker numberPicker = new NumberPicker(getContext());
+        numberPicker.setMinValue(1);
+        numberPicker.setMaxValue(512);
+        numberPicker.setWrapSelectorWheel(false);
+        builder.setView(numberPicker);
+        builder.setTitle(R.string.number_picker_dialog_text_person_instances);
+        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                personInstances = numberPicker.getValue();
+                CharSequence abaText = Html.fromHtml(getString(R.string.add_button_text_alt, personInstances));
+                addButton.setText(abaText);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                dialog.cancel();
+            }
+        });
+        builder.create().show();
+    }
+
     private void ClearFocus() {
         rootLayout.requestFocus();
     }
@@ -1042,6 +1209,12 @@ public class PersonDataManagementFragment extends Fragment {
     private void WriteBirthDateAgeSwitchState(boolean birthDateAgeSwitchState) {
         SharedPreferences.Editor sharedPrefsEditor = ((MainActivity)getActivity()).getSharedPrefs().edit();
         sharedPrefsEditor.putBoolean(getString(R.string.birth_date_age_switch_state_key), birthDateAgeSwitchState);
+        sharedPrefsEditor.apply();
+    }
+
+    private void WriteAutoFieldsButtonState(boolean autoFieldsButtonState) {
+        SharedPreferences.Editor sharedPrefsEditor = ((MainActivity) getActivity()).getSharedPrefs().edit();
+        sharedPrefsEditor.putBoolean(getString(R.string.auto_fields_button_state_key), autoFieldsButtonState);
         sharedPrefsEditor.apply();
     }
 

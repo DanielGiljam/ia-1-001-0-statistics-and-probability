@@ -114,14 +114,34 @@
 
             </LinearLayout>
 
-            <Button
-                android:id="@+id/add_button"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:nextFocusDown="@id/name_input_field"
-                android:nextFocusForward="@id/name_input_field"
-                android:text="@string/add_button_text" />
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/add_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nextFocusDown="@id/name_input_field"
+                    android:nextFocusForward="@id/name_input_field"
+                    android:text="@string/add_button_text"
+                    android:lines="2" />
+
+                <ToggleButton
+                    android:id="@+id/auto_fields_button"
+                    style="?attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="8"
+                    android:nextFocusDown="@id/name_input_field"
+                    android:nextFocusForward="@id/name_input_field"
+                    android:textOff="@string/auto_fields_button_text_off"
+                    android:textOn="@string/auto_fields_button_text_on"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

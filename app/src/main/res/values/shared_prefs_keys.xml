@@ -10,6 +10,9 @@
 
     <string name="birth_date_age_switch_state_key">birth_date_age_switch_state</string>
 
+    <string name="auto_fields_button_state_key">auto_fields_button_state</string>
+    <string name="auto_fields_person_instances_key">auto_fields_person_instances</string>
+
     <string name="active_sorting_mode_key">active_sorting_mode</string>
     
 </resources>

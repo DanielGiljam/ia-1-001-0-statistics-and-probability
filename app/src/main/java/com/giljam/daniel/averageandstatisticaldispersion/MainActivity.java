@@ -25,9 +25,9 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private boolean ReadWriteExceptionMode1 = false;
-    private boolean ReadWriteExceptionMode2 = false;
-    private boolean ReadWriteExceptionMode3 = false;
+    private boolean readWriteExceptionMode1 = false;
+    private boolean readWriteExceptionMode2 = false;
+    private boolean readWriteExceptionMode3 = false;
 
     /**
      * Keeps the states for the validation override options.
@@ -118,13 +118,16 @@ public class MainActivity extends AppCompatActivity {
             try {
                 peopleData.createNewFile();
             } catch (IOException e) {
-                ReadWriteExceptionMode1 = true;
+                readWriteExceptionMode1 = true;
             }
         }
         if (noCsvExceptions == ReadWriteReport.PARTIALLY_SUCCESSFUL)
-            ReadWriteExceptionMode2 = true;
+            readWriteExceptionMode2 = true;
 
-        // Fetch and reset ReadWriteExceptionMode3.
+        System.out.println("[DEBUG] " + noCsvExceptions);
+        System.out.println("[DEBUG] " + readWriteExceptionMode3);
+
+        // Fetch and reset readWriteExceptionMode3.
         FetchAndResetReadWriteExceptionMode3();
 
         // Create the adapter that will manage returning fragments
@@ -139,9 +142,9 @@ public class MainActivity extends AppCompatActivity {
         ViewPager mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mFragmentPagerAdapter);
 
-        if (ReadWriteExceptionMode1) ShowReadWriteExceptionMode1Alert();
-        else if (ReadWriteExceptionMode3) ShowReadWriteExceptionMode3Alert(peopleData);
-        if (ReadWriteExceptionMode2) ShowReadWriteExceptionMode2Alert();
+        if (readWriteExceptionMode1) ShowReadWriteExceptionMode1Alert();
+        else if (readWriteExceptionMode3) ShowReadWriteExceptionMode3Alert(peopleData);
+        if (readWriteExceptionMode2) ShowReadWriteExceptionMode2Alert();
     }
 
     @Override
@@ -279,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
         boolean ovState2 = sharedPrefs.getBoolean(getString(R.string.ov_state_2_key), false);
         boolean ovState3 = sharedPrefs.getBoolean(getString(R.string.ov_state_3_key), false);
         boolean birthDateAgeSwitchState = sharedPrefs.getBoolean(getString(R.string.birth_date_age_switch_state_key), false);
+        boolean autoFieldsButtonState = sharedPrefs.getBoolean(getString(R.string.auto_fields_button_state_key), false);
+        int autoFieldsPersonInstances = sharedPrefs.getInt(getString(R.string.auto_fields_person_instances_key), 1);
         int activeSortingMode = sharedPrefs.getInt(getString(R.string.active_sorting_mode_key), 0);
 
         SharedPreferences.Editor sharedPrefsEditor = sharedPrefs.edit();
@@ -291,13 +296,15 @@ public class MainActivity extends AppCompatActivity {
         sharedPrefsEditor.putBoolean(getString(R.string.ov_state_2_key), ovState2);
         sharedPrefsEditor.putBoolean(getString(R.string.ov_state_3_key), ovState3);
         sharedPrefsEditor.putBoolean(getString(R.string.birth_date_age_switch_state_key), birthDateAgeSwitchState);
+        sharedPrefsEditor.putBoolean(getString(R.string.auto_fields_button_state_key), autoFieldsButtonState);
+        sharedPrefsEditor.putInt(getString(R.string.auto_fields_person_instances_key), autoFieldsPersonInstances);
         sharedPrefsEditor.putInt(getString(R.string.active_sorting_mode_key), activeSortingMode);
 
         sharedPrefsEditor.apply();
     }
 
     private void FetchAndResetReadWriteExceptionMode3() {
-        ReadWriteExceptionMode3 = sharedPrefs.getBoolean(getString(R.string.read_write_exception_mode_3_key), false);
+        readWriteExceptionMode3 = sharedPrefs.getBoolean(getString(R.string.read_write_exception_mode_3_key), false);
         SharedPreferences.Editor sharedPrefsEditor = sharedPrefs.edit();
         sharedPrefsEditor.putBoolean(getString(R.string.read_write_exception_mode_3_key), false);
         sharedPrefsEditor.apply();
@@ -307,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.setTitle(R.string.read_write_exception_mode_1_text);
-        if (ReadWriteExceptionMode3) {
+        if (readWriteExceptionMode3) {
             CharSequence text = Html.fromHtml(getString(R.string.read_write_exception_mode_1_text_message_2));
             builder.setMessage(text);
         }

@@ -42,6 +42,12 @@
     <string name="height_input_field_text">Height (in cm)</string>
 
     <string name="add_button_text">Add</string>
+    <string name="add_button_text_alt">Add&lt;br/&gt;%1$d</string>
+
+    <string name="number_picker_dialog_text_person_instances">How many?</string>
+
+    <string name="auto_fields_button_text_on">Auto fields\nenabled</string>
+    <string name="auto_fields_button_text_off">Auto fields\ndisabled</string>
 
     <string name="sort_button_description_text">Sort people by</string>
 
