@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">Average and Statistical Dispersion</string>
+    <string name="app_name">Statistics and Probability</string>
 
     <string name="read_write_exception_mode_1_text">Unable to access internal storage</string>
     <string name="read_write_exception_mode_1_text_message_1">You can continue using the app normally, but it will start with a blank list, and that list won\'t be saved when you exit the app.</string>

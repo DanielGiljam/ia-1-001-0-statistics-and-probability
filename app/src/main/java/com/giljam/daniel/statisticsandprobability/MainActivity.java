@@ -1,4 +1,4 @@
-package com.giljam.daniel.averageandstatisticaldispersion;
+package com.giljam.daniel.statisticsandprobability;
 
 import android.content.Context;
 import android.content.DialogInterface;
