@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="accepted_date_format_1">dd-MM-yyyy</string>
+    <string name="accepted_date_format_2">MM/dd/yyyy</string>
+
+    <integer name="min_shoe_size">15</integer>
+    <integer name="max_shoe_size">50</integer>
+
+    <integer name="min_height">45</integer>
+    <integer name="max_height">275</integer>
+
+    <string name="matches_invalid_characters">[^a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ\' \-]</string>
+    <string name="matches_triple_characters">([a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ])\1{2}</string>
+    <string name="matches_double_special_characters">([-\'])\1</string>
+    <string name="matches_invalid_name_begin_or_end">\A(-.*)|(.*-)\z</string>
+    <string name="captures_name_groups">\A(\S+)(?:\s+(\S+))*\z</string>
+    <string name="captures_name_groups_alt">\A(\S+)(?:\s+((?:\s*(?:\S+))*))?\z</string>
+    <string name="capitalize_names">[-\'](\S)</string>
+    <string name="job_314">job314</string>
+
+</resources>

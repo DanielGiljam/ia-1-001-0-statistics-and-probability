@@ -25,8 +25,34 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Tells whether the first read/write exception mode is active or not.
+     * This first read/write exception mode becomes active if the app
+     * for some reason couldn't load data from internal storage.
+     * When active, the app won't attempt saving to internal storage on app exit,
+     * to protect user from potential data loss (as well as just from more errors,
+     * as saving would most likely also not work, if loading didn't work), as in this
+     * case, the app doesn't what data it might be overwriting.
+     */
     private boolean readWriteExceptionMode1 = false;
+
+    /**
+     * Tells whether the second read/write exception mode is active or not.
+     * This second read/write exception mode becomes active if the app
+     * was able to load data, but the file was incomplete. This mode does nothing else than
+     * show the user a notification about the discovery of corrupt data.
+     */
     private boolean readWriteExceptionMode2 = false;
+
+    /**
+     * Tells whether the third read/write exception mode is active or not.
+     * This read/write exception mode is actually, if triggered, forwarded to
+     * the next app launch thanks to the persistence of the SharedPreferences API.
+     * The trigger is a failed attempt of saving data on app exit.
+     * All this mode does is notify the user about the incident, apologize about the data loss
+     * (I know, embarrassing, right?), and give a timestamp to the user of when
+     * the data was last saved (successfully).
+     */
     private boolean readWriteExceptionMode3 = false;
 
     /**
@@ -228,22 +254,22 @@ public class MainActivity extends AppCompatActivity {
     public boolean GenerateDemoList() {
         if (pdf.GetAmountOfPeople() == 0) {
             List<Person> demoList = new ArrayList<>();
-            demoList.add(new Person("Ulgarf", "Sunders", 38, 38, 168));
-            demoList.add(new Person("Dahmad", "Bax", 62, 39, 186));
-            demoList.add(new Person("Mirina", "Kelt", 35, 38, 168));
-            demoList.add(new Person("Loe", "Karinov", 19, 39, 167));
-            demoList.add(new Person("Olon", "Septoros", 50, 44, 166));
-            demoList.add(new Person("Ning", "Jin-Yiang", 36, 44, 169));
-            demoList.add(new Person("William", "Mercury", 41, 45, 174));
-            demoList.add(new Person("Per-Erik", "Baltmers", 32, 40, 173));
-            demoList.add(new Person("Cedir", "O'Durkniff", 22, 40, 177));
-            demoList.add(new Person("Morod", "Kaffner", 20, 41, 182));
-            demoList.add(new Person("Melina", "Joric", 76, 44, 182));
-            demoList.add(new Person("Sudaro", "Moniz", 37, 39, 184));
-            demoList.add(new Person("Nev Barit", "Kompálo", 29, 41, 173));
-            demoList.add(new Person("Yri", "Kalav", 43, 41, 188));
-            demoList.add(new Person("Gurkav", "Nît-Balal", 49, 37, 168));
-            demoList.add(new Person("Sarab", "Kehschni", 26, 36, 178));
+            demoList.add(new Person(getString(R.string.first_name_1), getString(R.string.last_name_1), 38, 38, 168));
+            demoList.add(new Person(getString(R.string.first_name_2), getString(R.string.last_name_2), 62, 39, 186));
+            demoList.add(new Person(getString(R.string.first_name_3), getString(R.string.last_name_3), 35, 38, 168));
+            demoList.add(new Person(getString(R.string.first_name_4), getString(R.string.last_name_4), 19, 39, 167));
+            demoList.add(new Person(getString(R.string.first_name_5), getString(R.string.last_name_5), 50, 44, 166));
+            demoList.add(new Person(getString(R.string.first_name_6), getString(R.string.last_name_6), 36, 44, 169));
+            demoList.add(new Person(getString(R.string.first_name_7), getString(R.string.last_name_7), 41, 45, 174));
+            demoList.add(new Person(getString(R.string.first_name_8), getString(R.string.last_name_8), 32, 40, 173));
+            demoList.add(new Person(getString(R.string.first_name_9), getString(R.string.last_name_9), 22, 40, 177));
+            demoList.add(new Person(getString(R.string.first_name_10), getString(R.string.last_name_10), 20, 41, 182));
+            demoList.add(new Person(getString(R.string.first_name_11), getString(R.string.last_name_11), 76, 44, 182));
+            demoList.add(new Person(getString(R.string.first_name_12), getString(R.string.last_name_12), 37, 39, 184));
+            demoList.add(new Person(getString(R.string.first_name_13), getString(R.string.last_name_13), 29, 41, 173));
+            demoList.add(new Person(getString(R.string.first_name_14), getString(R.string.last_name_14), 43, 41, 188));
+            demoList.add(new Person(getString(R.string.first_name_15), getString(R.string.last_name_15), 49, 37, 168));
+            demoList.add(new Person(getString(R.string.first_name_16), getString(R.string.last_name_16), 26, 36, 178));
             pdf.AddPeople(demoList);
             RefreshCalculations();
             return true;
@@ -346,7 +372,9 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.setTitle(R.string.read_write_exception_mode_3_text);
-        String latestAvailable = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss z", Locale.getDefault()).format(new Date(peopleData.lastModified()));
+        String latestAvailable = new SimpleDateFormat(  getString(R.string.read_write_exception_mode_3_timestamp_format),
+                                                        Locale.getDefault())
+                                        .format(new Date(peopleData.lastModified()));
         builder.setMessage(getString(R.string.read_write_exception_mode_3_text_message, latestAvailable));
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override

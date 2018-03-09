@@ -11,6 +11,7 @@
 
     <string name="read_write_exception_mode_3_text">Previous session was unable to save list</string>
     <string name="read_write_exception_mode_3_text_message">The app encountered a failure when trying to save the list in the previous session. The latest available saved list (%1$s) will be loaded.</string>
+    <string name="read_write_exception_mode_3_timestamp_format">dd-MM-yyyy HH:mm:ss z</string>
 
     <string name="ok">OK</string>
     <string name="confirm">Confirm</string>

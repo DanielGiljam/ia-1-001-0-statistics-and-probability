@@ -19,11 +19,7 @@ import java.util.regex.Pattern;
 
 class PeopleDataFacilitator {
 
-    private static final Pattern pur =
-            Pattern.compile(    "\\A\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\"\\z",
-                                Pattern.CASE_INSENSITIVE);
-
-    private static Matcher personUnitRecognizer;     // goes with pur
+    private static Matcher personUnitRecognizer;
 
     private SortPeopleBy activeSortingMode;
 
@@ -210,7 +206,11 @@ class PeopleDataFacilitator {
     }
 
     private Person ExtractPersonData(String personData) throws ParseException {
-        personUnitRecognizer = pur.matcher(personData);
+        if (personUnitRecognizer == null)
+            personUnitRecognizer = Pattern.compile( "\\A\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\",\\s*\"(.*)\"\\z",
+                                                    Pattern.CASE_INSENSITIVE)
+                                        .matcher(personData);
+        else personUnitRecognizer.reset(personData);
         if (!personUnitRecognizer.matches()) throw new ParseException(personData, 0);
         String firstName;
         if (personUnitRecognizer.group(1).isEmpty()) throw new ParseException(personData, personUnitRecognizer.start(1));

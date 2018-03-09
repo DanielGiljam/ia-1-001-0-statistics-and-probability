@@ -36,69 +36,73 @@ import java.util.regex.Pattern;
 
 public class PersonDataManagementFragment extends Fragment {
 
-    // LIMITS NEEDED FOR SHOE SIZE AND HEIGHT INPUT VALIDATION
-    // -----------
-    // ----> START
-    // -----------
+    /**
+     * Used internally by the name validation process.
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher matchesInvalidCharacters;
 
-    private static final int MINIMUM_SHOE_SIZE = 15;
-    private static final int MAXIMUM_SHOE_SIZE = 50;
+    /**
+     * Used internally by the name validation process.
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher matchesTripleCharacters;
 
-    private static final int MINIMUM_HEIGHT = 45;
-    private static final int MAXIMUM_HEIGHT = 275;
+    /**
+     * Used internally by the name validation process.
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher matchesDoubleSpecialCharacters;
 
-    // ---------
-    // END <----
-    // ---------
-    // PATTERNS NEEDED FOR VALIDATING THE NAME INPUT STRING
-    // -----------
-    // ----> START
-    // -----------
+    /**
+     * Used internally by the name validation process.
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher matchesInvalidNameBeginOrEnd;
 
-    private static final Pattern mic =
-            Pattern.compile(    "[^a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ' \\-]",
-                                Pattern.CASE_INSENSITIVE);
-    private static final Pattern mtc =
-            Pattern.compile(    "([a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ])\\1{2}",
-                                Pattern.CASE_INSENSITIVE);
-    private static final Pattern mdsc =
-            Pattern.compile(    "([-'])\\1",
-                                Pattern.CASE_INSENSITIVE);
-    private static final Pattern minbe =
-            Pattern.compile(    "\\A(-.*)|(.*-)\\z",
-                                Pattern.CASE_INSENSITIVE);
-    private static final Pattern cfln =
-            Pattern.compile(    "\\A(\\S+)(?:\\s+(\\S+))*\\z",
-                                Pattern.CASE_INSENSITIVE);
-    private static final Pattern cflna =
-            Pattern.compile(    "\\A(\\S+)(?:\\s+((?:\\s*(?:\\S+))*))?\\z",
-                                Pattern.CASE_INSENSITIVE);
-    private static final Pattern nc =
-            Pattern.compile(    "[-'](\\S)",
-                                Pattern.CASE_INSENSITIVE);
-    private static final Pattern jtf =
-            Pattern.compile(    "job314");
+    /**
+     * Used internally for name separation.
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher capturesNameGroups;
 
-    // ---------
-    // END <----
-    // ---------
-    // MATCHER VARIABLES FOR MORE EFFICIENTLY MATCHING PATTERNS
-    // -----------
-    // ----> START
-    // -----------
+    /**
+     * Used internally for name separation.
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher capturesNameGroupsAlt;
 
-    private static Matcher matchesInvalidCharacters;        // goes with mic
-    private static Matcher matchesTripleCharacters;         // goes with mtc
-    private static Matcher matchesDoubleSpecialCharacters;  // goes with mdsc
-    private static Matcher matchesInvalidNameBeginOrEnd;    // goes with minbe
-    private static Matcher capturesNameGroups;              // goes with cfln
-    private static Matcher capturesNameGroupsAlt;           // goes with cflna
-    private static Matcher capitalizesNames;                // goes with nc
-    private static Matcher executeJob;                      // goes with jtf
+    /**
+     * Used internally by the name capitalization process.
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher capitalizesNames;
 
-    // ---------
-    // END <----
-    // ---------
+    /**
+     * Used internally to execute "job314".
+     * Gets its own variable as an it would otherwise be destroyed and recreated over and over again,
+     * so having it as a frequently accessed variable saves performance.
+     */
+    private static Matcher executeJob;
+
+    /**
+     * Into where the birth date input string is parsed.
+     */
+    private Date birthDateObject;
+
+    /**
+     * How many people the add button creates at once.
+     * If "auto fields" feature is disabled, the add person only creates
+     * one person at a time.
+     */
+    private int personInstances;
 
     /**
      * This fragment's root layout/view.
@@ -114,11 +118,6 @@ public class PersonDataManagementFragment extends Fragment {
      * Input field for person birth date or age.
      */
     private EditText birthDateAgeInputField;
-
-    /**
-     * Into where the birth date input string is parsed.
-     */
-    private Date birthDateObject;
 
     /**
      * Switch to toggle between having to enter either birth date or age.
@@ -159,13 +158,6 @@ public class PersonDataManagementFragment extends Fragment {
      * The recycler view that will display the list data provided by the adapter.
      */
     private RecyclerView mRecyclerView;
-
-    /**
-     * How many people the add button creates at once.
-     * If "auto fields" feature is disabled, the add person only creates
-     * one person at a time.
-     */
-    private int personInstances = 1;
 
     @Override
     public View onCreateView(   LayoutInflater inflater,
@@ -403,7 +395,11 @@ public class PersonDataManagementFragment extends Fragment {
             String firstName;
             String lastName;
             if (((MainActivity)getActivity()).getNameOVState()) {
-                capturesNameGroupsAlt = cflna.matcher(nameInputString.trim());
+                if (capturesNameGroupsAlt == null)
+                    capturesNameGroupsAlt = Pattern.compile(getString(R.string.captures_name_groups_alt),
+                                                            Pattern.CASE_INSENSITIVE)
+                                                .matcher(nameInputString.trim());
+                else capturesNameGroupsAlt.reset(nameInputString.trim());
                 if (capturesNameGroupsAlt.matches()) firstName = capturesNameGroupsAlt.group(1);
                 else firstName = "";
                 if (capturesNameGroupsAlt.group(2) != null) lastName = capturesNameGroupsAlt.group(2);
@@ -808,7 +804,8 @@ public class PersonDataManagementFragment extends Fragment {
 
     private boolean[] NameValidation(String nameInputString) {
 
-        executeJob = jtf.matcher(nameInputString.trim());
+        if (executeJob == null) executeJob = Pattern.compile(getString(R.string.job_314)).matcher(nameInputString.trim());
+        else executeJob.reset(nameInputString.trim());
         if (executeJob.matches()) {
             if (((MainActivity)getActivity()).GenerateDemoList()) {
                 ClearFocus();
@@ -822,7 +819,11 @@ public class PersonDataManagementFragment extends Fragment {
         if (((MainActivity) getActivity()).getNameOVState()) return new boolean[]{true, false, false, false};
 
         // Self-descriptive variable captures first name and last name into separate capturing groups.
-        capturesNameGroups = cfln.matcher(nameInputString.trim());
+        if (capturesNameGroups == null)
+            capturesNameGroups = Pattern.compile(   getString(R.string.captures_name_groups),
+                                                    Pattern.CASE_INSENSITIVE)
+                                    .matcher(nameInputString.trim());
+        else capturesNameGroups.reset(nameInputString.trim());
         if (!capturesNameGroups.matches()) return new boolean[]{false, false, false, false};
 
         // Calculates the occurrences of corresponding character/symbol in the first name.
@@ -830,7 +831,11 @@ public class PersonDataManagementFragment extends Fragment {
         int apostrophesCountFirstName = capturesNameGroups.group(1).length() - capturesNameGroups.group(1).replace("\'", "").length();
 
         // Tests if first name begins or ends "suspiciously".
-        matchesInvalidNameBeginOrEnd = minbe.matcher(capturesNameGroups.group(1));
+        if (matchesInvalidNameBeginOrEnd == null)
+            matchesInvalidNameBeginOrEnd = Pattern.compile(getString(   R.string.matches_invalid_name_begin_or_end),
+                                                                        Pattern.CASE_INSENSITIVE)
+                                                .matcher(capturesNameGroups.group(1));
+        else matchesInvalidNameBeginOrEnd.reset(capturesNameGroups.group(1));
         boolean invalidFirstNameBeginOrEnd = matchesInvalidNameBeginOrEnd.matches();
 
         // Declares variables for validating the last name.
@@ -848,15 +853,27 @@ public class PersonDataManagementFragment extends Fragment {
             apostrophesCountLastName = capturesNameGroups.group(2).length() - capturesNameGroups.group(2).replace("\'", "").length();
 
             // Tests if first name begins or ends "suspiciously".
-            matchesInvalidNameBeginOrEnd = minbe.matcher(capturesNameGroups.group(2));
+            matchesInvalidNameBeginOrEnd.reset(capturesNameGroups.group(2));
             invalidLastNameBeginOrEnd = matchesInvalidNameBeginOrEnd.matches();
 
         } else nullLastName = true;
 
         // Some more tests performed on the input as a whole.
-        matchesInvalidCharacters = mic.matcher(nameInputString);
-        matchesTripleCharacters = mtc.matcher(nameInputString);
-        matchesDoubleSpecialCharacters = mdsc.matcher(nameInputString);
+        if (matchesInvalidCharacters == null)
+            matchesInvalidCharacters = Pattern.compile( getString(R.string.matches_invalid_characters),
+                                                        Pattern.CASE_INSENSITIVE)
+                                            .matcher(nameInputString.trim());
+        else matchesInvalidCharacters.reset(nameInputString.trim());
+        if (matchesTripleCharacters == null)
+            matchesTripleCharacters = Pattern.compile(  getString(R.string.matches_triple_characters),
+                                                        Pattern.CASE_INSENSITIVE)
+                                            .matcher(nameInputString.trim());
+		else matchesTripleCharacters.reset(nameInputString.trim());
+        if (matchesDoubleSpecialCharacters == null)
+            matchesDoubleSpecialCharacters = Pattern.compile(   getString(R.string.matches_double_special_characters),
+                                                                Pattern.CASE_INSENSITIVE)
+                                                .matcher(nameInputString.trim());
+		else matchesDoubleSpecialCharacters.reset(nameInputString.trim());
         boolean invalidCharacters = matchesInvalidCharacters.find();
         boolean tripleCharacters = matchesTripleCharacters.find();
         boolean doubleSpecialCharacters = matchesDoubleSpecialCharacters.find();
@@ -884,12 +901,12 @@ public class PersonDataManagementFragment extends Fragment {
     private boolean[] BirthDateAgeValidation(String birthDateAgeInputString, boolean ageNotBirthDate) {
         if (!ageNotBirthDate) {
             try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.accepted_date_format_1), Locale.getDefault());
                 dateFormat.setLenient(false);
                 birthDateObject = dateFormat.parse(birthDateAgeInputString);
             } catch (ParseException e2) {
                 try {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.accepted_date_format_2), Locale.getDefault());
                     dateFormat.setLenient(false);
                     birthDateObject = dateFormat.parse(birthDateAgeInputString);
                 } catch (ParseException e3) {
@@ -904,9 +921,9 @@ public class PersonDataManagementFragment extends Fragment {
     private boolean[] ShoeSizeValidation(String shoeSizeInputString) {
         if (((MainActivity) getActivity()).getShoeSizeOVState()) return new boolean[]{true, false, false};
         int shoeSizeInput = Integer.parseInt(shoeSizeInputString);
-        if (shoeSizeInput < MINIMUM_SHOE_SIZE) {
+        if (shoeSizeInput < getResources().getInteger(R.integer.min_shoe_size)) {
             return new boolean[]{false, true, false};
-        } else if (shoeSizeInput > MAXIMUM_SHOE_SIZE) {
+        } else if (shoeSizeInput > getResources().getInteger(R.integer.max_shoe_size)) {
             return new boolean[]{false, false, true};
         } else {
             return new boolean[]{true, false, false};
@@ -916,9 +933,9 @@ public class PersonDataManagementFragment extends Fragment {
     private boolean[] HeightValidation(String heightInputString) {
         if (((MainActivity) getActivity()).getHeightOVState()) return new boolean[]{true, false, false};
         int heightInput = Integer.parseInt(heightInputString);
-        if (heightInput < MINIMUM_HEIGHT) {
+        if (heightInput < getResources().getInteger(R.integer.min_height)) {
             return new boolean[]{false, true, false};
-        } else if (heightInput > MAXIMUM_HEIGHT) {
+        } else if (heightInput > getResources().getInteger(R.integer.max_height)) {
             return new boolean[]{false, false, true};
         } else {
             return new boolean[]{true, false, false};
@@ -926,7 +943,11 @@ public class PersonDataManagementFragment extends Fragment {
     }
 
     private String NameCapitalization(String name) {
-        capitalizesNames = nc.matcher(name);
+        if (capitalizesNames == null)
+            capitalizesNames = Pattern.compile( getString(R.string.capitalize_names),
+                                                Pattern.CASE_INSENSITIVE)
+                                    .matcher(name);
+        else capitalizesNames.reset(name);
         while (capitalizesNames.find()) {
             int rli = capitalizesNames.end();
             name = name.substring(0, rli - 1) + capitalizesNames.group(1).toUpperCase() + name.substring(rli);
@@ -937,7 +958,11 @@ public class PersonDataManagementFragment extends Fragment {
     private String GenerateNameInputString() {
         // TODO! This method.
         String generatedName = "firstName lastName";
-        capturesNameGroups = cfln.matcher(generatedName);
+        if (capturesNameGroups == null)
+            capturesNameGroups = Pattern.compile(   getString(R.string.capitalize_names),
+                                                    Pattern.CASE_INSENSITIVE)
+                                    .matcher(generatedName);
+        else capturesNameGroups.reset(generatedName);
         capturesNameGroups.matches();
         return generatedName;
     }
