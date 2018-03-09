@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <string name="first_name_id_template">R.string.first_name_%1$d</string>
-    <integer name="first_names_total">16</integer>
+    <string name="first_name_id_template">first_name_%1$d</string>
+    <integer name="first_names_total">15</integer>
     
-    <string name="first_name_1">Ulgarf</string>
-    <string name="first_name_2">Dahmad</string>
-    <string name="first_name_3">Mirina</string>
-    <string name="first_name_4">Loe</string>
-    <string name="first_name_5">Olon</string>
-    <string name="first_name_6">Ning</string>
-    <string name="first_name_7">William</string>
-    <string name="first_name_8">Per-Erik</string>
-    <string name="first_name_9">Cedir</string>
-    <string name="first_name_10">Morod</string>
-    <string name="first_name_11">Melina</string>
-    <string name="first_name_12">Sudaro</string>
-    <string name="first_name_13">Nev-Barit</string>
-    <string name="first_name_14">Yri</string>
-    <string name="first_name_15">Gurkav</string>
-    <string name="first_name_16">Sarab</string>
+    <string name="first_name_0">Ulgarf</string>
+    <string name="first_name_1">Dahmad</string>
+    <string name="first_name_2">Mirina</string>
+    <string name="first_name_3">Loe</string>
+    <string name="first_name_4">Olon</string>
+    <string name="first_name_5">Ning</string>
+    <string name="first_name_6">William</string>
+    <string name="first_name_7">Per-Erik</string>
+    <string name="first_name_8">Cedir</string>
+    <string name="first_name_9">Morod</string>
+    <string name="first_name_10">Melina</string>
+    <string name="first_name_11">Sudaro</string>
+    <string name="first_name_12">Nev-Barit</string>
+    <string name="first_name_13">Yri</string>
+    <string name="first_name_14">Gurkav</string>
+    <string name="first_name_15">Sarab</string>
 
-    <string name="last_name_id_template">R.string.last_name_%1$d</string>
-    <integer name="last_names_total">16</integer>
+    <string name="last_name_id_template">last_name_%1$d</string>
+    <integer name="last_names_total">15</integer>
 
-    <string name="last_name_1">Sunders</string>
-    <string name="last_name_2">Bax</string>
-    <string name="last_name_3">Kelt</string>
-    <string name="last_name_4">Karinov</string>
-    <string name="last_name_5">Septoros</string>
-    <string name="last_name_6">Jin-Yiang</string>
-    <string name="last_name_7">Mercury</string>
-    <string name="last_name_8">Baltmers</string>
-    <string name="last_name_9">O\'Durkniff</string>
-    <string name="last_name_10">Kaffner</string>
-    <string name="last_name_11">Joric</string>
-    <string name="last_name_12">Moniz</string>
-    <string name="last_name_13">Kompálo</string>
-    <string name="last_name_14">Kalav</string>
-    <string name="last_name_15">Nît-Balal</string>
-    <string name="last_name_16">Kehschni</string>
+    <string name="last_name_0">Sunders</string>
+    <string name="last_name_1">Bax</string>
+    <string name="last_name_2">Kelt</string>
+    <string name="last_name_3">Karinov</string>
+    <string name="last_name_4">Septoros</string>
+    <string name="last_name_5">Jin-Yiang</string>
+    <string name="last_name_6">Mercury</string>
+    <string name="last_name_7">Baltmers</string>
+    <string name="last_name_8">O\'Durkniff</string>
+    <string name="last_name_9">Kaffner</string>
+    <string name="last_name_10">Joric</string>
+    <string name="last_name_11">Moniz</string>
+    <string name="last_name_12">Kompálo</string>
+    <string name="last_name_13">Kalav</string>
+    <string name="last_name_14">Nît-Balal</string>
+    <string name="last_name_15">Kehschni</string>
     
 </resources>

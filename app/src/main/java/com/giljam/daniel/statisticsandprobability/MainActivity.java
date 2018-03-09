@@ -147,11 +147,6 @@ public class MainActivity extends AppCompatActivity {
                 readWriteExceptionMode1 = true;
             }
         }
-        if (noCsvExceptions == ReadWriteReport.PARTIALLY_SUCCESSFUL)
-            readWriteExceptionMode2 = true;
-
-        System.out.println("[DEBUG] " + noCsvExceptions);
-        System.out.println("[DEBUG] " + readWriteExceptionMode3);
 
         // Fetch and reset readWriteExceptionMode3.
         FetchAndResetReadWriteExceptionMode3();
@@ -170,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (readWriteExceptionMode1) ShowReadWriteExceptionMode1Alert();
         else if (readWriteExceptionMode3) ShowReadWriteExceptionMode3Alert(peopleData);
-        if (readWriteExceptionMode2) ShowReadWriteExceptionMode2Alert();
     }
 
     @Override
@@ -254,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean GenerateDemoList() {
         if (pdf.GetAmountOfPeople() == 0) {
             List<Person> demoList = new ArrayList<>();
+            demoList.add(new Person(getString(R.string.first_name_0), getString(R.string.last_name_0), 26, 36, 178));
             demoList.add(new Person(getString(R.string.first_name_1), getString(R.string.last_name_1), 38, 38, 168));
             demoList.add(new Person(getString(R.string.first_name_2), getString(R.string.last_name_2), 62, 39, 186));
             demoList.add(new Person(getString(R.string.first_name_3), getString(R.string.last_name_3), 35, 38, 168));
@@ -269,7 +264,6 @@ public class MainActivity extends AppCompatActivity {
             demoList.add(new Person(getString(R.string.first_name_13), getString(R.string.last_name_13), 29, 41, 173));
             demoList.add(new Person(getString(R.string.first_name_14), getString(R.string.last_name_14), 43, 41, 188));
             demoList.add(new Person(getString(R.string.first_name_15), getString(R.string.last_name_15), 49, 37, 168));
-            demoList.add(new Person(getString(R.string.first_name_16), getString(R.string.last_name_16), 26, 36, 178));
             pdf.AddPeople(demoList);
             RefreshCalculations();
             return true;
@@ -354,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    @Deprecated
     private void ShowReadWriteExceptionMode2Alert() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setIcon(android.R.drawable.ic_dialog_alert);

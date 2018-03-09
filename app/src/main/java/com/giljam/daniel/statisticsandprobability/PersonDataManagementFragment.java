@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -368,61 +369,6 @@ public class PersonDataManagementFragment extends Fragment {
 
         if (FieldValidation(view, nameInputString, birthDateAgeInputString, shoeSizeInputString, heightInputString, birthDateAgeSwitch.isChecked())) {
 
-            // Following code block takes care of generating left out field data
-            // if the "auto fields" feature is enabled.
-            boolean autoGenerate = false;
-            boolean sameName = true;
-            if (autoFieldsButton.isChecked()) {
-                if (nameInputString.isEmpty()) {
-                    sameName = false;
-                    nameInputString = GenerateNameInputString();
-                }
-                if (birthDateAgeInputString.isEmpty()) {
-                    autoGenerate = true;
-                    birthDateAgeInputString = GenerateBirthDateAgeInputString();
-                }
-                if (shoeSizeInputString.isEmpty()) shoeSizeInputString = GenerateShoeSizeInputString();
-                if (heightInputString.isEmpty()) heightInputString = GenerateHeightInputString();
-            }
-            if (sameName) if (ShowSameNameDialog()) return;
-
-            // If the name validation override option is active,
-            // splitting the name input string into a first and a last name
-            // (as both person object constructors require that you do, so that you can provide them separately)
-            // becomes a bit more complicated, as then it's not already guaranteed
-            // at this point, that the name consists of two parts.
-            // The following condition tests make sure all cases are handled correspondingly.
-            String firstName;
-            String lastName;
-            if (((MainActivity)getActivity()).getNameOVState()) {
-                if (capturesNameGroupsAlt == null)
-                    capturesNameGroupsAlt = Pattern.compile(getString(R.string.captures_name_groups_alt),
-                                                            Pattern.CASE_INSENSITIVE)
-                                                .matcher(nameInputString.trim());
-                else capturesNameGroupsAlt.reset(nameInputString.trim());
-                if (capturesNameGroupsAlt.matches()) firstName = capturesNameGroupsAlt.group(1);
-                else firstName = "";
-                if (capturesNameGroupsAlt.group(2) != null) lastName = capturesNameGroupsAlt.group(2);
-                else lastName = "";
-            } else {
-                firstName = NameCapitalization(capturesNameGroups.group(1));
-                lastName = NameCapitalization(capturesNameGroups.group(2));
-            }
-
-            // The state of the birthDateAgeSwitch tells us which constructor to use when creating the person.
-            Person person;
-            if (!birthDateAgeSwitch.isChecked() && !autoGenerate)
-                person = new Person(firstName, lastName, birthDateObject, Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
-            else
-                person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
-
-            // Now that the person is ready and baked, it's time to clean up!
-            ClearFocus();
-            nameInputField.setText("");
-            birthDateAgeInputField.setText("");
-            shoeSizeInputField.setText("");
-            heightInputField.setText("");
-
             // This iterator + local variable + condition + while-loop takes care of adding many people at once
             // if the "auto fields" feature is enabled and a "add button -value" higher than 1 has been selected
             // by long pressing the add button.
@@ -431,6 +377,63 @@ public class PersonDataManagementFragment extends Fragment {
             if (autoFieldsButton.isChecked()) localPersonInstances = personInstances;
             else localPersonInstances = 1;
             while (i < localPersonInstances) {
+
+                // Following code block takes care of generating left out field data
+                // if the "auto fields" feature is enabled.
+                boolean generateName = false;
+                boolean generateBirthDateAge = false;
+                boolean generateShoeSize = false;
+                boolean generateHeight = false;
+                if (autoFieldsButton.isChecked()) {
+                    if (nameInputString.isEmpty()) {
+                        generateName = true;
+                        nameInputString = GenerateNameInputString();
+                    }
+                    if (birthDateAgeInputString.isEmpty()) {
+                        generateBirthDateAge = true;
+                        birthDateAgeInputString = GenerateBirthDateAgeInputString();
+                    }
+                    if (shoeSizeInputString.isEmpty()) {
+                        generateShoeSize = true;
+                        shoeSizeInputString = GenerateShoeSizeInputString();
+                    }
+                    if (heightInputString.isEmpty()) {
+                        generateHeight = true;
+                        heightInputString = GenerateHeightInputString();
+                    }
+                }
+
+                // If the name validation override option is active,
+                // splitting the name input string into a first and a last name
+                // (as both person object constructors require that you do, so that you can provide them separately)
+                // becomes a bit more complicated, as then it's not already guaranteed
+                // at this point, that the name consists of two parts.
+                // The following condition tests make sure all cases are handled correspondingly.
+                String firstName;
+                String lastName;
+                if (((MainActivity) getActivity()).getNameOVState()) {
+                    if (capturesNameGroupsAlt == null)
+                        capturesNameGroupsAlt = Pattern.compile(getString(R.string.captures_name_groups_alt),
+                                Pattern.CASE_INSENSITIVE)
+                                .matcher(nameInputString.trim());
+                    else capturesNameGroupsAlt.reset(nameInputString.trim());
+                    if (capturesNameGroupsAlt.matches()) firstName = capturesNameGroupsAlt.group(1);
+                    else firstName = "";
+                    if (capturesNameGroupsAlt.group(2) != null)
+                        lastName = capturesNameGroupsAlt.group(2);
+                    else lastName = "";
+                } else {
+                    firstName = NameCapitalization(capturesNameGroups.group(1));
+                    lastName = NameCapitalization(capturesNameGroups.group(2));
+                }
+
+                // The state of the birthDateAgeSwitch + generateBirthDateAge tells us which constructor to use when creating the person.
+                Person person;
+                if (!birthDateAgeSwitch.isChecked() && !generateBirthDateAge)
+                    person = new Person(firstName, lastName, birthDateObject, Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
+                else
+                    person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
+
                 // Person is dispatched to the MainActivity, that adds it to the list.
                 // In the transaction, the position of the added person in the list is returned.
                 int personDestination = ((MainActivity) getActivity()).AddPerson(person);
@@ -438,9 +441,22 @@ public class PersonDataManagementFragment extends Fragment {
                 // The recycler view's adapter is notified about the added person
                 // and asked to scroll to the position in the list, where the person was added.
                 mAdapter.notifyItemInserted(personDestination);
-                if (localPersonInstances == 1) mRecyclerView.smoothScrollToPosition(personDestination);
+                if (i == localPersonInstances - 1)
+                    mRecyclerView.smoothScrollToPosition(personDestination);
                 i++;
+
+                if (generateName) nameInputString = "";
+                if (generateBirthDateAge) birthDateAgeInputString = "";
+                if (generateShoeSize) shoeSizeInputString = "";
+                if (generateHeight) heightInputString = "";
             }
+
+            // Now that the person adding is finished, it's time to clean up!
+            ClearFocus();
+            nameInputField.setText("");
+            birthDateAgeInputField.setText("");
+            shoeSizeInputField.setText("");
+            heightInputField.setText("");
         }
     }
 
@@ -956,10 +972,11 @@ public class PersonDataManagementFragment extends Fragment {
     }
 
     private String GenerateNameInputString() {
-        // TODO! This method.
-        String generatedName = "firstName lastName";
+        Random random = new Random();
+        String generatedName =  getString(getResources().getIdentifier(getString(R.string.first_name_id_template, random.nextInt(getResources().getInteger(R.integer.first_names_total))), "string", getActivity().getPackageName())) + " " +
+                                getString(getResources().getIdentifier(getString(R.string.last_name_id_template, random.nextInt(getResources().getInteger(R.integer.last_names_total))), "string", getActivity().getPackageName()));
         if (capturesNameGroups == null)
-            capturesNameGroups = Pattern.compile(   getString(R.string.capitalize_names),
+            capturesNameGroups = Pattern.compile(   getString(R.string.captures_name_groups),
                                                     Pattern.CASE_INSENSITIVE)
                                     .matcher(generatedName);
         else capturesNameGroups.reset(generatedName);
@@ -968,46 +985,43 @@ public class PersonDataManagementFragment extends Fragment {
     }
 
     private String GenerateBirthDateAgeInputString() {
-        // TODO! This method.
-        return "20";
+        return Integer.toString(new Random().nextInt(100));
     }
 
     private String GenerateShoeSizeInputString() {
-        // TODO! This method.
-        return "40";
+        return Integer.toString(getResources().getInteger(R.integer.min_shoe_size) + new Random().nextInt(getResources().getInteger(R.integer.max_shoe_size)));
     }
 
     private String GenerateHeightInputString() {
-        // TODO! This method.
-        return "180";
+        return Integer.toString(getResources().getInteger(R.integer.min_height) + new Random().nextInt(getResources().getInteger(R.integer.max_height)));
     }
 
+    @Deprecated
     private boolean ShowSameNameDialog() {
-        // TODO! This method.
-        /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        final NumberPicker numberPicker = new NumberPicker(getContext());
-        numberPicker.setMinValue(1);
-        numberPicker.setMaxValue(512);
-        numberPicker.setWrapSelectorWheel(false);
-        builder.setView(numberPicker);
-        builder.setTitle(R.string.number_picker_dialog_text_person_instances);
-        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+        boolean returnValue = true;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        String name;
+        if (((MainActivity) getActivity()).getNameOVState()) name = capturesNameGroups.group();
+        else name = NameCapitalization(capturesNameGroups.group(1)) + " " + NameCapitalization(capturesNameGroups.group(2));
+        CharSequence text = Html.fromHtml(getString(R.string.same_name_dialog_text_message, personInstances, name));
+        builder.setMessage(text);
+        builder.setTitle(getString(R.string.same_name_dialog_text, personInstances));
+        builder.setPositiveButton(R.string.proceed, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
-                personInstances = numberPicker.getValue();
-                CharSequence abaText = Html.fromHtml(getString(R.string.add_button_text_alt, personInstances));
-                addButton.setText(abaText);
+                // returnValue = false;
                 dialog.dismiss();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
+                // returnValue = true;
                 dialog.cancel();
             }
         });
-        builder.create().show();*/
-        return false;
+        builder.create().show();
+        return returnValue;
     }
 
     private void ShowPersonInstancesDialog() {
@@ -1016,8 +1030,8 @@ public class PersonDataManagementFragment extends Fragment {
         final NumberPicker numberPicker = new NumberPicker(getContext());
         numberPicker.setMinValue(1);
         numberPicker.setMaxValue(512);
-        numberPicker.setValue(personInstances);
         numberPicker.setWrapSelectorWheel(false);
+        numberPicker.setValue(personInstances);
         builder.setView(numberPicker);
         builder.setTitle(R.string.number_picker_dialog_text_person_instances);
         builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {

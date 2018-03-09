@@ -14,6 +14,7 @@
     <string name="read_write_exception_mode_3_timestamp_format">dd-MM-yyyy HH:mm:ss z</string>
 
     <string name="ok">OK</string>
+    <string name="proceed">Proceed</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
 
@@ -46,6 +47,9 @@
     <string name="add_button_text_alt">Add&lt;br/&gt;%1$d</string>
 
     <string name="number_picker_dialog_text_person_instances">How many?</string>
+
+    <string name="same_name_dialog_text">You are about to create %1$d people with identical names.</string>
+    <string name="same_name_dialog_text_message">You are about to create %1$d people named %2$s.&lt;br/&gt;Do you wish to proceed?</string>
 
     <string name="auto_fields_button_text_on">Auto fields\nenabled</string>
     <string name="auto_fields_button_text_off">Auto fields\ndisabled</string>

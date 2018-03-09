@@ -47,9 +47,10 @@ class PeopleDataFacilitator {
         ReadWriteReport returnValue = ReadWriteReport.SUCCESSFUL;
         List<Person> peopleFromCSV = new ArrayList<>();
         while (scanner.hasNext()) {
-            if (!scanner.next().isEmpty()) {
+            String next = scanner.next();
+            if (!next.isEmpty()) {
                 try {
-                    peopleFromCSV.add(ExtractPersonData(scanner.next()));
+                    peopleFromCSV.add(ExtractPersonData(next));
                 } catch (ParseException e) {
                     returnValue = ReadWriteReport.PARTIALLY_SUCCESSFUL;
                 }
@@ -97,10 +98,15 @@ class PeopleDataFacilitator {
             BackgroundSortPeople();
         }
 
+        List<String> fileContentsList = new ArrayList<>();
+        for (Person person : people)
+            fileContentsList.add(PreparePersonData(person));
+        if (activeSortingMode == SortPeopleBy.ORIGINAL)
+            Collections.reverse(fileContentsList);
+
         StringBuilder fileContents = new StringBuilder();
-        for (Person person : people) {
-            fileContents.append(PreparePersonData(person)).append("\n");
-        }
+        for (String personData : fileContentsList)
+            fileContents.append(personData).append("\n");
 
         if (!withActiveSorting) {
             activeSortingMode = activeSortingModeBackup;
@@ -211,7 +217,10 @@ class PeopleDataFacilitator {
                                                     Pattern.CASE_INSENSITIVE)
                                         .matcher(personData);
         else personUnitRecognizer.reset(personData);
-        if (!personUnitRecognizer.matches()) throw new ParseException(personData, 0);
+        if (!personUnitRecognizer.matches()) {
+            personUnitRecognizer.lookingAt();
+            throw new ParseException(personData, personUnitRecognizer.end());
+        }
         String firstName;
         if (personUnitRecognizer.group(1).isEmpty()) throw new ParseException(personData, personUnitRecognizer.start(1));
         firstName = personUnitRecognizer.group(1);
