@@ -67,6 +67,8 @@ public class FirstStatisticsFragment extends Fragment {
         upperQuartile = view.findViewById(R.id.upper_quartile);
         interQuartileRange = view.findViewById(R.id.interquartile_range);
 
+        ((MainActivity)getActivity()).RequestRefresh(this);
+
         return view;
     }
 

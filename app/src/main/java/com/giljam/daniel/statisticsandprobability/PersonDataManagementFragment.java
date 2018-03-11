@@ -988,6 +988,8 @@ public class PersonDataManagementFragment extends Fragment {
         return Integer.toString(new Random().nextInt(100));
     }
 
+    // TODO! Generate shoe size and/or height based on regression analysis.
+
     private String GenerateShoeSizeInputString() {
         return Integer.toString(getResources().getInteger(R.integer.min_shoe_size) + new Random().nextInt(getResources().getInteger(R.integer.max_shoe_size)));
     }

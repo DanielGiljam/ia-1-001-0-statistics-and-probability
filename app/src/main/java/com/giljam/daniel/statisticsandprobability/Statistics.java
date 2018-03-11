@@ -1,5 +1,7 @@
 package com.giljam.daniel.statisticsandprobability;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
@@ -8,6 +10,8 @@ import static java.lang.Double.NaN;
 class Statistics {
     
     private List<Double> numbersList;
+    private List<Double> xList;
+    private List<Double> yList;
     private int listLength;
     private int halfOfListLength;
     private double minimum;
@@ -18,29 +22,43 @@ class Statistics {
     private double median;
     private double upperQuartile;
     private double interQuartileRange;
+    private double correlationCoefficient;
     
-    Statistics(List<Double> numbersListUnsorted) {
+    Statistics(List<Double> numbersListUnsorted, List<Double> xList, List<Double> yList) {
         numbersList = numbersListUnsorted;
+        this.xList = xList;
+        this.yList = yList;
         Collections.sort(numbersList);
         listLength = numbersList.size();
         halfOfListLength = listLength / 2;
     }
     
-    static double[] helaRubbet(List<Double> numbersListUnsorted) {
-        Statistics statistics = new Statistics(numbersListUnsorted);
+    static List<Object> helaRubbet(List<Double> numbersListUnsorted, List<Double> xList, List<Double> yList) {
+        Statistics statistics = new Statistics(numbersListUnsorted, xList, yList);
         return statistics.helaRubbet();
     }
     
-    private double[] helaRubbet() {
-        if (listLength == 0) return null;
-        return new double[] {   getMinimum(), 
-                                getMaximum(), 
-                                getAverage(), 
-                                getStandardDeviation(), 
-                                getLowerQuartile(), 
-                                getMedian(), 
-                                getUpperQuartile(),
-                                getInterQuartileRange()};
+    private List<Object> helaRubbet() {
+        double[] partZero;
+        if (listLength == 0) partZero = null;
+        else partZero = new double[]{getMinimum(),
+                                    getMaximum(),
+                                    getAverage(),
+                                    getStandardDeviation(),
+                                    getLowerQuartile(),
+                                    getMedian(),
+                                    getUpperQuartile(),
+                                    getInterQuartileRange()};
+        LinearFunction partOne;
+        double partTwo;
+        if (xList.size() < 2 || yList.size() < 2) {
+            partOne = null;
+            partTwo = NaN;
+        } else {
+            partOne = LinearFunction.getLinearRegressionLine(xList, yList);
+            partTwo = getCorrelationCoefficient();
+        }
+        return new ArrayList<>(Arrays.asList(partZero, partOne, partTwo));
     }
 
     static double getMinimum(List<Double> numbersList) {
@@ -248,4 +266,83 @@ class Statistics {
         interQuartileRange = upperQuartile - lowerQuartile;
         return interQuartileRange;
     }
+
+    static double getCorrelationCoefficient(List<Double> xList, List<Double> yList) {
+        double xAvg = getAverage(xList);
+        double yAvg = getAverage(yList);
+        double n;
+        if (xList.size() > yList.size()) n = yList.size();
+        else n = xList.size();
+        double xDiffSum = 0;
+        double yDiffSum = 0;
+        for (int i = 0; i < n; i++) {
+            xDiffSum += Math.pow(xList.get(i) - xAvg, 2);
+            yDiffSum += Math.pow(yList.get(i) - yAvg, 2);
+        }
+        double xSampStdDev = Math.sqrt(xDiffSum / (n - 1));
+        double ySampStdDev = Math.sqrt(yDiffSum / (n - 1));
+        double firstFactor = 1 / (n - 1);
+        double secondFactor = 0;
+        for (int i = 0; i < n; i++)
+            secondFactor += ((xList.get(i) - xAvg) / xSampStdDev) *
+                            ((yList.get(i) - yAvg) / ySampStdDev);
+        return firstFactor * secondFactor;
+    }
+
+    private double getCorrelationCoefficient() {
+        double xAvg = getAverage(xList);
+        double yAvg = getAverage(yList);
+        double n;
+        if (xList.size() > yList.size()) n = yList.size();
+        else n = xList.size();
+        double xDiffSum = 0;
+        double yDiffSum = 0;
+        for (int i = 0; i < n; i++) {
+            xDiffSum += Math.pow(xList.get(i) -xAvg, 2);
+            yDiffSum += Math.pow(yList.get(i) - yAvg, 2);
+        }
+        double xSampStdDev = Math.sqrt(xDiffSum / (n - 1));
+        double ySampStdDev = Math.sqrt(yDiffSum / (n - 1));
+        double firstFactor = 1 / (n - 1);
+        double secondFactor = 0;
+        for (int i = 0; i < n; i++)
+            secondFactor += ((xList.get(i) - xAvg) / xSampStdDev) *
+                            ((yList.get(i) - yAvg) / ySampStdDev);
+        correlationCoefficient = firstFactor * secondFactor;
+        return correlationCoefficient;
+    }
 }
+
+class LinearFunction {
+
+    private final double k;
+    private final double b;
+
+    static LinearFunction getLinearRegressionLine(List<Double> xList, List<Double> yList) {
+        double xAvg = Statistics.getAverage(xList);
+        double yAvg = Statistics.getAverage(yList);
+        double n;
+        if (xList.size() > yList.size()) n = yList.size();
+        else n = xList.size();
+        double k = 0;
+        for (int i = 0; i < n; i++)
+            k +=    ((xList.get(i) - xAvg) * (yList.get(i) - yAvg)) /
+                    Math.pow(xList.get(i) - xAvg, 2);
+        double b = yAvg - k * xAvg;
+        return new LinearFunction(k, b);
+    }
+
+    LinearFunction(double k, double b) {
+        this.k = k;
+        this.b = b;
+    }
+
+    double getK() {
+        return k;
+    }
+
+    double getB() {
+        return b;
+    }
+}
+

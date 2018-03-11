@@ -89,6 +89,11 @@ public class MainActivity extends AppCompatActivity {
      */
     private FirstStatisticsFragment firstStatisticsFragment;
 
+    /**
+     * More statistical calculations are displayed in this fragment.
+     */
+    private SecondStatisticsFragment secondStatisticsFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize fragments.
         personDataManagementFragment = (PersonDataManagementFragment) mFragmentPagerAdapter.addFragment(new PersonDataManagementFragment());
         firstStatisticsFragment = (FirstStatisticsFragment) mFragmentPagerAdapter.addFragment(new FirstStatisticsFragment());
+        secondStatisticsFragment = (SecondStatisticsFragment) mFragmentPagerAdapter.addFragment(new SecondStatisticsFragment());
 
         // Set up the view pager with the adapter.
         ViewPager mViewPager = findViewById(R.id.container);
@@ -288,9 +294,22 @@ public class MainActivity extends AppCompatActivity {
         return pdf.GetAmountOfPeople();
     }
 
+    public void RequestRefresh(Fragment requester) {
+        if (requester == firstStatisticsFragment) {
+            List<Object> helaRubbet = Statistics.helaRubbet(pdf.GetPeopleAgeData(), pdf.GetPeopleShoeSizeData(), pdf.GetPeopleHeightData());
+            firstStatisticsFragment.ReceiveCalculations((double[]) helaRubbet.get(0));
+            return;
+        }
+        if (requester == secondStatisticsFragment) {
+            List<Object> helaRubbet = Statistics.helaRubbet(pdf.GetPeopleAgeData(), pdf.GetPeopleShoeSizeData(), pdf.GetPeopleHeightData());
+            secondStatisticsFragment.ReceiveCalculations((LinearFunction) helaRubbet.get(1), (double) helaRubbet.get(2), pdf.GetPeopleShoeSizeData(), pdf.GetPeopleHeightData());
+        }
+    }
+
     private void RefreshCalculations() {
-        double[] helaRubbet = Statistics.helaRubbet(pdf.GetPeopleAgeData());
-        firstStatisticsFragment.ReceiveCalculations(helaRubbet);
+        List<Object> helaRubbet = Statistics.helaRubbet(pdf.GetPeopleAgeData(), pdf.GetPeopleShoeSizeData(), pdf.GetPeopleHeightData());
+        firstStatisticsFragment.ReceiveCalculations((double[]) helaRubbet.get(0));
+        secondStatisticsFragment.ReceiveCalculations((LinearFunction) helaRubbet.get(1), (double) helaRubbet.get(2), pdf.GetPeopleShoeSizeData(), pdf.GetPeopleHeightData());
         invalidateOptionsMenu();
     }
 

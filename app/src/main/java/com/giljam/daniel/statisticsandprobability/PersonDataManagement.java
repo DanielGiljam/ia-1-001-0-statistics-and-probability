@@ -128,23 +128,20 @@ class PeopleDataFacilitator {
 
     List<Double> GetPeopleAgeData() {
         List<Double> peopleAgeData = new ArrayList<>();
-        for (Person person : people) {
-            peopleAgeData.add((double) person.getAge());
-        }
+        for (Person person : people) peopleAgeData.add((double) person.getAge());
         return peopleAgeData;
     }
 
-    List<List<Double>> GetPeopleShoeSizeAndHeightData() {
+    List<Double> GetPeopleShoeSizeData() {
         List<Double> peopleShoeSizeData = new ArrayList<>();
+        for (Person person : people) peopleShoeSizeData.add((double) person.getShoeSize());
+        return peopleShoeSizeData;
+    }
+
+    List<Double> GetPeopleHeightData() {
         List<Double> peopleHeightData = new ArrayList<>();
-        for (Person person : people) {
-            peopleShoeSizeData.add((double) person.getShoeSize());
-            peopleHeightData.add((double) person.getHeight());
-        }
-        List<List<Double>> peopleShoeSizeAndHeightData = new ArrayList<>();
-        peopleShoeSizeAndHeightData.add(peopleShoeSizeData);
-        peopleShoeSizeAndHeightData.add(peopleHeightData);
-        return peopleShoeSizeAndHeightData;
+        for (Person person : people) peopleHeightData.add((double) person.getHeight());
+        return peopleHeightData;
     }
 
     SortPeopleBy GetActiveSortingMode() {
@@ -436,6 +433,8 @@ class Person {
         this.birthDate = Calendar.getInstance();
         this.birthDate.setTime(birthDate);
     }
+
+    // TODO! Find out why some people turn out 0 years old.
 
     private void ParseAge(int age) {
         this.birthDate = Calendar.getInstance();

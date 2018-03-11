@@ -80,7 +80,7 @@
     <string name="invalid_height_too_short">Height value is too small.</string>
     <string name="invalid_height_too_tall">Height value is too big.</string>
 
-    <string name="list_view_item_person_details_string">age %1$d, shoe size %2$d, height %3$d</string>
+    <string name="list_view_item_person_details_string">age %1$d years, shoe size %2$d, height %3$d cm</string>
 
     <string name="n_a">N/A</string>
 
@@ -92,5 +92,11 @@
     <string name="median_text">median</string>
     <string name="upper_quartile_text">upper quartile</string>
     <string name="interquartile_range_text">interquartile range</string>
+
+    <string name="no_data">no data to display</string>
+    <string name="linear_regression_line_formula_positive_b">y = %1$sx + %2$s</string>
+    <string name="linear_regression_line_formula_negative_b">y = %1$sx - %2$s</string>
+    <string name="linear_regression_line_text">linear regression line</string>
+    <string name="correlation_coefficient_text">correlation coefficient</string>
 
 </resources>

@@ -6,9 +6,13 @@
 
     <integer name="min_shoe_size">15</integer>
     <integer name="max_shoe_size">50</integer>
+    <integer name="extra_min_shoe_size">5</integer>
+    <integer name="extra_max_shoe_size">10</integer>
 
     <integer name="min_height">45</integer>
     <integer name="max_height">275</integer>
+    <integer name="extra_min_height">15</integer>
+    <integer name="extra_max_height">25</integer>
 
     <string name="matches_invalid_characters">[^a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ\' \\-]</string>
     <string name="matches_triple_characters">([a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ])\\\1{2}</string>
