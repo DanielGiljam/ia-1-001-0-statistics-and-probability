@@ -1,10 +1,13 @@
 package com.giljam.daniel.statisticsandprobability;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -58,6 +61,7 @@ public class FirstStatisticsFragment extends Fragment {
     {
         View view = inflater.inflate(R.layout.first_statistics_fragment, container, false);
 
+        FrameLayout rootLayout = view.findViewById(R.id.first_statistics_fragment_root_layout);
         minimum = view.findViewById(R.id.minimum);
         maximum = view.findViewById(R.id.maximum);
         average = view.findViewById(R.id.average);
@@ -66,6 +70,18 @@ public class FirstStatisticsFragment extends Fragment {
         median = view.findViewById(R.id.median);
         upperQuartile = view.findViewById(R.id.upper_quartile);
         interQuartileRange = view.findViewById(R.id.interquartile_range);
+
+        // Set up listener for when rootLayout picks up focus
+        // to hide on-screen keyboard, as you can't write in the rootLayout
+        rootLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        });
 
         ((MainActivity)getActivity()).RequestRefresh(this);
 

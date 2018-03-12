@@ -434,8 +434,6 @@ class Person {
         this.birthDate.setTime(birthDate);
     }
 
-    // TODO! Find out why some people turn out 0 years old.
-
     private void ParseAge(int age) {
         this.birthDate = Calendar.getInstance();
         this.birthDate.add(Calendar.YEAR, -age);

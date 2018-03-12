@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up the view pager with the adapter.
         ViewPager mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mFragmentPagerAdapter);
+        mViewPager.setOffscreenPageLimit(2);
 
         if (readWriteExceptionMode1) ShowReadWriteExceptionMode1Alert();
         else if (readWriteExceptionMode3) ShowReadWriteExceptionMode3Alert(peopleData);
@@ -233,10 +234,10 @@ public class MainActivity extends AppCompatActivity {
         // as there would be nothing to clear out or export.
         if (pdf.GetAmountOfPeople() == 0) {
             menu.findItem(R.id.clear_list).setEnabled(false);
-            menu.findItem(R.id.export_list).setEnabled(false);
+            // menu.findItem(R.id.export_list).setEnabled(false);
         } else {
             menu.findItem(R.id.clear_list).setEnabled(true);
-            menu.findItem(R.id.export_list).setEnabled(true);
+            // menu.findItem(R.id.export_list).setEnabled(true);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -336,6 +337,12 @@ public class MainActivity extends AppCompatActivity {
         pdf.AddPerson(person);
         RefreshCalculations();
         return pdf.WhereIs(person);
+    }
+
+    public int AddPeople(List<Person> people) {
+        pdf.AddPeople(people);
+        RefreshCalculations();
+        return pdf.WhereIs(people.get(0));
     }
 
     public void RemovePerson(int index) {

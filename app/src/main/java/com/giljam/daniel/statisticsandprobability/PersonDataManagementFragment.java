@@ -28,6 +28,7 @@ import android.widget.ToggleButton;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -106,6 +107,11 @@ public class PersonDataManagementFragment extends Fragment {
     private int personInstances;
 
     /**
+     * Generates all the necessary random numbers within this fragment.
+     */
+    private Random randomGen;
+
+    /**
      * This fragment's root layout/view.
      */
     private FrameLayout rootLayout;
@@ -168,7 +174,7 @@ public class PersonDataManagementFragment extends Fragment {
         View view = inflater.inflate(R.layout.person_data_management_fragment, container, false);
 
         // Set up the input fields and buttons
-        rootLayout = view.findViewById(R.id.collection_management_root_layout);
+        rootLayout = view.findViewById(R.id.person_data_management_fragment_root_layout);
         nameInputField = view.findViewById(R.id.name_input_field);
         birthDateAgeInputField = view.findViewById(R.id.birthdate_age_input_field);
         birthDateAgeSwitch = view.findViewById(R.id.birthdate_age_switch);
@@ -226,6 +232,9 @@ public class PersonDataManagementFragment extends Fragment {
                 sortButton.setChecked(true);
                 break;
         }
+
+        // Initiating the random generator
+        randomGen = new Random();
 
         // Create the adapter that will process the list data for the recycler view to display.
         mAdapter = new PeopleAdapter(getContext(), ((MainActivity)getActivity()).getPeople());
@@ -374,6 +383,8 @@ public class PersonDataManagementFragment extends Fragment {
             // by long pressing the add button.
             int i = 0;
             int localPersonInstances;
+            int destination;
+            List<Person> people = new ArrayList<>();
             if (autoFieldsButton.isChecked()) localPersonInstances = personInstances;
             else localPersonInstances = 1;
             while (i < localPersonInstances) {
@@ -417,7 +428,8 @@ public class PersonDataManagementFragment extends Fragment {
                                 Pattern.CASE_INSENSITIVE)
                                 .matcher(nameInputString.trim());
                     else capturesNameGroupsAlt.reset(nameInputString.trim());
-                    if (capturesNameGroupsAlt.matches()) firstName = capturesNameGroupsAlt.group(1);
+                    if (capturesNameGroupsAlt.matches())
+                        firstName = capturesNameGroupsAlt.group(1);
                     else firstName = "";
                     if (capturesNameGroupsAlt.group(2) != null)
                         lastName = capturesNameGroupsAlt.group(2);
@@ -427,29 +439,45 @@ public class PersonDataManagementFragment extends Fragment {
                     lastName = NameCapitalization(capturesNameGroups.group(2));
                 }
 
-                // The state of the birthDateAgeSwitch + generateBirthDateAge tells us which constructor to use when creating the person.
+                // The state of the birthDateAgeSwitch + generateBirthDateAge tells us
+                // which constructor to use when creating the person.
                 Person person;
                 if (!birthDateAgeSwitch.isChecked() && !generateBirthDateAge)
-                    person = new Person(firstName, lastName, birthDateObject, Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
+                    person = new Person(firstName,
+                                        lastName,
+                                        birthDateObject,
+                                        Integer.parseInt(shoeSizeInputString),
+                                        Integer.parseInt(heightInputString));
                 else
-                    person = new Person(firstName, lastName, Integer.parseInt(birthDateAgeInputString), Integer.parseInt(shoeSizeInputString), Integer.parseInt(heightInputString));
+                    person = new Person(firstName,
+                                        lastName,
+                                        Integer.parseInt(birthDateAgeInputString),
+                                        Integer.parseInt(shoeSizeInputString),
+                                        Integer.parseInt(heightInputString));
 
-                // Person is dispatched to the MainActivity, that adds it to the list.
-                // In the transaction, the position of the added person in the list is returned.
-                int personDestination = ((MainActivity) getActivity()).AddPerson(person);
-
-                // The recycler view's adapter is notified about the added person
-                // and asked to scroll to the position in the list, where the person was added.
-                mAdapter.notifyItemInserted(personDestination);
-                if (i == localPersonInstances - 1)
-                    mRecyclerView.smoothScrollToPosition(personDestination);
-                i++;
-
+                people.add(person);
                 if (generateName) nameInputString = "";
                 if (generateBirthDateAge) birthDateAgeInputString = "";
                 if (generateShoeSize) shoeSizeInputString = "";
                 if (generateHeight) heightInputString = "";
+                i++;
             }
+
+            // The person (or people) is dispatched to the MainActivity, that adds it to the list.
+            // In the transaction, the position of the added person in the list is returned.
+            if (localPersonInstances == 1) {
+                destination = ((MainActivity) getActivity()).AddPerson(people.get(0));
+                mAdapter.notifyItemInserted(destination);
+            } else {
+                destination = ((MainActivity) getActivity()).AddPeople(people);
+                if (((MainActivity)getActivity()).getActiveSortingMode() == SortPeopleBy.ORIGINAL)
+                    mAdapter.notifyItemRangeChanged(destination, people.size());
+                else mAdapter.notifyDataSetChanged();
+            }
+
+            // The recycler view's adapter is notified about the added person
+            // and asked to scroll to the position in the list, where the person was added.
+            mRecyclerView.smoothScrollToPosition(destination);
 
             // Now that the person adding is finished, it's time to clean up!
             ClearFocus();
@@ -972,9 +1000,8 @@ public class PersonDataManagementFragment extends Fragment {
     }
 
     private String GenerateNameInputString() {
-        Random random = new Random();
-        String generatedName =  getString(getResources().getIdentifier(getString(R.string.first_name_id_template, random.nextInt(getResources().getInteger(R.integer.first_names_total))), "string", getActivity().getPackageName())) + " " +
-                                getString(getResources().getIdentifier(getString(R.string.last_name_id_template, random.nextInt(getResources().getInteger(R.integer.last_names_total))), "string", getActivity().getPackageName()));
+        String generatedName =  getString(getResources().getIdentifier(getString(R.string.first_name_id_template, randomGen.nextInt(getResources().getInteger(R.integer.first_names_total))), "string", getActivity().getPackageName())) + " " +
+                                getString(getResources().getIdentifier(getString(R.string.last_name_id_template, randomGen.nextInt(getResources().getInteger(R.integer.last_names_total))), "string", getActivity().getPackageName()));
         if (capturesNameGroups == null)
             capturesNameGroups = Pattern.compile(   getString(R.string.captures_name_groups),
                                                     Pattern.CASE_INSENSITIVE)
@@ -985,30 +1012,44 @@ public class PersonDataManagementFragment extends Fragment {
     }
 
     private String GenerateBirthDateAgeInputString() {
-        return Integer.toString(new Random().nextInt(100));
+        return Integer.toString(randomGen.nextInt(100));
     }
 
     private String GenerateShoeSizeInputString(String heightInputString) {
-        double randomOffset = new Random().nextDouble() * (2 * ((MainActivity) getActivity()).getShoeSizesStdSampDev()) - ((MainActivity)getActivity()).getShoeSizesStdSampDev();
-        if (!heightInputString.isEmpty()) {
+        LinearFunction linearRegressionLine = ((MainActivity) getActivity()).getLinearRegressionLine();
+        double randomOffset = randomGen.nextDouble() * (2 * ((MainActivity) getActivity()).getShoeSizesStdSampDev()) - ((MainActivity)getActivity()).getShoeSizesStdSampDev();
+        double shoeSizesAvg = ((MainActivity) getActivity()).getShoeSizesAvg();
+        if (!heightInputString.isEmpty() && linearRegressionLine != null) {
+            System.out.println("shoe size: chose path 1");
             int height = Integer.parseInt(heightInputString);
             int shoeSize = (int) Math.round(((MainActivity)getActivity()).getLinearRegressionLine().getX(height) + randomOffset);
             return Integer.toString(shoeSize);
-        } else {
-            int shoeSize = (int) Math.round(((MainActivity) getActivity()).getShoeSizesAvg() + randomOffset);
+        } else if (!Double.isNaN(shoeSizesAvg)) {
+            System.out.println("shoe size: chose path 2 (" + shoeSizesAvg + ")");
+            int shoeSize = (int) Math.round(shoeSizesAvg + randomOffset);
             return Integer.toString(shoeSize);
+        } else {
+            System.out.println("shoe size: chose path 3");
+            return Integer.toString(getResources().getInteger(R.integer.min_shoe_size) + (int) (randomGen.nextDouble() * (getResources().getInteger(R.integer.max_shoe_size) - getResources().getInteger(R.integer.min_shoe_size))));
         }
     }
 
     private String GenerateHeightInputString(String shoeSizeInputString) {
-        double randomOffset = new Random().nextDouble() * (2 * ((MainActivity) getActivity()).getHeightsStdSampDev()) - ((MainActivity) getActivity()).getHeightsStdSampDev();
-        if (!shoeSizeInputString.isEmpty()) {
+        LinearFunction linearRegressionLine = ((MainActivity) getActivity()).getLinearRegressionLine();
+        double randomOffset = randomGen.nextDouble() * (2 * ((MainActivity) getActivity()).getHeightsStdSampDev()) - ((MainActivity) getActivity()).getHeightsStdSampDev();
+        double heightsAvg = ((MainActivity) getActivity()).getHeightsAvg();
+        if (!shoeSizeInputString.isEmpty() && linearRegressionLine != null) {
+            System.out.println("height: chose path 1");
             int shoeSize = Integer.parseInt(shoeSizeInputString);
-            int height = (int) Math.round(((MainActivity) getActivity()).getLinearRegressionLine().getY(shoeSize) + randomOffset);
+            int height = (int) Math.round(linearRegressionLine.getY(shoeSize) + randomOffset);
+            return Integer.toString(height);
+        } else if (!Double.isNaN(heightsAvg)) {
+            System.out.println("height: chose path 2 (" + heightsAvg + ")");
+            int height = (int) Math.round(heightsAvg + randomOffset);
             return Integer.toString(height);
         } else {
-            int height = (int) Math.round(((MainActivity) getActivity()).getHeightsAvg() + randomOffset);
-            return Integer.toString(height);
+            System.out.println("height: chose path 3");
+            return Integer.toString(getResources().getInteger(R.integer.min_height) + (int) (randomGen.nextDouble() * (getResources().getInteger(R.integer.max_height) - getResources().getInteger(R.integer.min_height))));
         }
     }
 
@@ -1056,6 +1097,7 @@ public class PersonDataManagementFragment extends Fragment {
                 personInstances = numberPicker.getValue();
                 CharSequence abaText = Html.fromHtml(getString(R.string.add_button_text_alt, personInstances));
                 addButton.setText(abaText);
+                WritePersonInstances(personInstances);
                 dialog.dismiss();
             }
         });
@@ -1279,6 +1321,12 @@ public class PersonDataManagementFragment extends Fragment {
     private void WriteActiveSortingMode(int mode) {
         SharedPreferences.Editor sharedPrefsEditor = ((MainActivity) getActivity()).getSharedPrefs().edit();
         sharedPrefsEditor.putInt(getString(R.string.active_sorting_mode_key), mode);
+        sharedPrefsEditor.apply();
+    }
+
+    private void WritePersonInstances(int personInstances) {
+        SharedPreferences.Editor sharedPrefsEditor = ((MainActivity) getActivity()).getSharedPrefs().edit();
+        sharedPrefsEditor.putInt(getString(R.string.auto_fields_person_instances_key), personInstances);
         sharedPrefsEditor.apply();
     }
 

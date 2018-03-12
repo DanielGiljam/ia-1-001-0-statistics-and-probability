@@ -375,7 +375,7 @@ class Statistics {
     }
 
     private double getCorrelationCoefficient() {
-        double firstFactor = 1 / (n - 1);
+        double firstFactor = 1 / (double) (n - 1);
         double secondFactor = 0;
         for (int i = 0; i < n; i++)
             secondFactor += ((xList.get(i) - xAvg) / xStdSampDev) *
@@ -390,19 +390,25 @@ class Statistics {
         double n;
         if (xList.size() > yList.size()) n = yList.size();
         else n = xList.size();
-        double k = 0;
-        for (int i = 0; i < n; i++)
-            k += ((xList.get(i) - xAvg) * (yList.get(i) - yAvg)) /
-                    Math.pow(xList.get(i) - xAvg, 2);
+        double k1 = 0;
+        double k2 = 0;
+        for (int i = 0; i < n; i++) {
+            k1 += (xList.get(i) - xAvg) * (yList.get(i) - yAvg);
+            k2 += Math.pow(xList.get(i) - xAvg, 2);
+        }
+        double k = k1 / k2;
         double b = yAvg - k * xAvg;
         return new LinearFunction(k, b);
     }
 
     private LinearFunction getLinearRegressionLine() {
-        double k = 0;
-        for (int i = 0; i < n; i++)
-            k += ((xList.get(i) - xAvg) * (yList.get(i) - yAvg)) /
-                    Math.pow(xList.get(i) - xAvg, 2);
+        double k1 = 0;
+        double k2 = 0;
+        for (int i = 0; i < n; i++) {
+            k1 += (xList.get(i) - xAvg) * (yList.get(i) - yAvg);
+            k2 += Math.pow(xList.get(i) - xAvg, 2);
+        }
+        double k = k1 / k2;
         double b = yAvg - k * xAvg;
         linearRegressionLine = new LinearFunction(k, b);
         return linearRegressionLine;
@@ -428,13 +434,11 @@ class LinearFunction {
     }
 
     double getX(double y) {
-        double x = 0;
-        return x;
+        return (y - b) / k;
     }
 
     double getY(double x) {
-        double y = 0;
-        return y;
+        return k * x + b;
     }
 }
 

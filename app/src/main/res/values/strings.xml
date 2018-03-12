@@ -95,6 +95,7 @@
 
     <string name="no_data">no data to display</string>
     <string name="linear_regression_line_formula_positive_b">y = %1$sx + %2$s</string>
+    <string name="linear_regression_line_formula_no_b">y = %1$sx</string>
     <string name="linear_regression_line_formula_negative_b">y = %1$sx - %2$s</string>
     <string name="linear_regression_line_text">linear regression line</string>
     <string name="correlation_coefficient_text">correlation coefficient</string>
