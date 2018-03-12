@@ -395,11 +395,11 @@ public class PersonDataManagementFragment extends Fragment {
                     }
                     if (shoeSizeInputString.isEmpty()) {
                         generateShoeSize = true;
-                        shoeSizeInputString = GenerateShoeSizeInputString();
+                        shoeSizeInputString = GenerateShoeSizeInputString(heightInputString);
                     }
                     if (heightInputString.isEmpty()) {
                         generateHeight = true;
-                        heightInputString = GenerateHeightInputString();
+                        heightInputString = GenerateHeightInputString(shoeSizeInputString);
                     }
                 }
 
@@ -988,14 +988,28 @@ public class PersonDataManagementFragment extends Fragment {
         return Integer.toString(new Random().nextInt(100));
     }
 
-    // TODO! Generate shoe size and/or height based on regression analysis.
-
-    private String GenerateShoeSizeInputString() {
-        return Integer.toString(getResources().getInteger(R.integer.min_shoe_size) + new Random().nextInt(getResources().getInteger(R.integer.max_shoe_size)));
+    private String GenerateShoeSizeInputString(String heightInputString) {
+        double randomOffset = new Random().nextDouble() * (2 * ((MainActivity) getActivity()).getShoeSizesStdSampDev()) - ((MainActivity)getActivity()).getShoeSizesStdSampDev();
+        if (!heightInputString.isEmpty()) {
+            int height = Integer.parseInt(heightInputString);
+            int shoeSize = (int) Math.round(((MainActivity)getActivity()).getLinearRegressionLine().getX(height) + randomOffset);
+            return Integer.toString(shoeSize);
+        } else {
+            int shoeSize = (int) Math.round(((MainActivity) getActivity()).getShoeSizesAvg() + randomOffset);
+            return Integer.toString(shoeSize);
+        }
     }
 
-    private String GenerateHeightInputString() {
-        return Integer.toString(getResources().getInteger(R.integer.min_height) + new Random().nextInt(getResources().getInteger(R.integer.max_height)));
+    private String GenerateHeightInputString(String shoeSizeInputString) {
+        double randomOffset = new Random().nextDouble() * (2 * ((MainActivity) getActivity()).getHeightsStdSampDev()) - ((MainActivity) getActivity()).getHeightsStdSampDev();
+        if (!shoeSizeInputString.isEmpty()) {
+            int shoeSize = Integer.parseInt(shoeSizeInputString);
+            int height = (int) Math.round(((MainActivity) getActivity()).getLinearRegressionLine().getY(shoeSize) + randomOffset);
+            return Integer.toString(height);
+        } else {
+            int height = (int) Math.round(((MainActivity) getActivity()).getHeightsAvg() + randomOffset);
+            return Integer.toString(height);
+        }
     }
 
     @Deprecated

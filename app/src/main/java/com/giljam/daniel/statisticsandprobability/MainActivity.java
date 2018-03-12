@@ -102,18 +102,32 @@ public class MainActivity extends AppCompatActivity {
     private LinearFunction linearRegressionLine;
 
     /**
+     * The shoe sizes' average is stored in this variable
+     * for quick access by the PersonDataManagement fragment
+     * if it needs the function for automatic field generation.
+     */
+    private double shoeSizesAvg;
+
+    /**
      * The standard deviation of the shoe sizes is stored in this variable
      * for quick access by the PersonDataManagement fragment
      * if it needs the function for automatic field generation.
      */
-    private double shoeSizesStdDev;
+    private double shoeSizesStdSampDev;
+
+    /**
+     * The heights' average is stored in this variable
+     * for quick access by the PersonDataManagement fragment
+     * if it needs the function for automatic field generation.
+     */
+    private double heightsAvg;
 
     /**
      * The standard deviation of the heights is stored in this variable
      * for quick access by the PersonDataManagement fragment
      * if it needs the function for automatic field generation.
      */
-    private double heightsStdDev;
+    private double heightsStdSampDev;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -272,6 +286,26 @@ public class MainActivity extends AppCompatActivity {
         return pdf.GetPeople();
     }
 
+    public LinearFunction getLinearRegressionLine() {
+        return linearRegressionLine;
+    }
+
+    public double getShoeSizesAvg() {
+        return shoeSizesAvg;
+    }
+
+    public double getShoeSizesStdSampDev() {
+        return shoeSizesStdSampDev;
+    }
+
+    public double getHeightsAvg() {
+        return heightsAvg;
+    }
+
+    public double getHeightsStdSampDev() {
+        return heightsStdSampDev;
+    }
+
     public boolean GenerateDemoList() {
         if (pdf.GetAmountOfPeople() == 0) {
             List<Person> demoList = new ArrayList<>();
@@ -316,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void RequestRefresh(Fragment requester) {
+
         if (requester == firstStatisticsFragment) {
             double[] forstaHalvanAvRubbet = Statistics.forstaHalvanAvRubbet(pdf.GetPeopleAgeData());
             firstStatisticsFragment.ReceiveCalculations(forstaHalvanAvRubbet);
@@ -326,21 +361,26 @@ public class MainActivity extends AppCompatActivity {
             List<Double> heights = pdf.GetPeopleHeightData();
             List<Object> andraHalvanAvRubbet = Statistics.andraHalvanAvRubbet(shoeSizes, heights);
             linearRegressionLine = (LinearFunction) andraHalvanAvRubbet.get(0);
-            shoeSizesStdDev = Statistics.getStandardSampleDeviation(shoeSizes);
-            heightsStdDev = Statistics.getStandardSampleDeviation(heights);
+            shoeSizesAvg = Statistics.getAverage(shoeSizes);
+            shoeSizesStdSampDev = Statistics.getStandardSampleDeviation(shoeSizes);
+            heightsAvg = Statistics.getAverage(heights);
+            heightsStdSampDev = Statistics.getStandardSampleDeviation(heights);
             secondStatisticsFragment.ReceiveCalculations(linearRegressionLine, (double) andraHalvanAvRubbet.get(1), pdf.GetPeopleShoeSizeData(), pdf.GetPeopleHeightData());
         }
     }
 
     private void RefreshCalculations() {
+
         List<Double> ages = pdf.GetPeopleAgeData();
         List<Double> shoeSizes = pdf.GetPeopleShoeSizeData();
         List<Double> heights = pdf.GetPeopleHeightData();
         List<Object> helaRubbet = Statistics.helaRubbet(ages, shoeSizes, heights);
         firstStatisticsFragment.ReceiveCalculations((double[]) helaRubbet.get(0));
         linearRegressionLine = (LinearFunction) helaRubbet.get(1);
-        shoeSizesStdDev = Statistics.getStandardSampleDeviation(shoeSizes);
-        heightsStdDev = Statistics.getStandardSampleDeviation(heights);
+        shoeSizesAvg = Statistics.getAverage(shoeSizes);
+        shoeSizesStdSampDev = Statistics.getStandardSampleDeviation(shoeSizes);
+        heightsAvg = Statistics.getAverage(heights);
+        heightsStdSampDev = Statistics.getStandardSampleDeviation(heights);
         secondStatisticsFragment.ReceiveCalculations(linearRegressionLine, (double) helaRubbet.get(2), shoeSizes, heights);
         invalidateOptionsMenu();
     }
