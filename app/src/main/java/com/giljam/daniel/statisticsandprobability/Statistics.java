@@ -10,8 +10,6 @@ import static java.lang.Double.NaN;
 class Statistics {
     
     private List<Double> numbersList;
-    private List<Double> xList;
-    private List<Double> yList;
     private int listLength;
     private int halfOfListLength;
     private double minimum;
@@ -22,14 +20,32 @@ class Statistics {
     private double median;
     private double upperQuartile;
     private double interQuartileRange;
+
+    private List<Double> xList;
+    private List<Double> yList;
+    private int n;
+    private double xAvg;
+    private double yAvg;
+    private double xStdSampDev;
+    private double yStdSampDev;
     private double correlationCoefficient;
+    private LinearFunction linearRegressionLine;
     
     Statistics(List<Double> numbersListUnsorted, List<Double> xList, List<Double> yList) {
-        numbersList = numbersListUnsorted;
-        this.xList = xList;
-        this.yList = yList;
+
+        if (numbersListUnsorted == null) numbersList = new ArrayList<>();
+        else numbersList = numbersListUnsorted;
+
+        if (xList == null) this.xList = new ArrayList<>();
+        else this.xList = xList;
+
+        if (yList == null) this.yList = new ArrayList<>();
+        else this.yList = yList;
+
         Collections.sort(numbersList);
+
         listLength = numbersList.size();
+
         halfOfListLength = listLength / 2;
     }
     
@@ -37,28 +53,75 @@ class Statistics {
         Statistics statistics = new Statistics(numbersListUnsorted, xList, yList);
         return statistics.helaRubbet();
     }
+
+    static double[] forstaHalvanAvRubbet(List<Double> numbersListUnsorted) {
+        Statistics statistics = new Statistics(numbersListUnsorted, null, null);
+        return statistics.forstHalvanAvRubbet();
+    }
+
+    static List<Object> andraHalvanAvRubbet(List<Double> xList, List<Double> yList) {
+        Statistics statistics = new Statistics(null, xList, yList);
+        return statistics.andraHalvanAvRubbet();
+    }
     
     private List<Object> helaRubbet() {
         double[] partZero;
         if (listLength == 0) partZero = null;
         else partZero = new double[]{getMinimum(),
-                                    getMaximum(),
-                                    getAverage(),
-                                    getStandardDeviation(),
-                                    getLowerQuartile(),
-                                    getMedian(),
-                                    getUpperQuartile(),
-                                    getInterQuartileRange()};
+                                     getMaximum(),
+                                     getAverage(),
+                                     getStandardDeviation(),
+                                     getLowerQuartile(),
+                                     getMedian(),
+                                     getUpperQuartile(),
+                                     getInterQuartileRange()};
         LinearFunction partOne;
         double partTwo;
         if (xList.size() < 2 || yList.size() < 2) {
             partOne = null;
             partTwo = NaN;
         } else {
-            partOne = LinearFunction.getLinearRegressionLine(xList, yList);
+            AnalyzeXYLists();
+            partOne = getLinearRegressionLine();
             partTwo = getCorrelationCoefficient();
         }
         return new ArrayList<>(Arrays.asList(partZero, partOne, partTwo));
+    }
+
+    private double[] forstHalvanAvRubbet() {
+        double[] forstaHalvan;
+        if (listLength == 0) forstaHalvan = null;
+        else forstaHalvan = new double[]{   getMinimum(),
+                                            getMaximum(),
+                                            getAverage(),
+                                            getStandardDeviation(),
+                                            getLowerQuartile(),
+                                            getMedian(),
+                                            getUpperQuartile(),
+                                            getInterQuartileRange()};
+        return forstaHalvan;
+    }
+
+    private List<Object> andraHalvanAvRubbet() {
+        LinearFunction forstaHalvanAvAndraHalvan;
+        double andraHalvanAvAndraHalvan;
+        if (xList.size() < 2 || yList.size() < 2) {
+            forstaHalvanAvAndraHalvan = null;
+            andraHalvanAvAndraHalvan = NaN;
+        } else {
+            AnalyzeXYLists();
+            forstaHalvanAvAndraHalvan = getLinearRegressionLine();
+            andraHalvanAvAndraHalvan = getCorrelationCoefficient();
+        }
+        return new ArrayList<>(Arrays.asList(forstaHalvanAvAndraHalvan, andraHalvanAvAndraHalvan));
+    }
+
+    private void AnalyzeXYLists() {
+        if (xList.size() > yList.size()) n = yList.size();
+        else n = xList.size();
+        xAvg = getAverage(xList);
+        yAvg = getAverage(yList);
+        getStandardSampleDeviation();
     }
 
     static double getMinimum(List<Double> numbersList) {
@@ -122,6 +185,28 @@ class Statistics {
         }
         standardDeviation = Math.sqrt(diffSum / listLength);
         return standardDeviation;
+    }
+
+    static double getStandardSampleDeviation(List<Double> numbersList) {
+        if (numbersList.isEmpty()) return NaN;
+        double diffSum = 0;
+        double average = getAverage(numbersList);
+        int listLength = numbersList.size();
+        for (double number : numbersList) {
+            diffSum += Math.pow(number - average, 2);
+        }
+        return Math.sqrt(diffSum / (listLength - 1));
+    }
+
+    private void getStandardSampleDeviation() {
+        double xDiffSum = 0;
+        double yDiffSum = 0;
+        for (int i = 0; i < n; i++) {
+            xDiffSum += Math.pow(xList.get(i) - xAvg, 2);
+            yDiffSum += Math.pow(yList.get(i) - yAvg, 2);
+        }
+        xStdSampDev = Math.sqrt(xDiffSum / (n - 1));
+        yStdSampDev = Math.sqrt(yDiffSum / (n - 1));
     }
 
     static double getLowerQuartile(List<Double> numbersListUnsorted) {
@@ -279,44 +364,25 @@ class Statistics {
             xDiffSum += Math.pow(xList.get(i) - xAvg, 2);
             yDiffSum += Math.pow(yList.get(i) - yAvg, 2);
         }
-        double xSampStdDev = Math.sqrt(xDiffSum / (n - 1));
-        double ySampStdDev = Math.sqrt(yDiffSum / (n - 1));
+        double xStdSampDev = Math.sqrt(xDiffSum / (n - 1));
+        double yStdSampDev = Math.sqrt(yDiffSum / (n - 1));
         double firstFactor = 1 / (n - 1);
         double secondFactor = 0;
         for (int i = 0; i < n; i++)
-            secondFactor += ((xList.get(i) - xAvg) / xSampStdDev) *
-                            ((yList.get(i) - yAvg) / ySampStdDev);
+            secondFactor += ((xList.get(i) - xAvg) / xStdSampDev) *
+                            ((yList.get(i) - yAvg) / yStdSampDev);
         return firstFactor * secondFactor;
     }
 
     private double getCorrelationCoefficient() {
-        double xAvg = getAverage(xList);
-        double yAvg = getAverage(yList);
-        double n;
-        if (xList.size() > yList.size()) n = yList.size();
-        else n = xList.size();
-        double xDiffSum = 0;
-        double yDiffSum = 0;
-        for (int i = 0; i < n; i++) {
-            xDiffSum += Math.pow(xList.get(i) -xAvg, 2);
-            yDiffSum += Math.pow(yList.get(i) - yAvg, 2);
-        }
-        double xSampStdDev = Math.sqrt(xDiffSum / (n - 1));
-        double ySampStdDev = Math.sqrt(yDiffSum / (n - 1));
         double firstFactor = 1 / (n - 1);
         double secondFactor = 0;
         for (int i = 0; i < n; i++)
-            secondFactor += ((xList.get(i) - xAvg) / xSampStdDev) *
-                            ((yList.get(i) - yAvg) / ySampStdDev);
+            secondFactor += ((xList.get(i) - xAvg) / xStdSampDev) *
+                            ((yList.get(i) - yAvg) / yStdSampDev);
         correlationCoefficient = firstFactor * secondFactor;
         return correlationCoefficient;
     }
-}
-
-class LinearFunction {
-
-    private final double k;
-    private final double b;
 
     static LinearFunction getLinearRegressionLine(List<Double> xList, List<Double> yList) {
         double xAvg = Statistics.getAverage(xList);
@@ -326,11 +392,27 @@ class LinearFunction {
         else n = xList.size();
         double k = 0;
         for (int i = 0; i < n; i++)
-            k +=    ((xList.get(i) - xAvg) * (yList.get(i) - yAvg)) /
+            k += ((xList.get(i) - xAvg) * (yList.get(i) - yAvg)) /
                     Math.pow(xList.get(i) - xAvg, 2);
         double b = yAvg - k * xAvg;
         return new LinearFunction(k, b);
     }
+
+    private LinearFunction getLinearRegressionLine() {
+        double k = 0;
+        for (int i = 0; i < n; i++)
+            k += ((xList.get(i) - xAvg) * (yList.get(i) - yAvg)) /
+                    Math.pow(xList.get(i) - xAvg, 2);
+        double b = yAvg - k * xAvg;
+        linearRegressionLine = new LinearFunction(k, b);
+        return linearRegressionLine;
+    }
+}
+
+class LinearFunction {
+
+    private final double k;
+    private final double b;
 
     LinearFunction(double k, double b) {
         this.k = k;
@@ -343,6 +425,16 @@ class LinearFunction {
 
     double getB() {
         return b;
+    }
+
+    double getX(double y) {
+        double x = 0;
+        return x;
+    }
+
+    double getY(double x) {
+        double y = 0;
+        return y;
     }
 }
 
