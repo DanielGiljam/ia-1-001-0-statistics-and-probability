@@ -359,10 +359,6 @@ public class PersonDataManagementFragment extends Fragment {
         mAdapter.notifyItemRangeRemoved(0, range);
     }
 
-    public void NotifyImportEvent() {
-        mAdapter.notifyDataSetChanged();
-    }
-
     private void PreAddPerson(View view) {
 
         // Fetches whatever is in the EditText input fields
@@ -1020,16 +1016,13 @@ public class PersonDataManagementFragment extends Fragment {
         double randomOffset = randomGen.nextDouble() * (2 * ((MainActivity) getActivity()).getShoeSizesStdSampDev()) - ((MainActivity)getActivity()).getShoeSizesStdSampDev();
         double shoeSizesAvg = ((MainActivity) getActivity()).getShoeSizesAvg();
         if (!heightInputString.isEmpty() && linearRegressionLine != null) {
-            System.out.println("shoe size: chose path 1");
             int height = Integer.parseInt(heightInputString);
             int shoeSize = (int) Math.round(((MainActivity)getActivity()).getLinearRegressionLine().getX(height) + randomOffset);
             return Integer.toString(shoeSize);
         } else if (!Double.isNaN(shoeSizesAvg)) {
-            System.out.println("shoe size: chose path 2 (" + shoeSizesAvg + ")");
             int shoeSize = (int) Math.round(shoeSizesAvg + randomOffset);
             return Integer.toString(shoeSize);
         } else {
-            System.out.println("shoe size: chose path 3");
             return Integer.toString(getResources().getInteger(R.integer.min_shoe_size) + (int) (randomGen.nextDouble() * (getResources().getInteger(R.integer.max_shoe_size) - getResources().getInteger(R.integer.min_shoe_size))));
         }
     }
@@ -1039,16 +1032,13 @@ public class PersonDataManagementFragment extends Fragment {
         double randomOffset = randomGen.nextDouble() * (2 * ((MainActivity) getActivity()).getHeightsStdSampDev()) - ((MainActivity) getActivity()).getHeightsStdSampDev();
         double heightsAvg = ((MainActivity) getActivity()).getHeightsAvg();
         if (!shoeSizeInputString.isEmpty() && linearRegressionLine != null) {
-            System.out.println("height: chose path 1");
             int shoeSize = Integer.parseInt(shoeSizeInputString);
             int height = (int) Math.round(linearRegressionLine.getY(shoeSize) + randomOffset);
             return Integer.toString(height);
         } else if (!Double.isNaN(heightsAvg)) {
-            System.out.println("height: chose path 2 (" + heightsAvg + ")");
             int height = (int) Math.round(heightsAvg + randomOffset);
             return Integer.toString(height);
         } else {
-            System.out.println("height: chose path 3");
             return Integer.toString(getResources().getInteger(R.integer.min_height) + (int) (randomGen.nextDouble() * (getResources().getInteger(R.integer.max_height) - getResources().getInteger(R.integer.min_height))));
         }
     }
@@ -1086,7 +1076,7 @@ public class PersonDataManagementFragment extends Fragment {
         final int personInstancesBackup = personInstances;
         final NumberPicker numberPicker = new NumberPicker(getContext());
         numberPicker.setMinValue(1);
-        numberPicker.setMaxValue(512);
+        numberPicker.setMaxValue(getResources().getInteger(R.integer.max_person_instances));
         numberPicker.setWrapSelectorWheel(false);
         numberPicker.setValue(personInstances);
         builder.setView(numberPicker);
@@ -1152,9 +1142,9 @@ public class PersonDataManagementFragment extends Fragment {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     PreAddPerson(view);
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             }
         });
         nameInputField.setOnKeyListener(new View.OnKeyListener() {
@@ -1163,7 +1153,6 @@ public class PersonDataManagementFragment extends Fragment {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
                     if (nameInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
-                        return false;
                     }
                 }
                 return false;
@@ -1193,9 +1182,9 @@ public class PersonDataManagementFragment extends Fragment {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     PreAddPerson(view);
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             }
         });
         birthDateAgeInputField.setOnKeyListener(new View.OnKeyListener() {
@@ -1204,7 +1193,6 @@ public class PersonDataManagementFragment extends Fragment {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
                     if (birthDateAgeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
-                        return false;
                     }
                 }
                 return false;
@@ -1234,9 +1222,9 @@ public class PersonDataManagementFragment extends Fragment {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     PreAddPerson(view);
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             }
         });
         shoeSizeInputField.setOnKeyListener(new View.OnKeyListener() {
@@ -1245,7 +1233,6 @@ public class PersonDataManagementFragment extends Fragment {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
                     if (shoeSizeInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
-                        return false;
                     }
                 }
                 return false;
@@ -1275,9 +1262,9 @@ public class PersonDataManagementFragment extends Fragment {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     PreAddPerson(view);
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             }
         });
         heightInputField.setOnKeyListener(new View.OnKeyListener() {
@@ -1286,7 +1273,6 @@ public class PersonDataManagementFragment extends Fragment {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
                     if (heightInputField.getImeOptions() == EditorInfo.IME_ACTION_DONE + EditorInfo.IME_FLAG_NO_EXTRACT_UI) {
                         PreAddPerson(view);
-                        return false;
                     }
                 }
                 return false;

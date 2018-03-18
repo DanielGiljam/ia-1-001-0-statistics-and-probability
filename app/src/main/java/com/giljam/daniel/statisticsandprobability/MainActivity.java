@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
      * was able to load data, but the file was incomplete. This mode does nothing else than
      * show the user a notification about the discovery of corrupt data.
      */
+    @Deprecated
     private boolean readWriteExceptionMode2 = false;
 
     /**
@@ -230,14 +231,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // If collection is empty, the "clear list" and "export list" options are disabled,
-        // as there would be nothing to clear out or export.
+        // If collection is empty, the "clear list" option is disabled,
+        // as there would be nothing to clear out.
         if (pdf.GetAmountOfPeople() == 0) {
             menu.findItem(R.id.clear_list).setEnabled(false);
-            // menu.findItem(R.id.export_list).setEnabled(false);
         } else {
             menu.findItem(R.id.clear_list).setEnabled(true);
-            // menu.findItem(R.id.export_list).setEnabled(true);
         }
         return super.onPrepareOptionsMenu(menu);
     }

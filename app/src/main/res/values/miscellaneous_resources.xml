@@ -14,6 +14,8 @@
     <integer name="extra_min_height">15</integer>
     <integer name="extra_max_height">25</integer>
 
+    <integer name="max_person_instances">512</integer>
+
     <string name="matches_invalid_characters">[^a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ\' \\-]</string>
     <string name="matches_triple_characters">([a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŒœŠšŸƒ])\\\1{2}</string>
     <string name="matches_double_special_characters">([-\'])\\\1</string>
@@ -22,5 +24,12 @@
     <string name="captures_name_groups_alt">\\\A(\\\S+)(?:\\\s+((?:\\\s*(?:\\\S+))*))?\\\z</string>
     <string name="capitalize_names">[-\'](\\\S)</string>
     <string name="job_314">job314</string>
+
+    <string name="integer_format">#</string>
+    <string name="short_float_format">#</string>
+    <string name="medium_float_format">#</string>
+    <string name="long_float_format">#</string>
+
+    <string name="graph_y_unit"> cm</string>
 
 </resources>

@@ -102,7 +102,7 @@ public class SecondStatisticsFragment extends Fragment {
             @Override
             public String formatLabel(double value, boolean isValueX) {
                 if (isValueX) return super.formatLabel(value, true);
-                else return super.formatLabel(value, false) + " cm";
+                else return super.formatLabel(value, false) + getString(R.string.graph_y_unit);
             }
         });
 
@@ -158,13 +158,13 @@ public class SecondStatisticsFragment extends Fragment {
             });
             graph.addSeries(pointSeries);
 
-            String k = new DecimalFormat("#.##").format(partOne.getK());
-            String b = new DecimalFormat("#.##").format(partOne.getB());
+            String k = new DecimalFormat(getString(R.string.medium_float_format)).format(partOne.getK());
+            String b = new DecimalFormat(getString(R.string.medium_float_format)).format(partOne.getB());
             if (partOne.getB() > 0) linearRegressionLine.setText(getString(R.string.linear_regression_line_formula_positive_b, k, b));
             else if (partOne.getB() == 0) linearRegressionLine.setText(getString(R.string.linear_regression_line_formula_no_b, k));
             else linearRegressionLine.setText(getString(R.string.linear_regression_line_formula_negative_b, k, b.substring(1)));
 
-            correlationCoefficient.setText(new DecimalFormat("#.####").format(partTwo));
+            correlationCoefficient.setText(new DecimalFormat(getString(R.string.long_float_format)).format(partTwo));
         }
     }
 }

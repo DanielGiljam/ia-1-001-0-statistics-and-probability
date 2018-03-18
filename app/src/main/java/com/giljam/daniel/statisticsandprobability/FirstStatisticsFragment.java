@@ -99,14 +99,14 @@ public class FirstStatisticsFragment extends Fragment {
             upperQuartile.setText(getString(R.string.n_a));
             interQuartileRange.setText(getString(R.string.n_a));
         } else {
-            minimum.setText(new DecimalFormat("#").format(stats[0]));
-            maximum.setText(new DecimalFormat("#").format(stats[1]));
-            average.setText(new DecimalFormat("#.##").format(stats[2]));
-            standardDeviation.setText(new DecimalFormat("#.##").format(stats[3]));
-            lowerQuartile.setText(new DecimalFormat("#.#").format(stats[4]));
-            median.setText(new DecimalFormat("#.#").format(stats[5]));
-            upperQuartile.setText(new DecimalFormat("#.#").format(stats[6]));
-            interQuartileRange.setText(new DecimalFormat("#.#").format(stats[7]));
+            minimum.setText(new DecimalFormat(getString(R.string.integer_format)).format(stats[0]));
+            maximum.setText(new DecimalFormat(getString(R.string.integer_format)).format(stats[1]));
+            average.setText(new DecimalFormat(getString(R.string.medium_float_format)).format(stats[2]));
+            standardDeviation.setText(new DecimalFormat(getString(R.string.medium_float_format)).format(stats[3]));
+            lowerQuartile.setText(new DecimalFormat(getString(R.string.short_float_format)).format(stats[4]));
+            median.setText(new DecimalFormat(getString(R.string.short_float_format)).format(stats[5]));
+            upperQuartile.setText(new DecimalFormat(getString(R.string.short_float_format)).format(stats[6]));
+            interQuartileRange.setText(new DecimalFormat(getString(R.string.short_float_format)).format(stats[7]));
         }
     }
 }
